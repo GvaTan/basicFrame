@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="send_msg">
+
+	<!--
+      - ===============================================
+      - 返回 SendMsg Entity
+      - @author 11734
+      - @date 2020-02-18
+      - ===============================================
+    -->
+	<resultMap  type="com.zhys.po.SendMsg"	   id="RM_SendMsg">
+		<result property="gfmc"  column="gfmc"  jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="content"   column="content"   jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="sendtime"   column="sendtime"   jdbcType="DATE"      javaType="java.util.Date"  />
+		<result property="success"   column="success"   jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="sendtype"   column="sendtype"   jdbcType="VARCHAR"      javaType="java.lang.String"  />
+		<result property="sendno"   column="sendno"   jdbcType="VARCHAR"      javaType="java.lang.String"  />
+	</resultMap>
+
+    <!-- sql查询语句-->
+	<sql id="sql">
+				gfmc, 
+    			content, 
+    			sendtime, 
+    			success, 
+    			sendtype,
+    			sendno
+    	</sql>
+	
+	<!-- sql查询语句-->
+	<sql id="where">
+	     1=1
+		                                      <if test="gfmc != null and ''!=gfmc" >
+			         and  gfmc = #{gfmc,jdbcType=VARCHAR}
+			      </if>
+			                                 <if test="content != null and ''!=content" >
+			         and  content = #{content,jdbcType=VARCHAR}
+			      </if>
+			                                 <if test="sendtime != null " >
+			         and  sendtime >= #{sendtime,jdbcType=DATE}
+			      </if>
+			                                 <if test="success != null and ''!=success" >
+			         and  success = #{success,jdbcType=VARCHAR}
+			      </if>
+				<if test="sendtype != null and ''!=sendtype" >
+					and  sendtype = #{sendtype,jdbcType=VARCHAR}
+				</if>
+				<if test="sendno != null and ''!=sendno" >
+					and  sendno = #{sendno,jdbcType=VARCHAR}
+				</if>
+			               	</sql>
+
+
+	<!--
+      - ===============================================
+      - 新增 SendMsg
+      - @author 11734
+      - @date 2020-02-18
+      - ===============================================
+    -->
+	<insert id="create" parameterType="com.zhys.po.SendMsg" >
+		insert into send_msg (
+         <include refid="sql"/>
+		) values (
+		    #{gfmc,jdbcType=VARCHAR},
+		    #{content,jdbcType=VARCHAR},
+		    #{sendtime,jdbcType=VARCHAR},
+		    #{success,jdbcType=VARCHAR},
+		    #{sendtype,jdbcType=VARCHAR},
+		    #{sendno,jdbcType=VARCHAR}
+		)
+	</insert>
+
+
+
+
+		<!--
+      - ===============================================
+      - 查询 列表SendMsg 信息
+      - @author 11734
+      - @date 2020-02-18
+      - ===============================================
+    -->
+	<select id="queryList" resultMap="RM_SendMsg" parameterType="com.zhys.po.SendMsg">
+		select 
+        <include refid="sql"/>
+		from send_msg
+		
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 SendMsg 分页信息
+      - @author 11734
+      - @date 2020-02-18
+      - ===============================================
+    -->
+	<select id="page" resultMap="RM_SendMsg" parameterType="java.util.HashMap">
+		select 
+        <include refid="sql"/>		
+		from send_msg
+		<where>
+		  <include refid="where"/>
+		</where> 
+	</select>
+	
+
+</mapper>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.6.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>top.anets</groupId>
+	<artifactId>00SpringBoot</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>00SpringBoot</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		
+		
+<!-- mysql数据库驱动依赖 -->
+<dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <scope>runtime</scope>
+</dependency>
+<!-- spring对象jdbc支持（此时会默认帮我们下载HiKariCP连接池） -->
+<dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-jdbc</artifactId>
+</dependency>
+<!-- 整合mybatis -->
+<dependency>
+                        <groupId>org.mybatis.spring.boot</groupId>
+                        <artifactId>mybatis-spring-boot-starter</artifactId>
+                        <version>2.1.1</version>
+</dependency>
+<!-- Web依赖(提供了Spring MVC核心API，同时会嵌入一个Tomcat服务器) -->
+<dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+<!-- Thymeleaf依赖(提供了一个视图解析器对象以及数据绑定机制) -->
+<dependency>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+<!-- 健康检查 -->
+<dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

@@ -1,0 +1,421 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="original_head">
+
+	<!--
+      - ===============================================
+      - 返回 InvoiceHead Entity
+      - @author 11734
+      - @date 2019-01-07
+      - ======================changeDelStateByIds=========================
+      type="com.zhys.invoice.po.InvoiceHead"
+    -->
+	<resultMap  type="com.zhys.po.OriginalHeadDto"	   id="RM_OriginalHead">
+		<result property="docNum"           column="DOC_NUM"           jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="docDate"          column="DOC_DATE"          jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="docStatus"        column="DOC_STATUS"        jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custIdBill"       column="CUST_ID_BILL"      jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custName"         column="CUST_NAME"         jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custTaxcode"      column="CUST_TAXCODE"      jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custAddress"      column="CUST_ADDRESS"      jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custTelephone"    column="CUST_TELEPHONE"    jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custBankname"     column="CUST_BANKNAME"     jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custBankaccount"  column="CUST_BANKACCOUNT"  jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custEmail"        column="CUST_EMAIL"        jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custMobile"       column="CUST_MOBILE"       jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="invoiceType"      column="INVOICE_TYPE"      jdbcType="VARCHAR"       javaType="java.lang.String"  />
+		<result property="invoiceRed"       column="INVOICE_RED"       jdbcType="VARCHAR"       javaType="java.lang.String"  />
+		<result property="goldtaxCode"      column="GOLDTAX_CODE"      jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="goldtaxNum"       column="GOLDTAX_NUM"       jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="billDate"         column="BILL_DATE"         jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="cancelDate"       column="CANCEL_DATE"       jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="billGdate"        column="BILL_GDATE"        jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="cancelGdate"      column="CANCEL_GDATE"      jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="invoiceRedReqm"   column="INVOICE_RED_REQM"  jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="invoiceRedXxbm"   column="INVOICE_RED_XXBM"  jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="invoiceRedFpdm"   column="INVOICE_RED_FPDM"  jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="invoiceRedFphm"   column="INVOICE_RED_FPHM"  jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="billRemark"       column="BILL_REMARK"       jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="createdBy"        column="CREATED_BY"        jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="creationDate"     column="CREATION_DATE"     jdbcType="VARCHAR"  javaType="java.lang.String"    />
+		<result property="issync"           column="issync"            jdbcType="VARCHAR"       javaType="java.lang.String"  />
+		<!--<result property="zamountHsj"     column="ZAMOUNT_HSJ"     jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />-->
+		<!--<result property="zamountWsj"     column="ZAMOUNT_WSJ"     jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />-->
+		<!--<result property="zamountSej"     column="ZAMOUNT_seJ"     jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />-->
+	</resultMap>
+
+    <!-- sql查询语句-->
+	<sql id="sql">
+				DOC_NUM, 
+    			DOC_DATE, 
+    			DOC_STATUS, 
+    			CUST_ID_BILL, 
+    			CUST_NAME, 
+    			CUST_TAXCODE, 
+    			CUST_ADDRESS, 
+    			CUST_TELEPHONE, 
+    			CUST_BANKNAME, 
+    			CUST_BANKACCOUNT, 
+    			CUST_EMAIL, 
+    			CUST_MOBILE, 
+    			INVOICE_TYPE, 
+    			INVOICE_RED, 
+    			GOLDTAX_CODE, 
+    			GOLDTAX_NUM, 
+    			BILL_DATE, 
+    			CANCEL_DATE, 
+    			BILL_GDATE, 
+    			CANCEL_GDATE, 
+    			INVOICE_RED_REQM, 
+    			INVOICE_RED_XXBM, 
+    			INVOICE_RED_FPDM, 
+    			INVOICE_RED_FPHM, 
+    			BILL_REMARK, 
+    			CREATED_BY,
+    			CREATION_DATE, 
+    			issync,
+--     			ZAMOUNT_HSJ,
+--     			ZAMOUNT_WSJ,
+--     			ZAMOUNT_seJ
+    	</sql>
+	
+	<!-- sql查询语句-->
+	<sql id="where">
+	     1=1
+		                                      <if test="docNum != null and ''!=docNum" >
+			         and  DOC_NUM = #{docNum}
+			      </if>
+			                                 <if test="docDate != null and ''!=docDate" >
+			         and  DOC_DATE = #{docDate}
+			      </if>
+			                                 <if test="docStatus != null and ''!=docStatus" >
+			         and  DOC_STATUS = #{docStatus}
+			      </if>
+			                                 <if test="custIdBill != null and ''!=custIdBill" >
+			         and  CUST_ID_BILL = #{custIdBill}
+			      </if>
+			                                 <if test="custName != null and ''!=custName" >
+			         and  CUST_NAME = #{custName}
+			      </if>
+			                                 <if test="custTaxcode != null and ''!=custTaxcode" >
+			         and  CUST_TAXCODE = #{custTaxcode}
+			      </if>
+			                                 <if test="custAddress != null and ''!=custAddress" >
+			         and  CUST_ADDRESS = #{custAddress}
+			      </if>
+			                                 <if test="custTelephone != null and ''!=custTelephone" >
+			         and  CUST_TELEPHONE = #{custTelephone}
+			      </if>
+			                                 <if test="custBankname != null and ''!=custBankname" >
+			         and  CUST_BANKNAME = #{custBankname}
+			      </if>
+			                                 <if test="custBankaccount != null and ''!=custBankaccount" >
+			         and  CUST_BANKACCOUNT = #{custBankaccount}
+			      </if>
+			                                 <if test="custEmail != null and ''!=custEmail" >
+			         and  CUST_EMAIL = #{custEmail}
+			      </if>
+			                                 <if test="custMobile != null and ''!=custMobile" >
+			         and  CUST_MOBILE = #{custMobile}
+			      </if>
+			                                 <if test="invoiceType != null and ''!=invoiceType" >
+			         and  INVOICE_TYPE = #{invoiceType}
+			      </if>
+			                                 <if test="invoiceRed != null and ''!=invoiceRed" >
+			         and  INVOICE_RED = #{invoiceRed}
+			      </if>
+			                                 <if test="goldtaxCode != null and ''!=goldtaxCode" >
+			         and  GOLDTAX_CODE = #{goldtaxCode}
+			      </if>
+			                                 <if test="goldtaxNum != null and ''!=goldtaxNum" >
+			         and  GOLDTAX_NUM = #{goldtaxNum}
+			      </if>
+			                                 <if test="billDate != null and ''!=billDate" >
+			         and  BILL_DATE = #{billDate}
+			      </if>
+			                                 <if test="cancelDate != null and ''!=cancelDate" >
+			         and  CANCEL_DATE = #{cancelDate}
+			      </if>
+			                                 <if test="billGdate != null and ''!=billGdate" >
+			         and  BILL_GDATE = #{billGdate}
+			      </if>
+			                                 <if test="cancelGdate != null and ''!=cancelGdate" >
+			         and  CANCEL_GDATE = #{cancelGdate}
+			      </if>
+			                                 <if test="invoiceRedReqm != null and ''!=invoiceRedReqm" >
+			         and  INVOICE_RED_REQM = #{invoiceRedReqm}
+			      </if>
+			                                 <if test="invoiceRedXxbm != null and ''!=invoiceRedXxbm" >
+			         and  INVOICE_RED_XXBM = #{invoiceRedXxbm}
+			      </if>
+			                                 <if test="invoiceRedFpdm != null and ''!=invoiceRedFpdm" >
+			         and  INVOICE_RED_FPDM = #{invoiceRedFpdm}
+			      </if>
+			                                 <if test="invoiceRedFphm != null and ''!=invoiceRedFphm" >
+			         and  INVOICE_RED_FPHM = #{invoiceRedFphm}
+			      </if>
+			                                 <if test="billRemark != null and ''!=billRemark" >
+			         and  BILL_REMARK = #{billRemark}
+			      </if>
+			                                 <if test="createdBy != null and ''!=createdBy" >
+			         and  CREATED_BY = #{createdBy}
+			      </if>
+			                                 <if test="creationDate != null and ''!=creationDate" >
+			         and  CREATION_DATE = #{creationDate}
+			      </if>
+			                                 <if test="issync != null and ''!=issync" >
+			         and  issync = #{issync}
+			      </if>
+					<!--<if test="docDateStart != null" >-->
+						<!--and  DOC_DATE >= #{docDateStart}-->
+					<!--</if>-->
+					<!--<if test="docDateEnd != null" >-->
+						<!--and  DOC_DATE <![CDATA[<=]]> #{docDateEnd}-->
+					<!--</if>-->
+					<!--<if test="zamountHsj != null and ''!=zamountHsj" >-->
+						<!--and  ZAMOUNT_HSJ = #{zamountHsj}-->
+					<!--</if>-->
+					<!--<if test="zamountWsj != null and ''!=zamountWsj" >-->
+						<!--and  ZAMOUNT_WSJ = #{zamountWsj}-->
+					<!--</if>-->
+					<!--<if test="zamountSej != null and ''!=zamountSej" >-->
+						<!--and  ZAMOUNT_seJ = #{zamountSej}-->
+					<!--</if>-->
+		order by DOC_NUM desc
+		</sql>
+
+
+	<!--
+      - ===============================================
+      - 新增 OriginalHead
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<insert id="create" parameterType="com.zhys.po.OriginalHeadDto" useGeneratedKeys="true" keyProperty="">
+		insert into original_head (
+         <include refid="sql"/>
+		) values (
+		    #{docNum}, 
+		    #{docDate}, 
+		    #{docStatus}, 
+		    #{custIdBill}, 
+		    #{custName}, 
+		    #{custTaxcode}, 
+		    #{custAddress}, 
+		    #{custTelephone}, 
+		    #{custBankname}, 
+		    #{custBankaccount}, 
+		    #{custEmail}, 
+		    #{custMobile}, 
+		    #{invoiceType}, 
+		    #{invoiceRed}, 
+		    #{goldtaxCode}, 
+		    #{goldtaxNum}, 
+		    #{billDate}, 
+		    #{cancelDate}, 
+		    #{billGdate}, 
+		    #{cancelGdate}, 
+		    #{invoiceRedReqm}, 
+		    #{invoiceRedXxbm}, 
+		    #{invoiceRedFpdm}, 
+		    #{invoiceRedFphm}, 
+		    #{billRemark}, 
+		    #{createdBy},
+		    #{creationDate}, 
+		    #{issync},
+-- 			#{zamountHsj,jdbcType=DECIMAL},
+-- 			#{zamountWsj,jdbcType=DECIMAL},
+-- 			#{zamountSej,jdbcType=DECIMAL}
+		)
+	</insert>
+
+	<!--
+      - ===============================================
+      - 修改 OriginalHead
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<update id="update" parameterType="com.zhys.po.OriginalHeadDto">
+	      update original_head
+	           <set>
+	                             <if test="docNum != null and ''!=docNum" >
+			        DOC_NUM = #{docNum},
+			      </if>
+			                        <if test="docDate != null and ''!=docDate" >
+			        DOC_DATE = #{docDate},
+			      </if>
+			                        <if test="docStatus != null and ''!=docStatus" >
+			        DOC_STATUS = #{docStatus},
+			      </if>
+			                        <if test="custIdBill != null and ''!=custIdBill" >
+			        CUST_ID_BILL = #{custIdBill},
+			      </if>
+			                        <if test="custName != null and ''!=custName" >
+			        CUST_NAME = #{custName},
+			      </if>
+			                        <if test="custTaxcode != null and ''!=custTaxcode" >
+			        CUST_TAXCODE = #{custTaxcode},
+			      </if>
+			                        <if test="custAddress != null and ''!=custAddress" >
+			        CUST_ADDRESS = #{custAddress},
+			      </if>
+			                        <if test="custTelephone != null and ''!=custTelephone" >
+			        CUST_TELEPHONE = #{custTelephone},
+			      </if>
+			                        <if test="custBankname != null and ''!=custBankname" >
+			        CUST_BANKNAME = #{custBankname},
+			      </if>
+			                        <if test="custBankaccount != null and ''!=custBankaccount" >
+			        CUST_BANKACCOUNT = #{custBankaccount},
+			      </if>
+			                        <if test="custEmail != null and ''!=custEmail" >
+			        CUST_EMAIL = #{custEmail},
+			      </if>
+			                        <if test="custMobile != null and ''!=custMobile" >
+			        CUST_MOBILE = #{custMobile},
+			      </if>
+			                        <if test="invoiceType != null and ''!=invoiceType" >
+			        INVOICE_TYPE = #{invoiceType},
+			      </if>
+			                        <if test="invoiceRed != null and ''!=invoiceRed" >
+			        INVOICE_RED = #{invoiceRed},
+			      </if>
+			                        <if test="goldtaxCode != null and ''!=goldtaxCode" >
+			        GOLDTAX_CODE = #{goldtaxCode},
+			      </if>
+			                        <if test="goldtaxNum != null and ''!=goldtaxNum" >
+			        GOLDTAX_NUM = #{goldtaxNum},
+			      </if>
+			                        <if test="billDate != null and ''!=billDate" >
+			        BILL_DATE = #{billDate},
+			      </if>
+			                        <if test="cancelDate != null and ''!=cancelDate" >
+			        CANCEL_DATE = #{cancelDate},
+			      </if>
+			                        <if test="billGdate != null and ''!=billGdate" >
+			        BILL_GDATE = #{billGdate},
+			      </if>
+			                        <if test="cancelGdate != null and ''!=cancelGdate" >
+			        CANCEL_GDATE = #{cancelGdate},
+			      </if>
+			                        <if test="invoiceRedReqm != null and ''!=invoiceRedReqm" >
+			        INVOICE_RED_REQM = #{invoiceRedReqm},
+			      </if>
+			                        <if test="invoiceRedXxbm != null and ''!=invoiceRedXxbm" >
+			        INVOICE_RED_XXBM = #{invoiceRedXxbm},
+			      </if>
+			                        <if test="invoiceRedFpdm != null and ''!=invoiceRedFpdm" >
+			        INVOICE_RED_FPDM = #{invoiceRedFpdm},
+			      </if>
+			                        <if test="invoiceRedFphm != null and ''!=invoiceRedFphm" >
+			        INVOICE_RED_FPHM = #{invoiceRedFphm},
+			      </if>
+			                        <if test="billRemark != null and ''!=billRemark" >
+			        BILL_REMARK = #{billRemark},
+			      </if>
+			                        <if test="createdBy != null and ''!=createdBy" >
+			        CREATED_BY = #{createdBy},
+			      </if>
+			                        <if test="creationDate != null and ''!=creationDate" >
+			        CREATION_DATE = #{creationDate},
+			      </if>
+			                        <if test="issync != null and ''!=issync" >
+			        issync = #{issync},
+			      </if>
+				   <!--<if test="zamountHsj != null and ''!=zamountHsj" >-->
+					   <!--ZAMOUNT_HSJ = #{zamountHsj},-->
+				   <!--</if>-->
+				   <!--<if test="zamountWsj != null and ''!=zamountWsj" >-->
+					   <!--ZAMOUNT_WSJ = #{zamountWsj},-->
+				   <!--</if>-->
+				   <!--<if test="zamountSej != null and ''!=zamountSej" >-->
+					   <!--ZAMOUNT_seJ = #{zamountSej},-->
+				   <!--</if>-->
+			                     </set>
+		    where  DOC_NUM = #{docNum}
+	</update>
+
+	<!--
+      - ===============================================
+      - 查询 OriginalHead 总数
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<select id="count" resultType="java.lang.Integer" parameterType="com.zhys.po.OriginalHeadDto">
+		select count(*)
+		from original_head
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 OriginalHead 信息
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<select id="query" resultMap="RM_OriginalHead" parameterType="com.zhys.po.OriginalHeadDto">
+		select 
+        <include refid="sql"/>
+		from original_head
+		where  DOC_NUM = #{docNum}
+	</select>
+	
+		<!--
+      - ===============================================
+      - 查询 列表OriginalHead 信息
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<select id="queryList" resultMap="RM_OriginalHead" parameterType="com.zhys.po.OriginalHeadDto">
+		select 
+        <include refid="sql"/>
+		from original_head
+		
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 OriginalHead 分页信息
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<select id="page" resultMap="RM_OriginalHead" parameterType="java.util.HashMap">
+		select 
+        <include refid="sql"/>		
+		from original_head
+		<where>
+		  <include refid="where"/>
+		</where> 
+	</select>
+	
+	<update id="changeDelStateById" parameterType="com.zhys.po.OriginalHeadDto">
+	 update original_head set del_state=#{delState} where id=#{id}
+	</update>
+	
+	<update id="changeDelStateByIds" parameterType="java.util.HashMap">
+	 update original_head set doc_status=#{docStatus} where DOC_NUM in (${originalNos})
+	</update>
+
+	<delete id="delByIds1" parameterType="java.util.HashMap">
+   begin
+
+	 delete from  original_body  where DOC_ORIGNUM in (
+	 select doc_num from original_head   where DOC_NUM in (${originalNos}) and doc_status = '-1'
+	 );
+	 delete from  original_head  where DOC_NUM in (${originalNos}) and doc_status = '-1';
+   end;
+	</delete>
+	<update id="delByIds" parameterType="java.util.HashMap">
+
+	 update original_head set doc_status='0' where DOC_NUM in (${originalNos})
+
+	</update>
+</mapper>

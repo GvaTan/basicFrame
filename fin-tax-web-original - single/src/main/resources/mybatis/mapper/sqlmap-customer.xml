@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="customer">
+
+	<!--
+      - ===============================================
+      - 返回 Customer Entity
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<resultMap  type="com.zhys.invoice.po.Customer"	   id="RM_Customer">
+		<id property="taxNo"         column="tax_no"         jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="customerNo"    column="customer_no"    jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="customerName"  column="customer_name"  jdbcType="VARCHAR"  javaType="java.lang.String"  />
+	</resultMap>
+
+    <!-- sql查询语句-->
+	<sql id="sql">
+				tax_no, 
+    			customer_no, 
+    			customer_name
+    	</sql>
+	
+	<!-- sql查询语句-->
+	<sql id="where">
+	     1=1
+		                                      <if test="taxNo != null and ''!=taxNo" >
+			         and  tax_no = #{taxNo}
+			      </if>
+			                                 <if test="customerNo != null and ''!=customerNo" >
+			         and  customer_no like '%${customerNo}%'
+			      </if>
+			                                 <if test="customerName != null and ''!=customerName" >
+			         and  customer_name like '%${customerName}%'
+			      </if>
+			               	</sql>
+
+
+	<!--
+      - ===============================================
+      - 新增 Customer
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<insert id="create" parameterType="com.zhys.invoice.po.Customer" >
+		insert into customer (
+         <include refid="sql"/>
+		) values (
+		    #{taxNo}, 
+		    #{customerNo}, 
+		    #{customerName}
+		)
+	</insert>
+
+	<!--
+      - ===============================================
+      - 修改 Customer
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<update id="update" parameterType="com.zhys.invoice.po.Customer">
+	      update customer
+	           <set>
+			                        <if test="customerNo != null and ''!=customerNo" >
+			        customer_no = #{customerNo},
+			      </if>
+			                        <if test="customerName != null and ''!=customerName" >
+			        customer_name = #{customerName},
+			      </if>
+			                     </set>
+		    where   tax_no = #{taxNo}
+	</update>
+
+	<!--
+      - ===============================================
+      - 查询 Customer 总数
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<select id="count" resultType="java.lang.Integer" parameterType="com.zhys.invoice.po.Customer">
+		select count(*)
+		from customer
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 Customer 信息
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<select id="query" resultMap="RM_Customer" parameterType="com.zhys.invoice.po.Customer">
+		select 
+        <include refid="sql"/>
+		from customer
+		where   tax_no = #{taxNo}
+	</select>
+	
+		<!--
+      - ===============================================
+      - 查询 列表Customer 信息
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<select id="queryList" resultMap="RM_Customer" parameterType="com.zhys.invoice.po.Customer">
+		select 
+        <include refid="sql"/>
+		from customer
+		<where>
+			<include refid="where"/>
+		</where>
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 Customer 分页信息
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<select id="page" resultMap="RM_Customer" parameterType="java.util.HashMap">
+		select 
+        <include refid="sql"/>		
+		from customer
+		<where>
+		  <include refid="where"/>
+		</where> 
+	</select>
+	
+	<update id="changeDelStateById" parameterType="com.zhys.invoice.po.Customer">
+	 update customer set del_state=#{delState} where id=#{id}
+	</update>
+	
+	<update id="changeDelStateByIds" parameterType="java.util.HashMap">
+	 update customer set del_state=#{delState} where id in (${ids})
+	</update>
+
+	<delete id="del" parameterType="com.zhys.invoice.po.Customer">
+
+		delete from customer where tax_no in (${taxNo})
+	</delete>
+</mapper>

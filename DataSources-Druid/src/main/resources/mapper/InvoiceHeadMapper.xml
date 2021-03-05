@@ -1,0 +1,1382 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.anets.mapper.InvoiceHeadMapper" >
+  <resultMap id="BaseResultMap" type="top.anets.entity.InvoiceHead" >
+    <id column="DOC_NUM" property="docNum" jdbcType="VARCHAR" />
+    <result column="MANDT" property="mandt" jdbcType="VARCHAR" />
+    <result column="DOC_DATE" property="docDate" jdbcType="VARCHAR" />
+    <result column="DOC_STATUS" property="docStatus" jdbcType="VARCHAR" />
+    <result column="ORG_ID" property="orgId" jdbcType="VARCHAR" />
+    <result column="ORG_NAME" property="orgName" jdbcType="VARCHAR" />
+    <result column="ORG_TAXCODE" property="orgTaxcode" jdbcType="VARCHAR" />
+    <result column="ORG_MACHINE" property="orgMachine" jdbcType="VARCHAR" />
+    <result column="ORG_ADDRESS" property="orgAddress" jdbcType="VARCHAR" />
+    <result column="ORG_TELEPHONE" property="orgTelephone" jdbcType="VARCHAR" />
+    <result column="ORG_BANKNAME" property="orgBankname" jdbcType="VARCHAR" />
+    <result column="ORG_BANKACCOUNT" property="orgBankaccount" jdbcType="VARCHAR" />
+    <result column="ORG_TAXEXCEED" property="orgTaxexceed" jdbcType="DECIMAL" />
+    <result column="ORG_CONTROLTAX" property="orgControltax" jdbcType="CHAR" />
+    <result column="CUST_ID_AR" property="custIdAr" jdbcType="VARCHAR" />
+    <result column="CUST_NAME_AR" property="custNameAr" jdbcType="VARCHAR" />
+    <result column="CUST_ID_BILL" property="custIdBill" jdbcType="VARCHAR" />
+    <result column="CUST_NAME_BILL" property="custNameBill" jdbcType="VARCHAR" />
+    <result column="CUST_NAME" property="custName" jdbcType="VARCHAR" />
+    <result column="CUST_TAXCODE" property="custTaxcode" jdbcType="VARCHAR" />
+    <result column="CUST_ADDRESS" property="custAddress" jdbcType="VARCHAR" />
+    <result column="CUST_TELEPHONE" property="custTelephone" jdbcType="VARCHAR" />
+    <result column="CUST_BANKNAME" property="custBankname" jdbcType="VARCHAR" />
+    <result column="CUST_BANKACCOUNT" property="custBankaccount" jdbcType="VARCHAR" />
+    <result column="CUST_EMAIL" property="custEmail" jdbcType="VARCHAR" />
+    <result column="CUST_MOBILE" property="custMobile" jdbcType="VARCHAR" />
+    <result column="INVOICE_TYPE" property="invoiceType" jdbcType="CHAR" />
+    <result column="INVOICE_TYPES" property="invoiceTypes" jdbcType="CHAR" />
+    <result column="INVOICE_BASE" property="invoiceBase" jdbcType="CHAR" />
+    <result column="INVOICE_WAY" property="invoiceWay" jdbcType="CHAR" />
+    <result column="MERGE_AMT" property="mergeAmt" jdbcType="DECIMAL" />
+    <result column="MERGE_QTY" property="mergeQty" jdbcType="DECIMAL" />
+    <result column="TAX_RATE" property="taxRate" jdbcType="VARCHAR" />
+    <result column="DISCOUNT_TYPE" property="discountType" jdbcType="VARCHAR" />
+    <result column="DISCOUNT_RATE" property="discountRate" jdbcType="DECIMAL" />
+    <result column="MERGE_GIFT" property="mergeGift" jdbcType="CHAR" />
+    <result column="INVOICE_LIST" property="invoiceList" jdbcType="CHAR" />
+    <result column="INVOICE_RED" property="invoiceRed" jdbcType="CHAR" />
+    <result column="MERGEF_TYPE" property="mergefType" jdbcType="VARCHAR" />
+    <result column="MERGES_TYPE" property="mergesType" jdbcType="VARCHAR" />
+    <result column="GOLDTAX_CODE" property="goldtaxCode" jdbcType="VARCHAR" />
+    <result column="GOLDTAX_NUM" property="goldtaxNum" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+    <result column="CHECK_NAME" property="checkName" jdbcType="VARCHAR" />
+    <result column="PAYEE_NAME" property="payeeName" jdbcType="VARCHAR" />
+    <result column="BILL_DATE" property="billDate" jdbcType="VARCHAR" />
+    <result column="CANCEL_DATE" property="cancelDate" jdbcType="VARCHAR" />
+    <result column="BILL_GDATE" property="billGdate" jdbcType="VARCHAR" />
+    <result column="CANCEL_GDATE" property="cancelGdate" jdbcType="VARCHAR" />
+    <result column="INVOICE_RED_REQM" property="invoiceRedReqm" jdbcType="VARCHAR" />
+    <result column="INVOICE_RED_XXBM" property="invoiceRedXxbm" jdbcType="VARCHAR" />
+    <result column="INVOICE_RED_FPDM" property="invoiceRedFpdm" jdbcType="VARCHAR" />
+    <result column="INVOICE_RED_FPHM" property="invoiceRedFphm" jdbcType="VARCHAR" />
+    <result column="BILL_REMARK" property="billRemark" jdbcType="VARCHAR" />
+    <result column="ZAMOUNT_HSWC" property="zamountHswc" jdbcType="DECIMAL" />
+    <result column="ZAMOUNT_WSWC" property="zamountWswc" jdbcType="DECIMAL" />
+    <result column="ZAMOUNT_SEWC" property="zamountSewc" jdbcType="DECIMAL" />
+    <result column="CREATED_BY" property="createdBy" jdbcType="VARCHAR" />
+    <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP" />
+    <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="VARCHAR" />
+    <result column="LAST_UPDATED_DAT" property="lastUpdatedDat" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE1" property="attribute1" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE2" property="attribute2" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE3" property="attribute3" jdbcType="VARCHAR" />
+    <result column="ISSYNC" property="issync" jdbcType="CHAR" />
+    <result column="HSJE" property="hsje" jdbcType="VARCHAR" />
+    <result column="WSJE" property="wsje" jdbcType="VARCHAR" />
+    <result column="SE" property="se" jdbcType="VARCHAR" />
+    <result column="is_oil" property="isOil" jdbcType="CHAR" />
+    <result column="error_msg" property="errorMsg" jdbcType="VARCHAR" />
+    <result column="CUST_PROV_EX" property="custProvEx" jdbcType="VARCHAR" />
+    <result column="CUST_CITY" property="custCity" jdbcType="VARCHAR" />
+    <result column="CUST_DISTRICT" property="custDistrict" jdbcType="VARCHAR" />
+    <result column="CUST_ADDR_EX" property="custAddrEx" jdbcType="VARCHAR" />
+    <result column="EX_NAME" property="exName" jdbcType="VARCHAR" />
+    <result column="EX_TELEPHONE" property="exTelephone" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTF1" property="attributf1" jdbcType="CHAR" />
+    <result column="send" property="send" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    DOC_NUM, MANDT, DOC_DATE, DOC_STATUS, ORG_ID, ORG_NAME, ORG_TAXCODE, ORG_MACHINE, 
+    ORG_ADDRESS, ORG_TELEPHONE, ORG_BANKNAME, ORG_BANKACCOUNT, ORG_TAXEXCEED, ORG_CONTROLTAX, 
+    CUST_ID_AR, CUST_NAME_AR, CUST_ID_BILL, CUST_NAME_BILL, CUST_NAME, CUST_TAXCODE, 
+    CUST_ADDRESS, CUST_TELEPHONE, CUST_BANKNAME, CUST_BANKACCOUNT, CUST_EMAIL, CUST_MOBILE, 
+    INVOICE_TYPE, INVOICE_TYPES, INVOICE_BASE, INVOICE_WAY, MERGE_AMT, MERGE_QTY, TAX_RATE, 
+    DISCOUNT_TYPE, DISCOUNT_RATE, MERGE_GIFT, INVOICE_LIST, INVOICE_RED, MERGEF_TYPE, 
+    MERGES_TYPE, GOLDTAX_CODE, GOLDTAX_NUM, USER_ID, USER_NAME, CHECK_NAME, PAYEE_NAME, 
+    BILL_DATE, CANCEL_DATE, BILL_GDATE, CANCEL_GDATE, INVOICE_RED_REQM, INVOICE_RED_XXBM, 
+    INVOICE_RED_FPDM, INVOICE_RED_FPHM, BILL_REMARK, ZAMOUNT_HSWC, ZAMOUNT_WSWC, ZAMOUNT_SEWC, 
+    CREATED_BY, CREATION_DATE, LAST_UPDATED_BY, LAST_UPDATED_DAT, ATTRIBUTE1, ATTRIBUTE2, 
+    ATTRIBUTE3, ISSYNC, HSJE, WSJE, SE, is_oil, error_msg, CUST_PROV_EX, CUST_CITY, CUST_DISTRICT, 
+    CUST_ADDR_EX, EX_NAME, EX_TELEPHONE, ATTRIBUTF1, send
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="top.anets.entity.InvoiceHeadExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from invoice_head
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from invoice_head
+    where DOC_NUM = #{docNum,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from invoice_head
+    where DOC_NUM = #{docNum,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="top.anets.entity.InvoiceHeadExample" >
+    delete from invoice_head
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="top.anets.entity.InvoiceHead" >
+    insert into invoice_head (DOC_NUM, MANDT, DOC_DATE, 
+      DOC_STATUS, ORG_ID, ORG_NAME, 
+      ORG_TAXCODE, ORG_MACHINE, ORG_ADDRESS, 
+      ORG_TELEPHONE, ORG_BANKNAME, ORG_BANKACCOUNT, 
+      ORG_TAXEXCEED, ORG_CONTROLTAX, CUST_ID_AR, 
+      CUST_NAME_AR, CUST_ID_BILL, CUST_NAME_BILL, 
+      CUST_NAME, CUST_TAXCODE, CUST_ADDRESS, 
+      CUST_TELEPHONE, CUST_BANKNAME, CUST_BANKACCOUNT, 
+      CUST_EMAIL, CUST_MOBILE, INVOICE_TYPE, 
+      INVOICE_TYPES, INVOICE_BASE, INVOICE_WAY, 
+      MERGE_AMT, MERGE_QTY, TAX_RATE, 
+      DISCOUNT_TYPE, DISCOUNT_RATE, MERGE_GIFT, 
+      INVOICE_LIST, INVOICE_RED, MERGEF_TYPE, 
+      MERGES_TYPE, GOLDTAX_CODE, GOLDTAX_NUM, 
+      USER_ID, USER_NAME, CHECK_NAME, 
+      PAYEE_NAME, BILL_DATE, CANCEL_DATE, 
+      BILL_GDATE, CANCEL_GDATE, INVOICE_RED_REQM, 
+      INVOICE_RED_XXBM, INVOICE_RED_FPDM, INVOICE_RED_FPHM, 
+      BILL_REMARK, ZAMOUNT_HSWC, ZAMOUNT_WSWC, 
+      ZAMOUNT_SEWC, CREATED_BY, CREATION_DATE, 
+      LAST_UPDATED_BY, LAST_UPDATED_DAT, ATTRIBUTE1, 
+      ATTRIBUTE2, ATTRIBUTE3, ISSYNC, 
+      HSJE, WSJE, SE, is_oil, 
+      error_msg, CUST_PROV_EX, CUST_CITY, 
+      CUST_DISTRICT, CUST_ADDR_EX, EX_NAME, 
+      EX_TELEPHONE, ATTRIBUTF1, send
+      )
+    values (#{docNum,jdbcType=VARCHAR}, #{mandt,jdbcType=VARCHAR}, #{docDate,jdbcType=VARCHAR}, 
+      #{docStatus,jdbcType=VARCHAR}, #{orgId,jdbcType=VARCHAR}, #{orgName,jdbcType=VARCHAR}, 
+      #{orgTaxcode,jdbcType=VARCHAR}, #{orgMachine,jdbcType=VARCHAR}, #{orgAddress,jdbcType=VARCHAR}, 
+      #{orgTelephone,jdbcType=VARCHAR}, #{orgBankname,jdbcType=VARCHAR}, #{orgBankaccount,jdbcType=VARCHAR}, 
+      #{orgTaxexceed,jdbcType=DECIMAL}, #{orgControltax,jdbcType=CHAR}, #{custIdAr,jdbcType=VARCHAR}, 
+      #{custNameAr,jdbcType=VARCHAR}, #{custIdBill,jdbcType=VARCHAR}, #{custNameBill,jdbcType=VARCHAR}, 
+      #{custName,jdbcType=VARCHAR}, #{custTaxcode,jdbcType=VARCHAR}, #{custAddress,jdbcType=VARCHAR}, 
+      #{custTelephone,jdbcType=VARCHAR}, #{custBankname,jdbcType=VARCHAR}, #{custBankaccount,jdbcType=VARCHAR}, 
+      #{custEmail,jdbcType=VARCHAR}, #{custMobile,jdbcType=VARCHAR}, #{invoiceType,jdbcType=CHAR}, 
+      #{invoiceTypes,jdbcType=CHAR}, #{invoiceBase,jdbcType=CHAR}, #{invoiceWay,jdbcType=CHAR}, 
+      #{mergeAmt,jdbcType=DECIMAL}, #{mergeQty,jdbcType=DECIMAL}, #{taxRate,jdbcType=VARCHAR}, 
+      #{discountType,jdbcType=VARCHAR}, #{discountRate,jdbcType=DECIMAL}, #{mergeGift,jdbcType=CHAR}, 
+      #{invoiceList,jdbcType=CHAR}, #{invoiceRed,jdbcType=CHAR}, #{mergefType,jdbcType=VARCHAR}, 
+      #{mergesType,jdbcType=VARCHAR}, #{goldtaxCode,jdbcType=VARCHAR}, #{goldtaxNum,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{checkName,jdbcType=VARCHAR}, 
+      #{payeeName,jdbcType=VARCHAR}, #{billDate,jdbcType=VARCHAR}, #{cancelDate,jdbcType=VARCHAR}, 
+      #{billGdate,jdbcType=VARCHAR}, #{cancelGdate,jdbcType=VARCHAR}, #{invoiceRedReqm,jdbcType=VARCHAR}, 
+      #{invoiceRedXxbm,jdbcType=VARCHAR}, #{invoiceRedFpdm,jdbcType=VARCHAR}, #{invoiceRedFphm,jdbcType=VARCHAR}, 
+      #{billRemark,jdbcType=VARCHAR}, #{zamountHswc,jdbcType=DECIMAL}, #{zamountWswc,jdbcType=DECIMAL}, 
+      #{zamountSewc,jdbcType=DECIMAL}, #{createdBy,jdbcType=VARCHAR}, #{creationDate,jdbcType=TIMESTAMP}, 
+      #{lastUpdatedBy,jdbcType=VARCHAR}, #{lastUpdatedDat,jdbcType=VARCHAR}, #{attribute1,jdbcType=VARCHAR}, 
+      #{attribute2,jdbcType=VARCHAR}, #{attribute3,jdbcType=VARCHAR}, #{issync,jdbcType=CHAR}, 
+      #{hsje,jdbcType=VARCHAR}, #{wsje,jdbcType=VARCHAR}, #{se,jdbcType=VARCHAR}, #{isOil,jdbcType=CHAR}, 
+      #{errorMsg,jdbcType=VARCHAR}, #{custProvEx,jdbcType=VARCHAR}, #{custCity,jdbcType=VARCHAR}, 
+      #{custDistrict,jdbcType=VARCHAR}, #{custAddrEx,jdbcType=VARCHAR}, #{exName,jdbcType=VARCHAR}, 
+      #{exTelephone,jdbcType=VARCHAR}, #{attributf1,jdbcType=CHAR}, #{send,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="top.anets.entity.InvoiceHead" >
+    insert into invoice_head
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="docNum != null" >
+        DOC_NUM,
+      </if>
+      <if test="mandt != null" >
+        MANDT,
+      </if>
+      <if test="docDate != null" >
+        DOC_DATE,
+      </if>
+      <if test="docStatus != null" >
+        DOC_STATUS,
+      </if>
+      <if test="orgId != null" >
+        ORG_ID,
+      </if>
+      <if test="orgName != null" >
+        ORG_NAME,
+      </if>
+      <if test="orgTaxcode != null" >
+        ORG_TAXCODE,
+      </if>
+      <if test="orgMachine != null" >
+        ORG_MACHINE,
+      </if>
+      <if test="orgAddress != null" >
+        ORG_ADDRESS,
+      </if>
+      <if test="orgTelephone != null" >
+        ORG_TELEPHONE,
+      </if>
+      <if test="orgBankname != null" >
+        ORG_BANKNAME,
+      </if>
+      <if test="orgBankaccount != null" >
+        ORG_BANKACCOUNT,
+      </if>
+      <if test="orgTaxexceed != null" >
+        ORG_TAXEXCEED,
+      </if>
+      <if test="orgControltax != null" >
+        ORG_CONTROLTAX,
+      </if>
+      <if test="custIdAr != null" >
+        CUST_ID_AR,
+      </if>
+      <if test="custNameAr != null" >
+        CUST_NAME_AR,
+      </if>
+      <if test="custIdBill != null" >
+        CUST_ID_BILL,
+      </if>
+      <if test="custNameBill != null" >
+        CUST_NAME_BILL,
+      </if>
+      <if test="custName != null" >
+        CUST_NAME,
+      </if>
+      <if test="custTaxcode != null" >
+        CUST_TAXCODE,
+      </if>
+      <if test="custAddress != null" >
+        CUST_ADDRESS,
+      </if>
+      <if test="custTelephone != null" >
+        CUST_TELEPHONE,
+      </if>
+      <if test="custBankname != null" >
+        CUST_BANKNAME,
+      </if>
+      <if test="custBankaccount != null" >
+        CUST_BANKACCOUNT,
+      </if>
+      <if test="custEmail != null" >
+        CUST_EMAIL,
+      </if>
+      <if test="custMobile != null" >
+        CUST_MOBILE,
+      </if>
+      <if test="invoiceType != null" >
+        INVOICE_TYPE,
+      </if>
+      <if test="invoiceTypes != null" >
+        INVOICE_TYPES,
+      </if>
+      <if test="invoiceBase != null" >
+        INVOICE_BASE,
+      </if>
+      <if test="invoiceWay != null" >
+        INVOICE_WAY,
+      </if>
+      <if test="mergeAmt != null" >
+        MERGE_AMT,
+      </if>
+      <if test="mergeQty != null" >
+        MERGE_QTY,
+      </if>
+      <if test="taxRate != null" >
+        TAX_RATE,
+      </if>
+      <if test="discountType != null" >
+        DISCOUNT_TYPE,
+      </if>
+      <if test="discountRate != null" >
+        DISCOUNT_RATE,
+      </if>
+      <if test="mergeGift != null" >
+        MERGE_GIFT,
+      </if>
+      <if test="invoiceList != null" >
+        INVOICE_LIST,
+      </if>
+      <if test="invoiceRed != null" >
+        INVOICE_RED,
+      </if>
+      <if test="mergefType != null" >
+        MERGEF_TYPE,
+      </if>
+      <if test="mergesType != null" >
+        MERGES_TYPE,
+      </if>
+      <if test="goldtaxCode != null" >
+        GOLDTAX_CODE,
+      </if>
+      <if test="goldtaxNum != null" >
+        GOLDTAX_NUM,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="userName != null" >
+        USER_NAME,
+      </if>
+      <if test="checkName != null" >
+        CHECK_NAME,
+      </if>
+      <if test="payeeName != null" >
+        PAYEE_NAME,
+      </if>
+      <if test="billDate != null" >
+        BILL_DATE,
+      </if>
+      <if test="cancelDate != null" >
+        CANCEL_DATE,
+      </if>
+      <if test="billGdate != null" >
+        BILL_GDATE,
+      </if>
+      <if test="cancelGdate != null" >
+        CANCEL_GDATE,
+      </if>
+      <if test="invoiceRedReqm != null" >
+        INVOICE_RED_REQM,
+      </if>
+      <if test="invoiceRedXxbm != null" >
+        INVOICE_RED_XXBM,
+      </if>
+      <if test="invoiceRedFpdm != null" >
+        INVOICE_RED_FPDM,
+      </if>
+      <if test="invoiceRedFphm != null" >
+        INVOICE_RED_FPHM,
+      </if>
+      <if test="billRemark != null" >
+        BILL_REMARK,
+      </if>
+      <if test="zamountHswc != null" >
+        ZAMOUNT_HSWC,
+      </if>
+      <if test="zamountWswc != null" >
+        ZAMOUNT_WSWC,
+      </if>
+      <if test="zamountSewc != null" >
+        ZAMOUNT_SEWC,
+      </if>
+      <if test="createdBy != null" >
+        CREATED_BY,
+      </if>
+      <if test="creationDate != null" >
+        CREATION_DATE,
+      </if>
+      <if test="lastUpdatedBy != null" >
+        LAST_UPDATED_BY,
+      </if>
+      <if test="lastUpdatedDat != null" >
+        LAST_UPDATED_DAT,
+      </if>
+      <if test="attribute1 != null" >
+        ATTRIBUTE1,
+      </if>
+      <if test="attribute2 != null" >
+        ATTRIBUTE2,
+      </if>
+      <if test="attribute3 != null" >
+        ATTRIBUTE3,
+      </if>
+      <if test="issync != null" >
+        ISSYNC,
+      </if>
+      <if test="hsje != null" >
+        HSJE,
+      </if>
+      <if test="wsje != null" >
+        WSJE,
+      </if>
+      <if test="se != null" >
+        SE,
+      </if>
+      <if test="isOil != null" >
+        is_oil,
+      </if>
+      <if test="errorMsg != null" >
+        error_msg,
+      </if>
+      <if test="custProvEx != null" >
+        CUST_PROV_EX,
+      </if>
+      <if test="custCity != null" >
+        CUST_CITY,
+      </if>
+      <if test="custDistrict != null" >
+        CUST_DISTRICT,
+      </if>
+      <if test="custAddrEx != null" >
+        CUST_ADDR_EX,
+      </if>
+      <if test="exName != null" >
+        EX_NAME,
+      </if>
+      <if test="exTelephone != null" >
+        EX_TELEPHONE,
+      </if>
+      <if test="attributf1 != null" >
+        ATTRIBUTF1,
+      </if>
+      <if test="send != null" >
+        send,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="docNum != null" >
+        #{docNum,jdbcType=VARCHAR},
+      </if>
+      <if test="mandt != null" >
+        #{mandt,jdbcType=VARCHAR},
+      </if>
+      <if test="docDate != null" >
+        #{docDate,jdbcType=VARCHAR},
+      </if>
+      <if test="docStatus != null" >
+        #{docStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=VARCHAR},
+      </if>
+      <if test="orgName != null" >
+        #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="orgTaxcode != null" >
+        #{orgTaxcode,jdbcType=VARCHAR},
+      </if>
+      <if test="orgMachine != null" >
+        #{orgMachine,jdbcType=VARCHAR},
+      </if>
+      <if test="orgAddress != null" >
+        #{orgAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="orgTelephone != null" >
+        #{orgTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="orgBankname != null" >
+        #{orgBankname,jdbcType=VARCHAR},
+      </if>
+      <if test="orgBankaccount != null" >
+        #{orgBankaccount,jdbcType=VARCHAR},
+      </if>
+      <if test="orgTaxexceed != null" >
+        #{orgTaxexceed,jdbcType=DECIMAL},
+      </if>
+      <if test="orgControltax != null" >
+        #{orgControltax,jdbcType=CHAR},
+      </if>
+      <if test="custIdAr != null" >
+        #{custIdAr,jdbcType=VARCHAR},
+      </if>
+      <if test="custNameAr != null" >
+        #{custNameAr,jdbcType=VARCHAR},
+      </if>
+      <if test="custIdBill != null" >
+        #{custIdBill,jdbcType=VARCHAR},
+      </if>
+      <if test="custNameBill != null" >
+        #{custNameBill,jdbcType=VARCHAR},
+      </if>
+      <if test="custName != null" >
+        #{custName,jdbcType=VARCHAR},
+      </if>
+      <if test="custTaxcode != null" >
+        #{custTaxcode,jdbcType=VARCHAR},
+      </if>
+      <if test="custAddress != null" >
+        #{custAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="custTelephone != null" >
+        #{custTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="custBankname != null" >
+        #{custBankname,jdbcType=VARCHAR},
+      </if>
+      <if test="custBankaccount != null" >
+        #{custBankaccount,jdbcType=VARCHAR},
+      </if>
+      <if test="custEmail != null" >
+        #{custEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="custMobile != null" >
+        #{custMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceType != null" >
+        #{invoiceType,jdbcType=CHAR},
+      </if>
+      <if test="invoiceTypes != null" >
+        #{invoiceTypes,jdbcType=CHAR},
+      </if>
+      <if test="invoiceBase != null" >
+        #{invoiceBase,jdbcType=CHAR},
+      </if>
+      <if test="invoiceWay != null" >
+        #{invoiceWay,jdbcType=CHAR},
+      </if>
+      <if test="mergeAmt != null" >
+        #{mergeAmt,jdbcType=DECIMAL},
+      </if>
+      <if test="mergeQty != null" >
+        #{mergeQty,jdbcType=DECIMAL},
+      </if>
+      <if test="taxRate != null" >
+        #{taxRate,jdbcType=VARCHAR},
+      </if>
+      <if test="discountType != null" >
+        #{discountType,jdbcType=VARCHAR},
+      </if>
+      <if test="discountRate != null" >
+        #{discountRate,jdbcType=DECIMAL},
+      </if>
+      <if test="mergeGift != null" >
+        #{mergeGift,jdbcType=CHAR},
+      </if>
+      <if test="invoiceList != null" >
+        #{invoiceList,jdbcType=CHAR},
+      </if>
+      <if test="invoiceRed != null" >
+        #{invoiceRed,jdbcType=CHAR},
+      </if>
+      <if test="mergefType != null" >
+        #{mergefType,jdbcType=VARCHAR},
+      </if>
+      <if test="mergesType != null" >
+        #{mergesType,jdbcType=VARCHAR},
+      </if>
+      <if test="goldtaxCode != null" >
+        #{goldtaxCode,jdbcType=VARCHAR},
+      </if>
+      <if test="goldtaxNum != null" >
+        #{goldtaxNum,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkName != null" >
+        #{checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="payeeName != null" >
+        #{payeeName,jdbcType=VARCHAR},
+      </if>
+      <if test="billDate != null" >
+        #{billDate,jdbcType=VARCHAR},
+      </if>
+      <if test="cancelDate != null" >
+        #{cancelDate,jdbcType=VARCHAR},
+      </if>
+      <if test="billGdate != null" >
+        #{billGdate,jdbcType=VARCHAR},
+      </if>
+      <if test="cancelGdate != null" >
+        #{cancelGdate,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceRedReqm != null" >
+        #{invoiceRedReqm,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceRedXxbm != null" >
+        #{invoiceRedXxbm,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceRedFpdm != null" >
+        #{invoiceRedFpdm,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceRedFphm != null" >
+        #{invoiceRedFphm,jdbcType=VARCHAR},
+      </if>
+      <if test="billRemark != null" >
+        #{billRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="zamountHswc != null" >
+        #{zamountHswc,jdbcType=DECIMAL},
+      </if>
+      <if test="zamountWswc != null" >
+        #{zamountWswc,jdbcType=DECIMAL},
+      </if>
+      <if test="zamountSewc != null" >
+        #{zamountSewc,jdbcType=DECIMAL},
+      </if>
+      <if test="createdBy != null" >
+        #{createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="creationDate != null" >
+        #{creationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdatedBy != null" >
+        #{lastUpdatedBy,jdbcType=VARCHAR},
+      </if>
+      <if test="lastUpdatedDat != null" >
+        #{lastUpdatedDat,jdbcType=VARCHAR},
+      </if>
+      <if test="attribute1 != null" >
+        #{attribute1,jdbcType=VARCHAR},
+      </if>
+      <if test="attribute2 != null" >
+        #{attribute2,jdbcType=VARCHAR},
+      </if>
+      <if test="attribute3 != null" >
+        #{attribute3,jdbcType=VARCHAR},
+      </if>
+      <if test="issync != null" >
+        #{issync,jdbcType=CHAR},
+      </if>
+      <if test="hsje != null" >
+        #{hsje,jdbcType=VARCHAR},
+      </if>
+      <if test="wsje != null" >
+        #{wsje,jdbcType=VARCHAR},
+      </if>
+      <if test="se != null" >
+        #{se,jdbcType=VARCHAR},
+      </if>
+      <if test="isOil != null" >
+        #{isOil,jdbcType=CHAR},
+      </if>
+      <if test="errorMsg != null" >
+        #{errorMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="custProvEx != null" >
+        #{custProvEx,jdbcType=VARCHAR},
+      </if>
+      <if test="custCity != null" >
+        #{custCity,jdbcType=VARCHAR},
+      </if>
+      <if test="custDistrict != null" >
+        #{custDistrict,jdbcType=VARCHAR},
+      </if>
+      <if test="custAddrEx != null" >
+        #{custAddrEx,jdbcType=VARCHAR},
+      </if>
+      <if test="exName != null" >
+        #{exName,jdbcType=VARCHAR},
+      </if>
+      <if test="exTelephone != null" >
+        #{exTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="attributf1 != null" >
+        #{attributf1,jdbcType=CHAR},
+      </if>
+      <if test="send != null" >
+        #{send,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="top.anets.entity.InvoiceHeadExample" resultType="java.lang.Integer" >
+    select count(*) from invoice_head
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update invoice_head
+    <set >
+      <if test="record.docNum != null" >
+        DOC_NUM = #{record.docNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mandt != null" >
+        MANDT = #{record.mandt,jdbcType=VARCHAR},
+      </if>
+      <if test="record.docDate != null" >
+        DOC_DATE = #{record.docDate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.docStatus != null" >
+        DOC_STATUS = #{record.docStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orgId != null" >
+        ORG_ID = #{record.orgId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orgName != null" >
+        ORG_NAME = #{record.orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orgTaxcode != null" >
+        ORG_TAXCODE = #{record.orgTaxcode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orgMachine != null" >
+        ORG_MACHINE = #{record.orgMachine,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orgAddress != null" >
+        ORG_ADDRESS = #{record.orgAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orgTelephone != null" >
+        ORG_TELEPHONE = #{record.orgTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orgBankname != null" >
+        ORG_BANKNAME = #{record.orgBankname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orgBankaccount != null" >
+        ORG_BANKACCOUNT = #{record.orgBankaccount,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orgTaxexceed != null" >
+        ORG_TAXEXCEED = #{record.orgTaxexceed,jdbcType=DECIMAL},
+      </if>
+      <if test="record.orgControltax != null" >
+        ORG_CONTROLTAX = #{record.orgControltax,jdbcType=CHAR},
+      </if>
+      <if test="record.custIdAr != null" >
+        CUST_ID_AR = #{record.custIdAr,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custNameAr != null" >
+        CUST_NAME_AR = #{record.custNameAr,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custIdBill != null" >
+        CUST_ID_BILL = #{record.custIdBill,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custNameBill != null" >
+        CUST_NAME_BILL = #{record.custNameBill,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custName != null" >
+        CUST_NAME = #{record.custName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custTaxcode != null" >
+        CUST_TAXCODE = #{record.custTaxcode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custAddress != null" >
+        CUST_ADDRESS = #{record.custAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custTelephone != null" >
+        CUST_TELEPHONE = #{record.custTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custBankname != null" >
+        CUST_BANKNAME = #{record.custBankname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custBankaccount != null" >
+        CUST_BANKACCOUNT = #{record.custBankaccount,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custEmail != null" >
+        CUST_EMAIL = #{record.custEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custMobile != null" >
+        CUST_MOBILE = #{record.custMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="record.invoiceType != null" >
+        INVOICE_TYPE = #{record.invoiceType,jdbcType=CHAR},
+      </if>
+      <if test="record.invoiceTypes != null" >
+        INVOICE_TYPES = #{record.invoiceTypes,jdbcType=CHAR},
+      </if>
+      <if test="record.invoiceBase != null" >
+        INVOICE_BASE = #{record.invoiceBase,jdbcType=CHAR},
+      </if>
+      <if test="record.invoiceWay != null" >
+        INVOICE_WAY = #{record.invoiceWay,jdbcType=CHAR},
+      </if>
+      <if test="record.mergeAmt != null" >
+        MERGE_AMT = #{record.mergeAmt,jdbcType=DECIMAL},
+      </if>
+      <if test="record.mergeQty != null" >
+        MERGE_QTY = #{record.mergeQty,jdbcType=DECIMAL},
+      </if>
+      <if test="record.taxRate != null" >
+        TAX_RATE = #{record.taxRate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.discountType != null" >
+        DISCOUNT_TYPE = #{record.discountType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.discountRate != null" >
+        DISCOUNT_RATE = #{record.discountRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.mergeGift != null" >
+        MERGE_GIFT = #{record.mergeGift,jdbcType=CHAR},
+      </if>
+      <if test="record.invoiceList != null" >
+        INVOICE_LIST = #{record.invoiceList,jdbcType=CHAR},
+      </if>
+      <if test="record.invoiceRed != null" >
+        INVOICE_RED = #{record.invoiceRed,jdbcType=CHAR},
+      </if>
+      <if test="record.mergefType != null" >
+        MERGEF_TYPE = #{record.mergefType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mergesType != null" >
+        MERGES_TYPE = #{record.mergesType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.goldtaxCode != null" >
+        GOLDTAX_CODE = #{record.goldtaxCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.goldtaxNum != null" >
+        GOLDTAX_NUM = #{record.goldtaxNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userId != null" >
+        USER_ID = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userName != null" >
+        USER_NAME = #{record.userName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.checkName != null" >
+        CHECK_NAME = #{record.checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.payeeName != null" >
+        PAYEE_NAME = #{record.payeeName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.billDate != null" >
+        BILL_DATE = #{record.billDate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cancelDate != null" >
+        CANCEL_DATE = #{record.cancelDate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.billGdate != null" >
+        BILL_GDATE = #{record.billGdate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cancelGdate != null" >
+        CANCEL_GDATE = #{record.cancelGdate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.invoiceRedReqm != null" >
+        INVOICE_RED_REQM = #{record.invoiceRedReqm,jdbcType=VARCHAR},
+      </if>
+      <if test="record.invoiceRedXxbm != null" >
+        INVOICE_RED_XXBM = #{record.invoiceRedXxbm,jdbcType=VARCHAR},
+      </if>
+      <if test="record.invoiceRedFpdm != null" >
+        INVOICE_RED_FPDM = #{record.invoiceRedFpdm,jdbcType=VARCHAR},
+      </if>
+      <if test="record.invoiceRedFphm != null" >
+        INVOICE_RED_FPHM = #{record.invoiceRedFphm,jdbcType=VARCHAR},
+      </if>
+      <if test="record.billRemark != null" >
+        BILL_REMARK = #{record.billRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zamountHswc != null" >
+        ZAMOUNT_HSWC = #{record.zamountHswc,jdbcType=DECIMAL},
+      </if>
+      <if test="record.zamountWswc != null" >
+        ZAMOUNT_WSWC = #{record.zamountWswc,jdbcType=DECIMAL},
+      </if>
+      <if test="record.zamountSewc != null" >
+        ZAMOUNT_SEWC = #{record.zamountSewc,jdbcType=DECIMAL},
+      </if>
+      <if test="record.createdBy != null" >
+        CREATED_BY = #{record.createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.creationDate != null" >
+        CREATION_DATE = #{record.creationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.lastUpdatedBy != null" >
+        LAST_UPDATED_BY = #{record.lastUpdatedBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastUpdatedDat != null" >
+        LAST_UPDATED_DAT = #{record.lastUpdatedDat,jdbcType=VARCHAR},
+      </if>
+      <if test="record.attribute1 != null" >
+        ATTRIBUTE1 = #{record.attribute1,jdbcType=VARCHAR},
+      </if>
+      <if test="record.attribute2 != null" >
+        ATTRIBUTE2 = #{record.attribute2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.attribute3 != null" >
+        ATTRIBUTE3 = #{record.attribute3,jdbcType=VARCHAR},
+      </if>
+      <if test="record.issync != null" >
+        ISSYNC = #{record.issync,jdbcType=CHAR},
+      </if>
+      <if test="record.hsje != null" >
+        HSJE = #{record.hsje,jdbcType=VARCHAR},
+      </if>
+      <if test="record.wsje != null" >
+        WSJE = #{record.wsje,jdbcType=VARCHAR},
+      </if>
+      <if test="record.se != null" >
+        SE = #{record.se,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isOil != null" >
+        is_oil = #{record.isOil,jdbcType=CHAR},
+      </if>
+      <if test="record.errorMsg != null" >
+        error_msg = #{record.errorMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custProvEx != null" >
+        CUST_PROV_EX = #{record.custProvEx,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custCity != null" >
+        CUST_CITY = #{record.custCity,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custDistrict != null" >
+        CUST_DISTRICT = #{record.custDistrict,jdbcType=VARCHAR},
+      </if>
+      <if test="record.custAddrEx != null" >
+        CUST_ADDR_EX = #{record.custAddrEx,jdbcType=VARCHAR},
+      </if>
+      <if test="record.exName != null" >
+        EX_NAME = #{record.exName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.exTelephone != null" >
+        EX_TELEPHONE = #{record.exTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.attributf1 != null" >
+        ATTRIBUTF1 = #{record.attributf1,jdbcType=CHAR},
+      </if>
+      <if test="record.send != null" >
+        send = #{record.send,jdbcType=CHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update invoice_head
+    set DOC_NUM = #{record.docNum,jdbcType=VARCHAR},
+      MANDT = #{record.mandt,jdbcType=VARCHAR},
+      DOC_DATE = #{record.docDate,jdbcType=VARCHAR},
+      DOC_STATUS = #{record.docStatus,jdbcType=VARCHAR},
+      ORG_ID = #{record.orgId,jdbcType=VARCHAR},
+      ORG_NAME = #{record.orgName,jdbcType=VARCHAR},
+      ORG_TAXCODE = #{record.orgTaxcode,jdbcType=VARCHAR},
+      ORG_MACHINE = #{record.orgMachine,jdbcType=VARCHAR},
+      ORG_ADDRESS = #{record.orgAddress,jdbcType=VARCHAR},
+      ORG_TELEPHONE = #{record.orgTelephone,jdbcType=VARCHAR},
+      ORG_BANKNAME = #{record.orgBankname,jdbcType=VARCHAR},
+      ORG_BANKACCOUNT = #{record.orgBankaccount,jdbcType=VARCHAR},
+      ORG_TAXEXCEED = #{record.orgTaxexceed,jdbcType=DECIMAL},
+      ORG_CONTROLTAX = #{record.orgControltax,jdbcType=CHAR},
+      CUST_ID_AR = #{record.custIdAr,jdbcType=VARCHAR},
+      CUST_NAME_AR = #{record.custNameAr,jdbcType=VARCHAR},
+      CUST_ID_BILL = #{record.custIdBill,jdbcType=VARCHAR},
+      CUST_NAME_BILL = #{record.custNameBill,jdbcType=VARCHAR},
+      CUST_NAME = #{record.custName,jdbcType=VARCHAR},
+      CUST_TAXCODE = #{record.custTaxcode,jdbcType=VARCHAR},
+      CUST_ADDRESS = #{record.custAddress,jdbcType=VARCHAR},
+      CUST_TELEPHONE = #{record.custTelephone,jdbcType=VARCHAR},
+      CUST_BANKNAME = #{record.custBankname,jdbcType=VARCHAR},
+      CUST_BANKACCOUNT = #{record.custBankaccount,jdbcType=VARCHAR},
+      CUST_EMAIL = #{record.custEmail,jdbcType=VARCHAR},
+      CUST_MOBILE = #{record.custMobile,jdbcType=VARCHAR},
+      INVOICE_TYPE = #{record.invoiceType,jdbcType=CHAR},
+      INVOICE_TYPES = #{record.invoiceTypes,jdbcType=CHAR},
+      INVOICE_BASE = #{record.invoiceBase,jdbcType=CHAR},
+      INVOICE_WAY = #{record.invoiceWay,jdbcType=CHAR},
+      MERGE_AMT = #{record.mergeAmt,jdbcType=DECIMAL},
+      MERGE_QTY = #{record.mergeQty,jdbcType=DECIMAL},
+      TAX_RATE = #{record.taxRate,jdbcType=VARCHAR},
+      DISCOUNT_TYPE = #{record.discountType,jdbcType=VARCHAR},
+      DISCOUNT_RATE = #{record.discountRate,jdbcType=DECIMAL},
+      MERGE_GIFT = #{record.mergeGift,jdbcType=CHAR},
+      INVOICE_LIST = #{record.invoiceList,jdbcType=CHAR},
+      INVOICE_RED = #{record.invoiceRed,jdbcType=CHAR},
+      MERGEF_TYPE = #{record.mergefType,jdbcType=VARCHAR},
+      MERGES_TYPE = #{record.mergesType,jdbcType=VARCHAR},
+      GOLDTAX_CODE = #{record.goldtaxCode,jdbcType=VARCHAR},
+      GOLDTAX_NUM = #{record.goldtaxNum,jdbcType=VARCHAR},
+      USER_ID = #{record.userId,jdbcType=VARCHAR},
+      USER_NAME = #{record.userName,jdbcType=VARCHAR},
+      CHECK_NAME = #{record.checkName,jdbcType=VARCHAR},
+      PAYEE_NAME = #{record.payeeName,jdbcType=VARCHAR},
+      BILL_DATE = #{record.billDate,jdbcType=VARCHAR},
+      CANCEL_DATE = #{record.cancelDate,jdbcType=VARCHAR},
+      BILL_GDATE = #{record.billGdate,jdbcType=VARCHAR},
+      CANCEL_GDATE = #{record.cancelGdate,jdbcType=VARCHAR},
+      INVOICE_RED_REQM = #{record.invoiceRedReqm,jdbcType=VARCHAR},
+      INVOICE_RED_XXBM = #{record.invoiceRedXxbm,jdbcType=VARCHAR},
+      INVOICE_RED_FPDM = #{record.invoiceRedFpdm,jdbcType=VARCHAR},
+      INVOICE_RED_FPHM = #{record.invoiceRedFphm,jdbcType=VARCHAR},
+      BILL_REMARK = #{record.billRemark,jdbcType=VARCHAR},
+      ZAMOUNT_HSWC = #{record.zamountHswc,jdbcType=DECIMAL},
+      ZAMOUNT_WSWC = #{record.zamountWswc,jdbcType=DECIMAL},
+      ZAMOUNT_SEWC = #{record.zamountSewc,jdbcType=DECIMAL},
+      CREATED_BY = #{record.createdBy,jdbcType=VARCHAR},
+      CREATION_DATE = #{record.creationDate,jdbcType=TIMESTAMP},
+      LAST_UPDATED_BY = #{record.lastUpdatedBy,jdbcType=VARCHAR},
+      LAST_UPDATED_DAT = #{record.lastUpdatedDat,jdbcType=VARCHAR},
+      ATTRIBUTE1 = #{record.attribute1,jdbcType=VARCHAR},
+      ATTRIBUTE2 = #{record.attribute2,jdbcType=VARCHAR},
+      ATTRIBUTE3 = #{record.attribute3,jdbcType=VARCHAR},
+      ISSYNC = #{record.issync,jdbcType=CHAR},
+      HSJE = #{record.hsje,jdbcType=VARCHAR},
+      WSJE = #{record.wsje,jdbcType=VARCHAR},
+      SE = #{record.se,jdbcType=VARCHAR},
+      is_oil = #{record.isOil,jdbcType=CHAR},
+      error_msg = #{record.errorMsg,jdbcType=VARCHAR},
+      CUST_PROV_EX = #{record.custProvEx,jdbcType=VARCHAR},
+      CUST_CITY = #{record.custCity,jdbcType=VARCHAR},
+      CUST_DISTRICT = #{record.custDistrict,jdbcType=VARCHAR},
+      CUST_ADDR_EX = #{record.custAddrEx,jdbcType=VARCHAR},
+      EX_NAME = #{record.exName,jdbcType=VARCHAR},
+      EX_TELEPHONE = #{record.exTelephone,jdbcType=VARCHAR},
+      ATTRIBUTF1 = #{record.attributf1,jdbcType=CHAR},
+      send = #{record.send,jdbcType=CHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="top.anets.entity.InvoiceHead" >
+    update invoice_head
+    <set >
+      <if test="mandt != null" >
+        MANDT = #{mandt,jdbcType=VARCHAR},
+      </if>
+      <if test="docDate != null" >
+        DOC_DATE = #{docDate,jdbcType=VARCHAR},
+      </if>
+      <if test="docStatus != null" >
+        DOC_STATUS = #{docStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        ORG_ID = #{orgId,jdbcType=VARCHAR},
+      </if>
+      <if test="orgName != null" >
+        ORG_NAME = #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="orgTaxcode != null" >
+        ORG_TAXCODE = #{orgTaxcode,jdbcType=VARCHAR},
+      </if>
+      <if test="orgMachine != null" >
+        ORG_MACHINE = #{orgMachine,jdbcType=VARCHAR},
+      </if>
+      <if test="orgAddress != null" >
+        ORG_ADDRESS = #{orgAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="orgTelephone != null" >
+        ORG_TELEPHONE = #{orgTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="orgBankname != null" >
+        ORG_BANKNAME = #{orgBankname,jdbcType=VARCHAR},
+      </if>
+      <if test="orgBankaccount != null" >
+        ORG_BANKACCOUNT = #{orgBankaccount,jdbcType=VARCHAR},
+      </if>
+      <if test="orgTaxexceed != null" >
+        ORG_TAXEXCEED = #{orgTaxexceed,jdbcType=DECIMAL},
+      </if>
+      <if test="orgControltax != null" >
+        ORG_CONTROLTAX = #{orgControltax,jdbcType=CHAR},
+      </if>
+      <if test="custIdAr != null" >
+        CUST_ID_AR = #{custIdAr,jdbcType=VARCHAR},
+      </if>
+      <if test="custNameAr != null" >
+        CUST_NAME_AR = #{custNameAr,jdbcType=VARCHAR},
+      </if>
+      <if test="custIdBill != null" >
+        CUST_ID_BILL = #{custIdBill,jdbcType=VARCHAR},
+      </if>
+      <if test="custNameBill != null" >
+        CUST_NAME_BILL = #{custNameBill,jdbcType=VARCHAR},
+      </if>
+      <if test="custName != null" >
+        CUST_NAME = #{custName,jdbcType=VARCHAR},
+      </if>
+      <if test="custTaxcode != null" >
+        CUST_TAXCODE = #{custTaxcode,jdbcType=VARCHAR},
+      </if>
+      <if test="custAddress != null" >
+        CUST_ADDRESS = #{custAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="custTelephone != null" >
+        CUST_TELEPHONE = #{custTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="custBankname != null" >
+        CUST_BANKNAME = #{custBankname,jdbcType=VARCHAR},
+      </if>
+      <if test="custBankaccount != null" >
+        CUST_BANKACCOUNT = #{custBankaccount,jdbcType=VARCHAR},
+      </if>
+      <if test="custEmail != null" >
+        CUST_EMAIL = #{custEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="custMobile != null" >
+        CUST_MOBILE = #{custMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceType != null" >
+        INVOICE_TYPE = #{invoiceType,jdbcType=CHAR},
+      </if>
+      <if test="invoiceTypes != null" >
+        INVOICE_TYPES = #{invoiceTypes,jdbcType=CHAR},
+      </if>
+      <if test="invoiceBase != null" >
+        INVOICE_BASE = #{invoiceBase,jdbcType=CHAR},
+      </if>
+      <if test="invoiceWay != null" >
+        INVOICE_WAY = #{invoiceWay,jdbcType=CHAR},
+      </if>
+      <if test="mergeAmt != null" >
+        MERGE_AMT = #{mergeAmt,jdbcType=DECIMAL},
+      </if>
+      <if test="mergeQty != null" >
+        MERGE_QTY = #{mergeQty,jdbcType=DECIMAL},
+      </if>
+      <if test="taxRate != null" >
+        TAX_RATE = #{taxRate,jdbcType=VARCHAR},
+      </if>
+      <if test="discountType != null" >
+        DISCOUNT_TYPE = #{discountType,jdbcType=VARCHAR},
+      </if>
+      <if test="discountRate != null" >
+        DISCOUNT_RATE = #{discountRate,jdbcType=DECIMAL},
+      </if>
+      <if test="mergeGift != null" >
+        MERGE_GIFT = #{mergeGift,jdbcType=CHAR},
+      </if>
+      <if test="invoiceList != null" >
+        INVOICE_LIST = #{invoiceList,jdbcType=CHAR},
+      </if>
+      <if test="invoiceRed != null" >
+        INVOICE_RED = #{invoiceRed,jdbcType=CHAR},
+      </if>
+      <if test="mergefType != null" >
+        MERGEF_TYPE = #{mergefType,jdbcType=VARCHAR},
+      </if>
+      <if test="mergesType != null" >
+        MERGES_TYPE = #{mergesType,jdbcType=VARCHAR},
+      </if>
+      <if test="goldtaxCode != null" >
+        GOLDTAX_CODE = #{goldtaxCode,jdbcType=VARCHAR},
+      </if>
+      <if test="goldtaxNum != null" >
+        GOLDTAX_NUM = #{goldtaxNum,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null" >
+        USER_NAME = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkName != null" >
+        CHECK_NAME = #{checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="payeeName != null" >
+        PAYEE_NAME = #{payeeName,jdbcType=VARCHAR},
+      </if>
+      <if test="billDate != null" >
+        BILL_DATE = #{billDate,jdbcType=VARCHAR},
+      </if>
+      <if test="cancelDate != null" >
+        CANCEL_DATE = #{cancelDate,jdbcType=VARCHAR},
+      </if>
+      <if test="billGdate != null" >
+        BILL_GDATE = #{billGdate,jdbcType=VARCHAR},
+      </if>
+      <if test="cancelGdate != null" >
+        CANCEL_GDATE = #{cancelGdate,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceRedReqm != null" >
+        INVOICE_RED_REQM = #{invoiceRedReqm,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceRedXxbm != null" >
+        INVOICE_RED_XXBM = #{invoiceRedXxbm,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceRedFpdm != null" >
+        INVOICE_RED_FPDM = #{invoiceRedFpdm,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceRedFphm != null" >
+        INVOICE_RED_FPHM = #{invoiceRedFphm,jdbcType=VARCHAR},
+      </if>
+      <if test="billRemark != null" >
+        BILL_REMARK = #{billRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="zamountHswc != null" >
+        ZAMOUNT_HSWC = #{zamountHswc,jdbcType=DECIMAL},
+      </if>
+      <if test="zamountWswc != null" >
+        ZAMOUNT_WSWC = #{zamountWswc,jdbcType=DECIMAL},
+      </if>
+      <if test="zamountSewc != null" >
+        ZAMOUNT_SEWC = #{zamountSewc,jdbcType=DECIMAL},
+      </if>
+      <if test="createdBy != null" >
+        CREATED_BY = #{createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="creationDate != null" >
+        CREATION_DATE = #{creationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdatedBy != null" >
+        LAST_UPDATED_BY = #{lastUpdatedBy,jdbcType=VARCHAR},
+      </if>
+      <if test="lastUpdatedDat != null" >
+        LAST_UPDATED_DAT = #{lastUpdatedDat,jdbcType=VARCHAR},
+      </if>
+      <if test="attribute1 != null" >
+        ATTRIBUTE1 = #{attribute1,jdbcType=VARCHAR},
+      </if>
+      <if test="attribute2 != null" >
+        ATTRIBUTE2 = #{attribute2,jdbcType=VARCHAR},
+      </if>
+      <if test="attribute3 != null" >
+        ATTRIBUTE3 = #{attribute3,jdbcType=VARCHAR},
+      </if>
+      <if test="issync != null" >
+        ISSYNC = #{issync,jdbcType=CHAR},
+      </if>
+      <if test="hsje != null" >
+        HSJE = #{hsje,jdbcType=VARCHAR},
+      </if>
+      <if test="wsje != null" >
+        WSJE = #{wsje,jdbcType=VARCHAR},
+      </if>
+      <if test="se != null" >
+        SE = #{se,jdbcType=VARCHAR},
+      </if>
+      <if test="isOil != null" >
+        is_oil = #{isOil,jdbcType=CHAR},
+      </if>
+      <if test="errorMsg != null" >
+        error_msg = #{errorMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="custProvEx != null" >
+        CUST_PROV_EX = #{custProvEx,jdbcType=VARCHAR},
+      </if>
+      <if test="custCity != null" >
+        CUST_CITY = #{custCity,jdbcType=VARCHAR},
+      </if>
+      <if test="custDistrict != null" >
+        CUST_DISTRICT = #{custDistrict,jdbcType=VARCHAR},
+      </if>
+      <if test="custAddrEx != null" >
+        CUST_ADDR_EX = #{custAddrEx,jdbcType=VARCHAR},
+      </if>
+      <if test="exName != null" >
+        EX_NAME = #{exName,jdbcType=VARCHAR},
+      </if>
+      <if test="exTelephone != null" >
+        EX_TELEPHONE = #{exTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="attributf1 != null" >
+        ATTRIBUTF1 = #{attributf1,jdbcType=CHAR},
+      </if>
+      <if test="send != null" >
+        send = #{send,jdbcType=CHAR},
+      </if>
+    </set>
+    where DOC_NUM = #{docNum,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="top.anets.entity.InvoiceHead" >
+    update invoice_head
+    set MANDT = #{mandt,jdbcType=VARCHAR},
+      DOC_DATE = #{docDate,jdbcType=VARCHAR},
+      DOC_STATUS = #{docStatus,jdbcType=VARCHAR},
+      ORG_ID = #{orgId,jdbcType=VARCHAR},
+      ORG_NAME = #{orgName,jdbcType=VARCHAR},
+      ORG_TAXCODE = #{orgTaxcode,jdbcType=VARCHAR},
+      ORG_MACHINE = #{orgMachine,jdbcType=VARCHAR},
+      ORG_ADDRESS = #{orgAddress,jdbcType=VARCHAR},
+      ORG_TELEPHONE = #{orgTelephone,jdbcType=VARCHAR},
+      ORG_BANKNAME = #{orgBankname,jdbcType=VARCHAR},
+      ORG_BANKACCOUNT = #{orgBankaccount,jdbcType=VARCHAR},
+      ORG_TAXEXCEED = #{orgTaxexceed,jdbcType=DECIMAL},
+      ORG_CONTROLTAX = #{orgControltax,jdbcType=CHAR},
+      CUST_ID_AR = #{custIdAr,jdbcType=VARCHAR},
+      CUST_NAME_AR = #{custNameAr,jdbcType=VARCHAR},
+      CUST_ID_BILL = #{custIdBill,jdbcType=VARCHAR},
+      CUST_NAME_BILL = #{custNameBill,jdbcType=VARCHAR},
+      CUST_NAME = #{custName,jdbcType=VARCHAR},
+      CUST_TAXCODE = #{custTaxcode,jdbcType=VARCHAR},
+      CUST_ADDRESS = #{custAddress,jdbcType=VARCHAR},
+      CUST_TELEPHONE = #{custTelephone,jdbcType=VARCHAR},
+      CUST_BANKNAME = #{custBankname,jdbcType=VARCHAR},
+      CUST_BANKACCOUNT = #{custBankaccount,jdbcType=VARCHAR},
+      CUST_EMAIL = #{custEmail,jdbcType=VARCHAR},
+      CUST_MOBILE = #{custMobile,jdbcType=VARCHAR},
+      INVOICE_TYPE = #{invoiceType,jdbcType=CHAR},
+      INVOICE_TYPES = #{invoiceTypes,jdbcType=CHAR},
+      INVOICE_BASE = #{invoiceBase,jdbcType=CHAR},
+      INVOICE_WAY = #{invoiceWay,jdbcType=CHAR},
+      MERGE_AMT = #{mergeAmt,jdbcType=DECIMAL},
+      MERGE_QTY = #{mergeQty,jdbcType=DECIMAL},
+      TAX_RATE = #{taxRate,jdbcType=VARCHAR},
+      DISCOUNT_TYPE = #{discountType,jdbcType=VARCHAR},
+      DISCOUNT_RATE = #{discountRate,jdbcType=DECIMAL},
+      MERGE_GIFT = #{mergeGift,jdbcType=CHAR},
+      INVOICE_LIST = #{invoiceList,jdbcType=CHAR},
+      INVOICE_RED = #{invoiceRed,jdbcType=CHAR},
+      MERGEF_TYPE = #{mergefType,jdbcType=VARCHAR},
+      MERGES_TYPE = #{mergesType,jdbcType=VARCHAR},
+      GOLDTAX_CODE = #{goldtaxCode,jdbcType=VARCHAR},
+      GOLDTAX_NUM = #{goldtaxNum,jdbcType=VARCHAR},
+      USER_ID = #{userId,jdbcType=VARCHAR},
+      USER_NAME = #{userName,jdbcType=VARCHAR},
+      CHECK_NAME = #{checkName,jdbcType=VARCHAR},
+      PAYEE_NAME = #{payeeName,jdbcType=VARCHAR},
+      BILL_DATE = #{billDate,jdbcType=VARCHAR},
+      CANCEL_DATE = #{cancelDate,jdbcType=VARCHAR},
+      BILL_GDATE = #{billGdate,jdbcType=VARCHAR},
+      CANCEL_GDATE = #{cancelGdate,jdbcType=VARCHAR},
+      INVOICE_RED_REQM = #{invoiceRedReqm,jdbcType=VARCHAR},
+      INVOICE_RED_XXBM = #{invoiceRedXxbm,jdbcType=VARCHAR},
+      INVOICE_RED_FPDM = #{invoiceRedFpdm,jdbcType=VARCHAR},
+      INVOICE_RED_FPHM = #{invoiceRedFphm,jdbcType=VARCHAR},
+      BILL_REMARK = #{billRemark,jdbcType=VARCHAR},
+      ZAMOUNT_HSWC = #{zamountHswc,jdbcType=DECIMAL},
+      ZAMOUNT_WSWC = #{zamountWswc,jdbcType=DECIMAL},
+      ZAMOUNT_SEWC = #{zamountSewc,jdbcType=DECIMAL},
+      CREATED_BY = #{createdBy,jdbcType=VARCHAR},
+      CREATION_DATE = #{creationDate,jdbcType=TIMESTAMP},
+      LAST_UPDATED_BY = #{lastUpdatedBy,jdbcType=VARCHAR},
+      LAST_UPDATED_DAT = #{lastUpdatedDat,jdbcType=VARCHAR},
+      ATTRIBUTE1 = #{attribute1,jdbcType=VARCHAR},
+      ATTRIBUTE2 = #{attribute2,jdbcType=VARCHAR},
+      ATTRIBUTE3 = #{attribute3,jdbcType=VARCHAR},
+      ISSYNC = #{issync,jdbcType=CHAR},
+      HSJE = #{hsje,jdbcType=VARCHAR},
+      WSJE = #{wsje,jdbcType=VARCHAR},
+      SE = #{se,jdbcType=VARCHAR},
+      is_oil = #{isOil,jdbcType=CHAR},
+      error_msg = #{errorMsg,jdbcType=VARCHAR},
+      CUST_PROV_EX = #{custProvEx,jdbcType=VARCHAR},
+      CUST_CITY = #{custCity,jdbcType=VARCHAR},
+      CUST_DISTRICT = #{custDistrict,jdbcType=VARCHAR},
+      CUST_ADDR_EX = #{custAddrEx,jdbcType=VARCHAR},
+      EX_NAME = #{exName,jdbcType=VARCHAR},
+      EX_TELEPHONE = #{exTelephone,jdbcType=VARCHAR},
+      ATTRIBUTF1 = #{attributf1,jdbcType=CHAR},
+      send = #{send,jdbcType=CHAR}
+    where DOC_NUM = #{docNum,jdbcType=VARCHAR}
+  </update>
+</mapper>

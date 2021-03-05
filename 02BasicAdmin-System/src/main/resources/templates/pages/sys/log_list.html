@@ -1,0 +1,122 @@
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">日志管理</h3>
+				<div class="box-tools">
+					<div class="input-group input-group-sm" style="width: 350px;">
+						<input type="text" name="table_search" id="searchNameId"
+							class="form-control pull-right" placeholder="用户名">
+
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-default btn-search">
+                                <i class="fa fa-search"></i>
+							</button>
+							<button type="button" class="btn btn-default btn-delete">删除</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body table-responsive no-padding">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+						    <th><input type="checkbox" id="checkAll">全选</th>
+							<th>用户名</th>
+							<th>操作</th>
+							<th>请求方法</th>
+							<th>请求参数</th>
+							<th>IP</th>
+							<th>执行时长</th>
+						</tr>
+					</thead>
+					<tbody id="tbodyId">
+					    <tr>
+					       <td colspan="7">数据正在加载中...</td>
+					    </tr>
+					    
+					    
+					   
+					</tbody>
+					
+				</table>
+			</div>
+			<div id="pageId" class="box-footer clearfix" dm="100">
+			  
+			</div>
+			 <div id="test1"></div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	initData(1);
+	//initLayui();
+});
+
+
+function initLayui(count,limit,curr){
+	
+	layui.use('laypage', function(){
+		  var laypage = layui.laypage;
+		  
+		  //执行一个laypage实例
+		  laypage.render({
+		    elem: 'test1' //注意，这里的 test1 是 ID，不用加 # 号
+		    ,count: count //数据总数，从服务端得到
+		    ,limit:limit
+		    ,curr:curr
+		    ,jump: function(obj, first){
+		        //obj包含了当前分页的所有参数，比如：
+		        console.log(obj.curr); //得到当前页，以便向服务端请求对应页的数据。
+		        console.log(obj.limit); //得到每页显示的条数
+		        
+		        //首次不执行
+		        if(!first){
+		          //do something
+		        	initData(obj.curr);
+		        }
+		     }
+		  });
+	});
+	
+}
+
+
+function initData(start){
+	$.ajax({
+		url:"/log/getLogs?limit=10&start="+start,
+		type:'get',
+		dataType:"json",
+		data:null,
+		success:(res)=>{
+			console.log(res.data);
+			initLayui(res.data.count,res.data.limit,res.data.curr);
+			
+			showData(res.data.data);
+		},
+		error:()=>{
+			console.log("失败");
+		}
+	});
+}
+
+
+function showData(data){
+	var trs="";
+	for(var i=0;i<data.length;i++){
+		trs+="<tr><td><input id='check"+data[i].id+"' value='"+data[i].id+"' type='checkbox'></td><td>"+data[i].username+"</td><td>"+data[i].operation+"</td><td>"+data[i].method+"</td><td>"+
+		data[i].params+"</td><td>"+data[i].ip+"</td><td>"+data[i].time+"</td></tr>";
+	}
+	$("#tbodyId").html(trs);
+}
+</script>
+
+
+
+
+
+

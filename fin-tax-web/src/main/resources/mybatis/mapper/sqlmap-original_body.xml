@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="original_body">
+
+	<!--
+      - ===============================================
+      - 返回 InvoiceOriginalLine Entity
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<resultMap  type="com.zhys.po.OriginalBodyDto"	   id="RM_OriginalBody">
+		<result property="docOrignum"   column="DOC_ORIGNUM"   jdbcType="VARCHAR"     javaType="java.lang.String"      />
+	<result property="docOrigline"  column="DOC_ORIGLINE"  jdbcType="VARCHAR"     javaType="java.lang.String"      />
+	<result property="itemNum"      column="ITEM_NUM"      jdbcType="VARCHAR"  javaType="java.lang.String"      />
+	<result property="itemName"     column="ITEM_NAME"     jdbcType="VARCHAR"  javaType="java.lang.String"      />
+	<result property="itemSpec"     column="ITEM_SPEC"     jdbcType="VARCHAR"  javaType="java.lang.String"      />
+	<result property="unitCode"     column="UNIT_CODE"     jdbcType="VARCHAR"  javaType="java.lang.String"      />
+	<result property="unitName"     column="UNIT_NAME"     jdbcType="VARCHAR"  javaType="java.lang.String"      />
+	<result property="taxCatecode"  column="TAX_CATECODE"  jdbcType="VARCHAR"  javaType="java.lang.String"      />
+	<result property="quantity"     column="quantity"      jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+	<result property="taxRate"      column="TAX_RATE"      jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+	<result property="zamountHsj"   column="ZAMOUNT_HSJ"   jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+	<result property="zamountWsj"   column="ZAMOUNT_WSJ"   jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+	<result property="zamountSej"   column="ZAMOUNT_SEJ"   jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+	<result property="zpriceHsj"    column="ZPRICE_HSJ"    jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+	<result property="zpriceWsj"    column="ZPRICE_WSJ"    jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+</resultMap>
+
+    <!-- sql查询语句-->
+	<sql id="sql">
+				DOC_ORIGNUM,
+    			DOC_ORIGLINE,
+    			ITEM_NUM, 
+    			ITEM_NAME, 
+    			ITEM_SPEC, 
+    			UNIT_CODE, 
+    			UNIT_NAME, 
+    			TAX_CATECODE, 
+    			quantity, 
+    			TAX_RATE, 
+    			ZAMOUNT_HSJ, 
+    			ZAMOUNT_WSJ, 
+    			ZAMOUNT_SEJ, 
+    			ZPRICE_HSJ, 
+    			ZPRICE_WSJ
+    	</sql>
+	
+	<!-- sql查询语句-->
+	<sql id="where">
+	     1=1
+		<if test="docOrignum != null and ''!=docOrignum" >
+			and  DOC_ORIGNUM = #{docOrignum}
+		</if>
+		<if test="docOrigline != null and ''!=docOrigline" >
+			and  DOC_ORIGLINE = #{docOrigline}
+		</if>
+			                                 <if test="itemNum != null and ''!=itemNum" >
+			         and  ITEM_NUM = #{itemNum}
+			      </if>
+			                                 <if test="itemName != null and ''!=itemName" >
+			         and  ITEM_NAME = #{itemName}
+			      </if>
+			                                 <if test="itemSpec != null and ''!=itemSpec" >
+			         and  ITEM_SPEC = #{itemSpec}
+			      </if>
+			                                 <if test="unitCode != null and ''!=unitCode" >
+			         and  UNIT_CODE = #{unitCode}
+			      </if>
+			                                 <if test="unitName != null and ''!=unitName" >
+			         and  UNIT_NAME = #{unitName}
+			      </if>
+			                                 <if test="taxCatecode != null and ''!=taxCatecode" >
+			         and  TAX_CATECODE = #{taxCatecode}
+			      </if>
+			                                 <if test="quantity != null and ''!=quantity" >
+			         and  quantity = #{quantity}
+			      </if>
+			                                 <if test="taxRate != null and ''!=taxRate" >
+			         and  TAX_RATE = #{taxRate}
+			      </if>
+			                                 <if test="zamountHsj != null and ''!=zamountHsj" >
+			         and  ZAMOUNT_HSJ = #{zamountHsj}
+			      </if>
+			                                 <if test="zamountWsj != null and ''!=zamountWsj" >
+			         and  ZAMOUNT_WSJ = #{zamountWsj}
+			      </if>
+			                                 <if test="zamountSej != null and ''!=zamountSej" >
+			         and  ZAMOUNT_SEJ = #{zamountSej}
+			      </if>
+			                                 <if test="zpriceHsj != null and ''!=zpriceHsj" >
+			         and  ZPRICE_HSJ = #{zpriceHsj}
+			      </if>
+			                                 <if test="zpriceWsj != null and ''!=zpriceWsj" >
+			         and  ZPRICE_WSJ = #{zpriceWsj}
+			      </if>
+			               	</sql>
+
+
+	<!--
+      - ===============================================
+      - 新增 OriginalBody
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<insert id="create" parameterType="com.zhys.po.OriginalBodyDto" useGeneratedKeys="true" keyProperty="">
+		insert into original_body (
+         <include refid="sql"/>
+		) values (
+		#{docOrignum},
+		#{docOrigline},
+		#{itemNum},
+		    #{itemName}, 
+		    #{itemSpec}, 
+		    #{unitCode}, 
+		    #{unitName}, 
+		    #{taxCatecode}, 
+		    #{quantity}, 
+		    #{taxRate}, 
+		    #{zamountHsj}, 
+		    #{zamountWsj}, 
+		    #{zamountSej}, 
+		    #{zpriceHsj}, 
+		    #{zpriceWsj}
+		)
+	</insert>
+
+	<!--
+      - ===============================================
+      - 修改 OriginalBody
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<update id="update" parameterType="com.zhys.po.OriginalBodyDto">
+	      update original_body
+	           <set>
+				   <if test="docOrignum != null and ''!=docOrignum" >
+					   DOC_ORIGNUM = #{docOrignum},
+				   </if>
+				   <if test="docOrigline != null and ''!=docOrigline" >
+					   DOC_ORIGLINE = #{docOrigline},
+				   </if>
+			                        <if test="itemNum != null and ''!=itemNum" >
+			        ITEM_NUM = #{itemNum},
+			      </if>
+			                        <if test="itemName != null and ''!=itemName" >
+			        ITEM_NAME = #{itemName},
+			      </if>
+			                        <if test="itemSpec != null and ''!=itemSpec" >
+			        ITEM_SPEC = #{itemSpec},
+			      </if>
+			                        <if test="unitCode != null and ''!=unitCode" >
+			        UNIT_CODE = #{unitCode},
+			      </if>
+			                        <if test="unitName != null and ''!=unitName" >
+			        UNIT_NAME = #{unitName},
+			      </if>
+			                        <if test="taxCatecode != null and ''!=taxCatecode" >
+			        TAX_CATECODE = #{taxCatecode},
+			      </if>
+			                        <if test="quantity != null and ''!=quantity" >
+			        quantity = #{quantity},
+			      </if>
+			                        <if test="taxRate != null and ''!=taxRate" >
+			        TAX_RATE = #{taxRate},
+			      </if>
+			                        <if test="zamountHsj != null and ''!=zamountHsj" >
+			        ZAMOUNT_HSJ = #{zamountHsj},
+			      </if>
+			                        <if test="zamountWsj != null and ''!=zamountWsj" >
+			        ZAMOUNT_WSJ = #{zamountWsj},
+			      </if>
+			                        <if test="zamountSej != null and ''!=zamountSej" >
+			        ZAMOUNT_SEJ = #{zamountSej},
+			      </if>
+			                        <if test="zpriceHsj != null and ''!=zpriceHsj" >
+			        ZPRICE_HSJ = #{zpriceHsj},
+			      </if>
+			                        <if test="zpriceWsj != null and ''!=zpriceWsj" >
+			        ZPRICE_WSJ = #{zpriceWsj},
+			      </if>
+			                     </set>
+		    where  DOC_ORIGNUM = #{docOrignum}
+	</update>
+
+	<!--
+      - ===============================================
+      - 查询 OriginalBody 总数
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<select id="count" resultType="java.lang.Integer" parameterType="com.zhys.po.OriginalBodyDto">
+		select count(*)
+		from original_body
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 OriginalBody 信息
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<select id="query" resultMap="RM_OriginalBody" parameterType="com.zhys.po.OriginalBodyDto">
+		select 
+        <include refid="sql"/>
+		from original_body
+		where  DOC_ORIGNUM = #{docOrignum}
+	</select>
+	
+		<!--
+      - ===============================================
+      - 查询 列表OriginalBody 信息
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<select id="queryList" resultMap="RM_OriginalBody" parameterType="com.zhys.po.OriginalBodyDto">
+		select 
+        <include refid="sql"/>
+		from original_body
+		where  DOC_ORIGNUM in (${docOrignum})
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 OriginalBody 分页信息
+      - @author 11734
+      - @date 2019-01-07
+      - ===============================================
+    -->
+	<select id="page" resultMap="RM_OriginalBody" parameterType="java.util.HashMap">
+		select 
+        <include refid="sql"/>		
+		from original_body
+		<where>
+		  <include refid="where"/>
+		</where> 
+	</select>
+	
+	<update id="changeDelStateById" parameterType="com.zhys.po.OriginalBodyDto">
+	 update original_body set del_state=#{delState} where id=#{id}
+	</update>
+	
+	<update id="changeDelStateByIds" parameterType="java.util.HashMap">
+	 update original_body set del_state=#{delState} where id in (#{ids})
+	</update>
+</mapper>

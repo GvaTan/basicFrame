@@ -1,0 +1,31 @@
+#port
+server:
+  port: 80
+#spring resource
+spring:
+  #数据库配置
+  datasource:
+    url: jdbc:mysql://120.55.95.79:3306/jtsys?characterEncoding=utf8
+    username: root
+    password: 2011199033@mysql
+  #html视图解析器
+  thymeleaf:
+    prefix: classpath:/templates/pages/
+    #开发时选true，保证修改html后每次访问都是新的
+    cache: false
+    
+#mybatis
+mybatis:
+  mapper-locations:
+  - classpath:/mapper/*.xml
+  
+  
+#log
+logging:
+  level:
+    top.anets: debug
+    
+#pageHelper插件配置
+pagehelper:
+  helper-dialect: mysql   #数据库连接
+  reasonable: true        #分页合理化参数

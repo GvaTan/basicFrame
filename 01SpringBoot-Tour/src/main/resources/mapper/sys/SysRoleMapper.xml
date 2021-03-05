@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.pj.sys.dao.SysRoleDao">
+    <cache/>
+     <update id="updateObject"
+            parameterType="com.cy.pj.sys.entity.SysRole">        
+        update sys_roles
+         set
+           name=#{name},
+           note=#{note},
+           modifiedUser=#{modifiedUser},
+           modifiedTime=now()
+        where id=#{id}
+    </update>
+
+     <!-- 当需要进行自定义映射时,可以考虑使用resultMap -->
+     <!-- 
+      <resultMap type="com.cy.pj.sys.vo.SysRoleMenuVo" 
+                id="sysRoleMenuVo">
+              <id column="id" property="id"/>
+              <collection property="menuIds"
+                          column="id"
+          select="com.cy.pj.sys.dao.SysRoleMenuDao.findMenuIdsByRoleId">
+              </collection>  
+      </resultMap>
+
+      <select id="findObjectById"
+             resultMap="sysRoleMenuVo">
+            select id,name,note
+            from sys_roles
+            where id=#{id}
+      </select>
+      -->
+      <!-- 多表关联查询角色以及角色对应的菜单数据 -->
+       <resultMap type="com.cy.pj.sys.vo.SysRoleMenuVo" 
+                id="sysRoleMenuVo">
+              <id column="id" property="id"/>
+              <result column="name" property="name"/>
+              <result column="note" property="note"/>
+              <collection property="menuIds"
+                          ofType="int">
+                       <result column="menu_id"/>
+              </collection>  
+      </resultMap>
+      <select id="findObjectById"
+             resultMap="sysRoleMenuVo">
+            select r.id,r.name,r.note,m.menu_id
+            from sys_roles r left join sys_role_menus m
+            on r.id=m.role_id
+            where r.id=#{id}
+      </select>
+     <!-- 持久化角色自身信息 
+               其中:useGeneratedKeys表示使用insert操作执行以后的主键值
+         keyProperty 表示将主键值赋值给参数对象SysRole的id属性-->
+     <insert id="insertObject"
+             parameterType="com.cy.pj.sys.entity.SysRole"
+             useGeneratedKeys="true"
+             keyProperty="id">
+         <!--
+         <selectKey keyProperty="id" order="AFTER" resultType="int">
+             select last_insert_id()
+         </selectKey>
+         -->
+         insert into sys_roles 
+         (name,note,createdTime,modifiedTime,
+         createdUser,modifiedUser) 
+         values
+         (#{name},#{note},now(),now(),
+         #{createdUser},#{modifiedUser})
+     </insert>
+
+     <!-- 通过sql元素对sql映射中的共性进行提取 -->
+     <sql id="queryWhereId">
+          from sys_roles
+          <where>
+            <if test="name!=null and name!=''">
+              name like concat("%",#{name},"%")
+            </if>
+          </where>
+     </sql>
+     <!-- 基于条件进行分页查询 -->
+     <select id="findPageObjects"
+             resultType="com.cy.pj.sys.entity.SysRole">
+           select *
+           <include refid="queryWhereId"/>
+           order by createdTime desc
+     </select>
+</mapper>
+
+
+
+
+
+

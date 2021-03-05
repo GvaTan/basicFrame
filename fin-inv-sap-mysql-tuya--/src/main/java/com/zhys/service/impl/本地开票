@@ -1,0 +1,3175 @@
+package com.zhys.service.impl;
+
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.lycheeframework.core.cmp.kit.EasyPage;
+import com.lycheeframework.core.cmp.kit.Pages;
+import com.sap.conn.jco.*;
+import com.zhys.base.BaseApiService;
+import com.zhys.exception.BusinessException;
+import com.zhys.po.*;
+import com.zhys.pool.JCoDestinationPool;
+import com.zhys.redis.RedisUtils;
+import com.zhys.result.ResultCode;
+import com.zhys.service.InvoiceHeadService;
+import com.zhys.util.*;
+import com.zhys.utils.AESUtil;
+import com.zhys.utils.MD5;
+import com.zhys.utils.StringUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+@Slf4j
+@Service
+public class InvoiceHeadServiceImpl extends BaseApiService implements InvoiceHeadService{
+
+	@Autowired
+	private JCoDestinationPool pool;
+
+	@Autowired
+	private SQLManager manager;
+
+	@Autowired
+	private ThreadPoolManager threadPoolManager;
+
+	@Autowired
+	private RedisUtils redis;
+
+	//private String kpzdbs = "SZWK001";
+	//private String appId = "6d29f136114544bcc73edcce960c430231183cc192c433e2b9ebcad56e8ceb08";
+	//	String pwd = "5EE6C2C11DD421F2";
+	String pwd = "0B74FF139F2D2D81";
+	private String appId = "ba76fd6c75e5415a4763eb6666d3508150cabc8e2d301fd17c7aeb3915fb14c9";
+	private String kpzdbs = "gnjtzp";
+//	private String zpdz = "http://183.62.140.163:2999/print";
+//	private String zpdy = "http://183.62.140.163:2999/print";
+
+	private String zpdz = "http://172.16.101.9:2999/print";
+	private String zpdy = "http://172.16.101.9:2999/print";
+
+	//private String dpdz = "https://dev.fapiao.com:19444/fpt-dsqz/invoice";
+	private String dpdz = "https://www.fapiao.com:63089/fpt-dsqz/invoice";
+	private String server = "http://127.0.0.1:6088/invoice-api/getInvoice/2200";
+	private String del_url = "http://127.0.0.1:6088/invoice-api/delInvoice/";
+	private String unlock_url = "http://127.0.0.1:6088/invoice-api/unlock/2200";
+	private String server_invalid = "http://127.0.0.1:6088/invoice-api/getInvalidInvoice/2200";
+
+
+	private String getKpzdbs(String org_id){
+//		if("1000".equals(org_id)){
+//			return "SZWK001";
+//		}else  if("2500".equals(org_id)){
+//			return "SZWK001";
+//		}else  if("2200".equals(org_id)){
+//			return "SZWK001";
+//		}
+		if("1000".equals(org_id)){
+			return "gnjtzp";
+		}else  if("2500".equals(org_id)){
+			return "gnjtzp";
+		}else  if("2200".equals(org_id)){
+			return "gnjtzp";
+		}
+		return "";
+	}
+
+	private String getAppId(String org_id){
+//		if("1000".equals(org_id)){
+//			return "6d29f136114544bcc73edcce960c430231183cc192c433e2b9ebcad56e8ceb08";
+//		}else  if("2500".equals(org_id)){
+//			return "6d29f136114544bcc73edcce960c430231183cc192c433e2b9ebcad56e8ceb08";
+//		}else  if("2200".equals(org_id)){
+//			return "6d29f136114544bcc73edcce960c430231183cc192c433e2b9ebcad56e8ceb08";
+//		}
+		if("1000".equals(org_id)){
+			return "ba76fd6c75e5415a4763eb6666d3508150cabc8e2d301fd17c7aeb3915fb14c9";
+		}else  if("2500".equals(org_id)){
+			return "ba76fd6c75e5415a4763eb6666d3508150cabc8e2d301fd17c7aeb3915fb14c9";
+		}else  if("2200".equals(org_id)){
+			return "ba76fd6c75e5415a4763eb6666d3508150cabc8e2d301fd17c7aeb3915fb14c9";
+		}
+		return "";
+	}
+
+
+	@Override
+	@Transactional
+	public Object revoke(String orgId,String docStatus,String IV_N)  {
+		log.info("从SAP获取信息开始》》》》》》》》》");
+		JCoDestination destination= pool.getJCoDestination();
+		JCoFunction function2 = null;//从对象仓库中获取 RFM 函数
+		try {
+			function2 = destination.getRepository().getFunction(
+
+					"ZFI_JSI01");
+		} catch (JCoException e) {
+			e.printStackTrace();
+			log.info(e.getMessage());
+		}
+
+		if (function2 == null)
+
+			throw new RuntimeException(
+
+					"ZFI_JSI01 not found in SAP.");
+
+		//1.单独的参数，不在表结构下
+		function2.getImportParameterList().setValue("IV_STATUS", docStatus);// 参数
+		function2.getImportParameterList().setValue("IV_N", IV_N);// 参数
+		function2.getImportParameterList().setValue("IV_ID", orgId);// 参数
+
+		try {
+			log.info("从SAP获取信息执行开始》》》》》》》》》");
+			function2.execute(destination);
+			log.info("从SAP获取信息执行结束》》》》》》》》》");
+		} catch (Exception e) {
+			log.info("从SAP获取信息异常》》》》》》》》》"+e.toString());
+			System.out.println(e.toString());
+
+
+		}
+
+		String EX_TYPE2 = function2.getExportParameterList()
+
+				.getString("EX_TYPE");
+		System.out.println("待开票EX_TYPE "
+
+				+ EX_TYPE2 + ":\n");
+		log.info("待开票EX_TYPE "
+
+				+ EX_TYPE2 + ":\n");
+		String EX_MESSAGE2 = function2.getExportParameterList()
+
+				.getString("EX_MESSAGE");
+		System.out.println("待开票EX_MESSAGE "
+
+				+ EX_MESSAGE2 + ":\n");
+
+		log.info("待开票EX_MESSAGE "
+
+				+ EX_MESSAGE2 + ":\n");
+		//接口返回结果
+		JCoTable returnStructure2 = function2.getTableParameterList().getTable("IT_TABLE_HE");
+		if(returnStructure2.getNumRows()==0){
+			return null;
+		}
+		List<com.zhys.po.InvoiceHead> invoiceHeads = new ArrayList<com.zhys.po.InvoiceHead>();
+		for (int i = 0; i < returnStructure2.getNumRows(); i++) {
+			returnStructure2.setRow(i);
+
+//            System.out.println("MAKTX:"+returnStructure.getString("MAKTX"));
+//            System.out.println("TAX_RATE:"+returnStructure.getString("TAX_RATE"));
+//            System.out.println("MATNR:"+returnStructure.getString("MATNR"));
+//            System.out.println("ZMATNR_TAX:"+returnStructure.getString("ZMATNR_TAX"));
+			System.out.println("MANDT:"+returnStructure2.getString("MANDT"));
+			log.info("获取到SAP待开票信息，单据号："+returnStructure2.getString("DOC_NUM"));
+//            System.out.println("ZDATE:"+returnStructure.getString("ZDATE"));
+//            System.out.println("FLAG:"+returnStructure.getString("FLAG"));
+
+			com.zhys.po.InvoiceHead invoiceHead = new InvoiceHead();
+			invoiceHead.setMandt(returnStructure2.getString("MANDT"));
+			invoiceHead.setDocNum(returnStructure2.getString("DOC_NUM"));
+			invoiceHead.setDocDate(returnStructure2.getString("DOC_DATE"));
+			invoiceHead.setDocStatus(returnStructure2.getString("DOC_STATUS"));
+			invoiceHead.setOrgId(returnStructure2.getString("ORG_ID"));
+			invoiceHead.setOrgName(returnStructure2.getString("ORG_NAME"));
+			invoiceHead.setOrgTaxcode(returnStructure2.getString("ORG_TAXCODE"));
+			invoiceHead.setOrgMachine(returnStructure2.getString("ORG_MACHINE"));
+			invoiceHead.setOrgAddress(returnStructure2.getString("ORG_ADDRESS"));
+			invoiceHead.setOrgTelephone(returnStructure2.getString("ORG_TELEPHONE"));
+			invoiceHead.setOrgBankname(returnStructure2.getString("ORG_BANKNAME"));
+			invoiceHead.setOrgBankaccount(returnStructure2.getString("ORG_BANKACCOUNT"));
+			invoiceHead.setOrgTaxexceed(returnStructure2.getBigDecimal("ORG_TAXEXCEED"));
+			invoiceHead.setOrgControltax(returnStructure2.getString("ORG_CONTROLTAX"));
+			invoiceHead.setCustIdAr(returnStructure2.getString("CUST_ID_AR"));
+			invoiceHead.setCustNameAr(returnStructure2.getString("CUST_NAME_AR"));
+			invoiceHead.setCustIdBill(returnStructure2.getString("CUST_ID_BILL"));
+			invoiceHead.setCustNameBill(returnStructure2.getString("CUST_NAME_BILL"));
+			invoiceHead.setCustName(returnStructure2.getString("CUST_NAME"));
+			invoiceHead.setCustTaxcode(returnStructure2.getString("CUST_TAXCODE"));
+			invoiceHead.setCustAddress(returnStructure2.getString("CUST_ADDRESS"));
+			invoiceHead.setCustTelephone(returnStructure2.getString("CUST_TELEPHONE"));
+			invoiceHead.setCustBankname(returnStructure2.getString("CUST_BANKNAME"));
+			invoiceHead.setCustBankaccount(returnStructure2.getString("CUST_BANKACCOUNT"));
+			invoiceHead.setCustEmail(returnStructure2.getString("CUST_EMAIL"));
+			invoiceHead.setCustMobile(returnStructure2.getString("CUST_MOBILE"));
+
+			invoiceHead.setInvoiceType(returnStructure2.getString("INVOICE_TYPE"));
+			invoiceHead.setInvoiceTypes(returnStructure2.getString("INVOICE_TYPES"));
+			invoiceHead.setInvoiceBase(returnStructure2.getString("INVOICE_BASE"));
+			invoiceHead.setInvoiceWay(returnStructure2.getString("INVOICE_WAY"));
+			invoiceHead.setMergeAmt(returnStructure2.getBigDecimal("MERGE_AMT"));
+			invoiceHead.setMergeQty(returnStructure2.getBigDecimal("MERGE_QTY"));
+			invoiceHead.setTaxRate(returnStructure2.getString("TAX_RATE"));
+			invoiceHead.setDiscountType(returnStructure2.getString("DISCOUNT_TYPE"));
+			invoiceHead.setDiscountRate(returnStructure2.getBigDecimal("DISCOUNT_RATE"));
+			invoiceHead.setMergeGift(returnStructure2.getString("MERGE_GIFT"));
+			invoiceHead.setInvoiceList(returnStructure2.getString("INVOICE_LIST"));
+			invoiceHead.setInvoiceRed(returnStructure2.getString("INVOICE_RED"));
+			invoiceHead.setMergefType(returnStructure2.getString("MERGEF_TYPE"));
+			invoiceHead.setMergesType(returnStructure2.getString("MERGES_TYPE"));
+			invoiceHead.setGoldtaxCode(returnStructure2.getString("GOLDTAX_CODE"));
+			invoiceHead.setGoldtaxNum(returnStructure2.getString("GOLDTAX_NUM"));
+
+			invoiceHead.setUserId(returnStructure2.getString("USER_ID"));
+			invoiceHead.setUserName(returnStructure2.getString("USER_NAME"));
+			invoiceHead.setCheckName(returnStructure2.getString("CHECK_NAME"));
+			invoiceHead.setPayeeName(returnStructure2.getString("PAYEE_NAME"));
+
+			invoiceHead.setBillDate(returnStructure2.getString("BILL_DATE"));
+			invoiceHead.setCancelDate(returnStructure2.getString("CANCEL_DATE"));
+			invoiceHead.setBillGdate(returnStructure2.getString("BILL_GDATE"));
+			invoiceHead.setCancelGdate(returnStructure2.getString("CANCEL_GDATE"));
+			invoiceHead.setInvoiceRedReqm(returnStructure2.getString("INVOICE_RED_REQM"));
+			invoiceHead.setInvoiceRedXxbm(returnStructure2.getString("INVOICE_RED_XXBM"));
+			invoiceHead.setInvoiceRedFpdm(returnStructure2.getString("INVOICE_RED_FPDM"));
+			invoiceHead.setInvoiceRedFphm(returnStructure2.getString("INVOICE_RED_FPHM"));
+
+			invoiceHead.setBillRemark(returnStructure2.getString("BILL_REMARK"));
+
+			invoiceHead.setZamountHswc(returnStructure2.getBigDecimal("ZAMOUNT_HSWC"));
+			invoiceHead.setZamountWswc(returnStructure2.getBigDecimal("ZAMOUNT_WSWC"));
+			invoiceHead.setZamountSewc(returnStructure2.getBigDecimal("ZAMOUNT_SEWC"));
+
+			invoiceHead.setCreatedBy(returnStructure2.getString("CREATED_BY"));
+			invoiceHead.setCreationDate(returnStructure2.getString("CREATION_DATE"));
+			invoiceHead.setLastUpdatedBy(returnStructure2.getString("LAST_UPDATED_BY"));
+			invoiceHead.setLastUpdatedDat(returnStructure2.getString("LAST_UPDATED_DAT"));
+
+
+			//invoiceHead.setAttribute1(returnStructure2.getString("ATTRIBUTE1"));
+			invoiceHead.setAttributf1(returnStructure2.getString("ATTRIBUTF1"));
+			//invoiceHead.setAttribute2(returnStructure2.getString("ATTRIBUTE2"));
+			//invoiceHead.setAttribute3(returnStructure2.getString("ATTRIBUTE3"));
+
+			invoiceHeads.add(invoiceHead);
+
+
+		}
+		List<com.zhys.po.InvoiceSplitLine> splitLines = new ArrayList<com.zhys.po.InvoiceSplitLine>();
+		JCoTable returnStructure3 = function2.getTableParameterList().getTable("IT_TABLE_GR");
+		for (int i = 0; i < returnStructure3.getNumRows(); i++) {
+			returnStructure3.setRow(i);
+			com.zhys.po.InvoiceSplitLine invoiceSplitLine = new com.zhys.po.InvoiceSplitLine();
+			invoiceSplitLine.setMandt(returnStructure3.getString("MANDT"));
+			log.info("获取到SAP待开票信息，单据号："+returnStructure2.getString("DOC_NUM")+",分组号："+returnStructure3.getString("GROUP_NUM")+",行号："+returnStructure3.getString("DOC_LINE"));
+			invoiceSplitLine.setDocNum(returnStructure3.getString("DOC_NUM"));
+			invoiceSplitLine.setDocLine(returnStructure3.getString("DOC_LINE"));
+			invoiceSplitLine.setGroupNum(returnStructure3.getString("GROUP_NUM"));
+			invoiceSplitLine.setGroupStatus(returnStructure3.getString("GROUP_STATUS"));
+			invoiceSplitLine.setGoldtaxCode(returnStructure3.getString("GOLDTAX_CODE"));
+			invoiceSplitLine.setGoldtaxNum(returnStructure3.getString("GOLDTAX_NUM"));
+
+			invoiceSplitLine.setItemName(returnStructure3.getString("ITEM_NAME"));
+			invoiceSplitLine.setItemSpec(returnStructure3.getString("ITEM_SPEC"));
+			invoiceSplitLine.setUnitName(returnStructure3.getString("UNIT_NAME"));
+
+			invoiceSplitLine.setTaxCatecode(returnStructure3.getString("TAX_CATECODE"));
+			invoiceSplitLine.setQuantity(returnStructure3.getBigDecimal("QUANTITY"));
+			invoiceSplitLine.setTaxRate(returnStructure3.getBigDecimal("TAX_RATE"));
+			invoiceSplitLine.setGiftFlag(returnStructure3.getString("GIFT_FLAG"));
+
+			invoiceSplitLine.setZamountHsj(returnStructure3.getBigDecimal("ZAMOUNT_HSJ"));
+			invoiceSplitLine.setZamountWsj(returnStructure3.getBigDecimal("ZAMOUNT_WSJ"));
+			invoiceSplitLine.setZamountSej(returnStructure3.getBigDecimal("ZAMOUNT_SEJ"));
+			invoiceSplitLine.setZamountHzhs(returnStructure3.getBigDecimal("ZAMOUNT_HZHS"));
+			invoiceSplitLine.setZamountHzws(returnStructure3.getBigDecimal("ZAMOUNT_HZWS"));
+			invoiceSplitLine.setZamountHzse(returnStructure3.getBigDecimal("ZAMOUNT_HZSE"));
+			invoiceSplitLine.setZamountHsy(returnStructure3.getBigDecimal("ZAMOUNT_HSY"));
+			invoiceSplitLine.setZamountWsy(returnStructure3.getBigDecimal("ZAMOUNT_WSY"));
+			invoiceSplitLine.setZamountSey(returnStructure3.getBigDecimal("ZAMOUNT_SEY"));
+			invoiceSplitLine.setZpriceHsj(returnStructure3.getBigDecimal("ZPRICE_HSJ"));
+			invoiceSplitLine.setZpriceWsj(returnStructure3.getBigDecimal("ZPRICE_WSJ"));
+			invoiceSplitLine.setZpriceHsy(returnStructure3.getBigDecimal("ZPRICE_HSY"));
+			invoiceSplitLine.setZpriceWsy(returnStructure3.getBigDecimal("ZPRICE_WSY"));
+			invoiceSplitLine.setBillDate(returnStructure3.getString("BILL_DATE"));
+			invoiceSplitLine.setCancelDate(returnStructure3.getString("CANCEL_DATE"));
+			invoiceSplitLine.setBillGdate(returnStructure3.getString("BILL_GDATE"));
+			invoiceSplitLine.setCancelGdate(returnStructure3.getString("CANCEL_GDATE"));
+			invoiceSplitLine.setGroupCopyfrom(returnStructure3.getString("GROUP_COPYFROM"));
+
+
+			//invoiceSplitLine.setAttribute1(returnStructure3.getString("ATTRIBUTE1"));
+			invoiceSplitLine.setAttributf1(returnStructure3.getString("ATTRIBUTF1"));
+			//invoiceSplitLine.setAttribute2(returnStructure3.getString("ATTRIBUTE2"));
+			//invoiceSplitLine.setAttribute3(returnStructure3.getString("ATTRIBUTE3"));
+			splitLines.add(invoiceSplitLine);
+		}
+		if(invoiceHeads!=null&&invoiceHeads.size()>0){
+
+			if(docStatus.equals("3")){
+				log.info("状态3》》》》");
+				manager.update("invoice_head.invalid",invoiceHeads.get(0));
+				if(splitLines!=null&&splitLines.size()>0){
+
+					List<com.zhys.po.InvoiceSplitLine>  iss = new ArrayList<com.zhys.po.InvoiceSplitLine>();
+					com.zhys.po.InvoiceSplitLine tem = new com.zhys.po.InvoiceSplitLine();
+					tem.setDocNum("sisis");
+					tem.setGroupNum("jfjf");
+					for(InvoiceSplitLine is:splitLines){
+
+						if(tem.getDocNum().equals("sisis")&&tem.getGroupNum().equals("jfjf")  &&is.getGroupStatus().equals("3")){
+							iss.add(is);
+
+						}
+						if(tem.getDocNum().equals(is.getDocNum())&&!tem.getGroupNum().equals(is.getGroupNum()) &&is.getGroupStatus().equals("3")){
+							iss.add(is);
+
+						}
+						tem.setDocNum(is.getDocNum());
+						tem.setGroupNum(is.getGroupNum());
+					}
+					if(iss!=null & iss.size()>0){
+						for(InvoiceSplitLine splitLine:iss) {
+							manager.update("invoice_split_line.invalidOne", splitLine);
+						}
+					}
+
+				}
+			}else{
+				if("2".equals(invoiceHeads.get(0).getDocStatus())){
+					log.info("状态2》》》》");
+					if(splitLines!=null&&splitLines.size()>0){
+
+						List<com.zhys.po.InvoiceSplitLine>  iss = new ArrayList<com.zhys.po.InvoiceSplitLine>();
+
+						for(InvoiceSplitLine is:splitLines){
+
+							if(is.getGroupStatus().equals("1")){
+								iss.add(is);
+							}
+
+
+						}
+						if(iss!=null & iss.size()>0){
+							for(InvoiceSplitLine splitLine:iss){
+								manager.insert("invoice_split_line.create", splitLine);
+							}
+						}
+
+					}
+				}else{
+					log.info("新增开始》》》》》》");
+					manager.insert("invoice_head.create", invoiceHeads.get(0));
+					if(splitLines!=null&&splitLines.size()>0){
+						for(InvoiceSplitLine splitLine:splitLines){
+							manager.insert("invoice_split_line.create", splitLine);
+						}
+					}
+
+					//manager.insertObject("invoice_head.create", invoiceHeads);
+					//manager.insertObject("invoice_split_line.create", splitLines);
+
+					log.info("新增结束》》》》》");
+				}
+
+			}
+		}
+
+		return null;
+	}
+
+	@Override
+	@Transactional
+	public Object delInvoice(String docNum) throws JCoException {
+
+		//根据单据号删除数据  并且解锁SAP
+		InvoiceHead ih = new InvoiceHead();
+		ih.setDocNum(docNum);
+
+		InvoiceHead invoiceHead =  (InvoiceHead)manager.query("invoice_head.queryOne", ih);
+
+
+		/**
+		 * 修改发票表头表体信息
+		 */
+		JCoDestination destination= pool.getJCoDestination();
+		JCoFunction function4 = destination.getRepository().getFunction(
+
+				"ZFI_JSI02");//从对象仓库中获取 RFM 函数
+
+		if (function4 == null)
+
+			throw new RuntimeException(
+
+					"ZFI_JSI02 not found in SAP.");
+
+		JCoTable options = function4.getTableParameterList().getTable("IT_TABLE_HE");
+		// modification date >= 2012.01.01 and <= 2015.12.31
+		options.appendRow();
+		options.setValue("MANDT", invoiceHead.getMandt());
+		options.setValue("DOC_NUM", invoiceHead.getDocNum());
+		options.setValue("DOC_DATE", invoiceHead.getDocDate());
+		options.setValue("DOC_STATUS", invoiceHead.getDocStatus());
+		options.setValue("ORG_ID", invoiceHead.getOrgId());
+		options.setValue("ORG_NAME", invoiceHead.getOrgName());
+		options.setValue("ORG_TAXCODE", invoiceHead.getOrgTaxcode());
+		options.setValue("ORG_MACHINE", invoiceHead.getOrgMachine());
+		options.setValue("ORG_ADDRESS", invoiceHead.getOrgAddress());
+		options.setValue("ORG_TELEPHONE", invoiceHead.getOrgTelephone());
+		options.setValue("ORG_BANKNAME", invoiceHead.getOrgBankname());
+		options.setValue("ORG_BANKACCOUNT", invoiceHead.getOrgBankaccount());
+		if(invoiceHead.getOrgTaxexceed()!=null){
+			options.setValue("ORG_TAXEXCEED", invoiceHead.getOrgTaxexceed());
+		}
+		options.setValue("ORG_CONTROLTAX", invoiceHead.getOrgControltax());
+		options.setValue("CUST_ID_AR", invoiceHead.getCustIdAr());
+		options.setValue("CUST_NAME_AR", invoiceHead.getCustNameAr());
+		options.setValue("CUST_ID_BILL", invoiceHead.getCustIdBill());
+		options.setValue("CUST_NAME_BILL", invoiceHead.getCustNameBill());
+		options.setValue("CUST_NAME", invoiceHead.getCustName());
+		options.setValue("CUST_TAXCODE", invoiceHead.getCustTaxcode());
+		options.setValue("CUST_ADDRESS", invoiceHead.getCustAddress());
+		options.setValue("CUST_TELEPHONE", invoiceHead.getCustTelephone());
+		options.setValue("CUST_BANKNAME", invoiceHead.getCustBankname());
+		options.setValue("CUST_BANKACCOUNT", invoiceHead.getCustBankaccount());
+		options.setValue("CUST_EMAIL", invoiceHead.getCustEmail());
+		options.setValue("CUST_MOBILE", invoiceHead.getCustMobile());
+
+		options.setValue("INVOICE_TYPE", invoiceHead.getInvoiceType());
+		options.setValue("INVOICE_TYPES", invoiceHead.getInvoiceTypes());
+		options.setValue("INVOICE_BASE", invoiceHead.getInvoiceBase());
+		options.setValue("INVOICE_WAY", invoiceHead.getInvoiceWay());
+		if(invoiceHead.getMergeAmt()!=null){
+			options.setValue("MERGE_AMT", invoiceHead.getMergeAmt());
+		}
+		if(invoiceHead.getMergeQty()!=null){
+			options.setValue("MERGE_QTY", invoiceHead.getMergeQty());
+		}
+
+		options.setValue("TAX_RATE", invoiceHead.getTaxRate());
+		options.setValue("DISCOUNT_TYPE", invoiceHead.getDiscountType());
+		if(invoiceHead.getDiscountRate()!=null){
+			options.setValue("DISCOUNT_RATE", invoiceHead.getDiscountRate());
+		}
+
+		options.setValue("MERGE_GIFT", invoiceHead.getMergeGift());
+		options.setValue("INVOICE_LIST", invoiceHead.getInvoiceList());
+		options.setValue("INVOICE_RED", invoiceHead.getInvoiceRed());
+		options.setValue("MERGEF_TYPE", invoiceHead.getMergefType());
+		options.setValue("MERGES_TYPE", invoiceHead.getMergesType());
+		options.setValue("GOLDTAX_CODE", invoiceHead.getGoldtaxCode());
+		options.setValue("GOLDTAX_NUM", invoiceHead.getGoldtaxNum());
+
+		options.setValue("USER_ID", invoiceHead.getUserId());
+		options.setValue("USER_NAME", invoiceHead.getUserName());
+		options.setValue("CHECK_NAME", invoiceHead.getCheckName());
+		options.setValue("PAYEE_NAME", invoiceHead.getPayeeName());
+
+		options.setValue("BILL_DATE", invoiceHead.getBillDate());
+		options.setValue("CANCEL_DATE", invoiceHead.getCancelDate());
+		options.setValue("BILL_GDATE", invoiceHead.getBillGdate());
+		options.setValue("CANCEL_GDATE", invoiceHead.getCancelGdate());
+		options.setValue("INVOICE_RED_REQM", invoiceHead.getInvoiceRedReqm());
+		options.setValue("INVOICE_RED_XXBM", invoiceHead.getInvoiceRedXxbm());
+		options.setValue("INVOICE_RED_FPDM", invoiceHead.getInvoiceRedFpdm());
+		options.setValue("INVOICE_RED_FPHM", invoiceHead.getInvoiceRedFphm());
+
+		options.setValue("BILL_REMARK", invoiceHead.getBillRemark());
+
+		if(invoiceHead.getZamountHswc()!=null){
+			options.setValue("ZAMOUNT_HSWC", invoiceHead.getZamountHswc());
+		}
+
+		if(invoiceHead.getZamountWswc()!=null){
+			options.setValue("ZAMOUNT_WSWC", invoiceHead.getZamountWswc());
+		}
+
+		if(invoiceHead.getZamountSewc()!=null){
+			options.setValue("ZAMOUNT_SEWC", invoiceHead.getZamountSewc());
+		}
+
+
+		options.setValue("CREATED_BY", invoiceHead.getCreatedBy());
+		options.setValue("CREATION_DATE", invoiceHead.getCreationDate());
+		options.setValue("LAST_UPDATED_BY", invoiceHead.getLastUpdatedBy());
+		options.setValue("LAST_UPDATED_DAT", invoiceHead.getLastUpdatedDat());
+
+
+		//options.setValue("ATTRIBUTE1", invoiceHead.getAttribute1());
+		options.setValue("ATTRIBUTF1", invoiceHead.getAttributf1());
+		//options.setValue("ATTRIBUTE2", invoiceHead.getAttribute2());
+		//options.setValue("ATTRIBUTE3", invoiceHead.getAttribute3());
+
+		JCoTable options1 = function4.getTableParameterList().getTable("IT_TABLE_GR");
+		for(com.zhys.invoice.po.InvoiceSplitLine invoiceSplitLine:invoiceHead.getInvoiceSplitLines()) {
+			options1.appendRow();
+			if("1".equals(invoiceSplitLine.getGoldtaxCode())){
+				invoiceSplitLine.setGoldtaxCode("");
+			}
+			options1.setValue("MANDT", invoiceSplitLine.getMandt());
+			options1.setValue("DOC_NUM", invoiceSplitLine.getDocNum());
+			options1.setValue("DOC_LINE", invoiceSplitLine.getDocLine());
+			options1.setValue("GROUP_NUM", invoiceSplitLine.getGroupNum());
+			options1.setValue("GROUP_STATUS", invoiceSplitLine.getGroupStatus());
+			options1.setValue("GOLDTAX_CODE", invoiceSplitLine.getGoldtaxCode());
+			options1.setValue("GOLDTAX_NUM", invoiceSplitLine.getGoldtaxNum());
+
+			options1.setValue("ITEM_NAME", invoiceSplitLine.getItemName());
+			options1.setValue("ITEM_SPEC", invoiceSplitLine.getItemSpec());
+			options1.setValue("UNIT_NAME", invoiceSplitLine.getUnitName());
+
+			options1.setValue("TAX_CATECODE", invoiceSplitLine.getTaxCatecode());
+			if(invoiceSplitLine.getQuantity()!=null){
+				options1.setValue("QUANTITY", invoiceSplitLine.getQuantity());
+			}
+			if(invoiceSplitLine.getTaxRate()!=null){
+				options1.setValue("TAX_RATE", invoiceSplitLine.getTaxRate());
+			}
+			options1.setValue("GIFT_FLAG", invoiceSplitLine.getGiftFlag());
+
+			if(invoiceSplitLine.getZamountHsj()!=null){
+				options1.setValue("ZAMOUNT_HSJ", invoiceSplitLine.getZamountHsj());
+			}
+			if(invoiceSplitLine.getZamountWsj()!=null){
+				options1.setValue("ZAMOUNT_WSJ", invoiceSplitLine.getZamountWsj());
+			}
+			if(invoiceSplitLine.getZamountSej()!=null){
+				options1.setValue("ZAMOUNT_SEJ", invoiceSplitLine.getZamountSej());
+			}
+			if(invoiceSplitLine.getZamountHzhs()!=null){
+				options1.setValue("ZAMOUNT_HZHS", invoiceSplitLine.getZamountHzhs());
+			}
+			if(invoiceSplitLine.getZamountHzws()!=null){
+				options1.setValue("ZAMOUNT_HZWS", invoiceSplitLine.getZamountHzws());
+			}
+			if(invoiceSplitLine.getZamountHzse()!=null){
+				options1.setValue("ZAMOUNT_HZSE", invoiceSplitLine.getZamountHzse());
+			}
+			if(invoiceSplitLine.getZamountHsy()!=null){
+				options1.setValue("ZAMOUNT_HSY", invoiceSplitLine.getZamountHsy());
+			}
+			if(invoiceSplitLine.getZamountWsy()!=null){
+				options1.setValue("ZAMOUNT_WSY", invoiceSplitLine.getZamountWsy());
+			}
+			if(invoiceSplitLine.getZamountSey()!=null){
+				options1.setValue("ZAMOUNT_SEY", invoiceSplitLine.getZamountSey());
+			}
+			if(invoiceSplitLine.getZpriceHsj()!=null){
+				options1.setValue("ZPRICE_HSJ", invoiceSplitLine.getZpriceHsj());
+			}
+			if(invoiceSplitLine.getZpriceWsj()!=null){
+				options1.setValue("ZPRICE_WSJ", invoiceSplitLine.getZpriceWsj());
+			}
+			if(invoiceSplitLine.getZpriceHsy()!=null){
+				options1.setValue("ZPRICE_HSY", invoiceSplitLine.getZpriceHsy());
+			}
+			if(invoiceSplitLine.getZpriceWsy()!=null){
+				options1.setValue("ZPRICE_WSY", invoiceSplitLine.getZpriceWsy());
+			}
+			options1.setValue("BILL_DATE", invoiceSplitLine.getBillDate());
+			options1.setValue("CANCEL_DATE", invoiceSplitLine.getCancelDate());
+			options1.setValue("BILL_GDATE", invoiceSplitLine.getBillGdate());
+			options1.setValue("CANCEL_GDATE", invoiceSplitLine.getCancelGdate());
+			options1.setValue("GROUP_COPYFROM", invoiceSplitLine.getGroupCopyfrom());
+
+
+			//options1.setValue("ATTRIBUTE1", invoiceSplitLine.getAttribute1());
+			options1.setValue("ATTRIBUTF1", invoiceSplitLine.getAttributf1());
+			//options1.setValue("ATTRIBUTE2", invoiceSplitLine.getAttribute2());
+			//options1.setValue("ATTRIBUTE3", invoiceSplitLine.getAttribute3());
+
+		}
+		try {
+
+			function4.execute(destination);
+
+		} catch (AbapException e) {
+
+			log.info(e.toString());
+
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("msg","错误原因：执行回传解锁异常");
+			jsonObject.put("success",false);
+			throw  new BusinessException(ResultCode.INTERFACE_OUTTER_INVOKE_ERROR,jsonObject);
+
+		}
+
+		String EX_TYPE = function4.getExportParameterList()
+
+				.getString("EX_TYPE");
+		System.out.println("发票回传EX_TYPE "
+
+				+ EX_TYPE + ":\n");
+
+		String EX_MESSAGE = function4.getExportParameterList()
+
+				.getString("EX_MESSAGE");
+		log.info(invoiceHead.getDocNum()+"发票回传EX_MESSAGE "
+
+				+ EX_MESSAGE + ":\n");
+		if(EX_TYPE.equals("S")){
+			//更新发票同步状态
+			invoiceHead.setIssync("2");
+			manager.update("invoice_head.changeIssyncById",invoiceHead);
+		}else{
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("msg",EX_MESSAGE);
+			jsonObject.put("success",false);
+			throw  new BusinessException(ResultCode.INTERFACE_OUTTER_INVOKE_ERROR,jsonObject);
+		}
+
+		if("1".equals(invoiceHead.getDocStatus())){
+			manager.delete("invoice_head.del",invoiceHead);
+		}
+
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("msg","撤销成功");
+		jsonObject.put("success",true);
+		return jsonObject;
+	}
+
+	@Override
+	public Object unlock(String orgId) throws JCoException {
+		//根据组织号获取还未开票信息 删除数据  并且解锁SAP
+		InvoiceHead ih = new InvoiceHead();
+		ih.setOrgId(orgId);
+		InvoiceHead invoiceHead =  (InvoiceHead)manager.query("invoice_head.queryOneByCondition", ih);
+
+		if(invoiceHead==null|| StringUtils.isEmpty(invoiceHead.getDocNum())){
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("msg","撤销成功：无可撤销单据");
+			jsonObject.put("success",true);
+			throw  new BusinessException(ResultCode.INTERFACE_OUTTER_INVOKE_ERROR,jsonObject);
+		}
+		for(com.zhys.invoice.po.InvoiceSplitLine invoiceSplitLine:invoiceHead.getInvoiceSplitLines()){
+			if(!invoiceSplitLine.getGroupStatus().equals("1")||!StringUtils.isEmpty(invoiceSplitLine.getGoldtaxCode())){
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("msg","撤销失败：当前单据状态不允许撤销");
+				jsonObject.put("success",false);
+				throw  new BusinessException(ResultCode.INTERFACE_OUTTER_INVOKE_ERROR,jsonObject);
+			}
+		}
+		/**
+		 * 修改发票表头表体信息
+		 */
+		JCoDestination destination= pool.getJCoDestination();
+		JCoFunction function4 = destination.getRepository().getFunction(
+
+				"ZFI_JSI02");//从对象仓库中获取 RFM 函数
+
+		if (function4 == null)
+
+			throw new RuntimeException(
+
+					"ZFI_JSI02 not found in SAP.");
+
+		JCoTable options = function4.getTableParameterList().getTable("IT_TABLE_HE");
+		// modification date >= 2012.01.01 and <= 2015.12.31
+		options.appendRow();
+		options.setValue("MANDT", invoiceHead.getMandt());
+		options.setValue("DOC_NUM", invoiceHead.getDocNum());
+		options.setValue("DOC_DATE", invoiceHead.getDocDate());
+		options.setValue("DOC_STATUS", invoiceHead.getDocStatus());
+		options.setValue("ORG_ID", invoiceHead.getOrgId());
+		options.setValue("ORG_NAME", invoiceHead.getOrgName());
+		options.setValue("ORG_TAXCODE", invoiceHead.getOrgTaxcode());
+		options.setValue("ORG_MACHINE", invoiceHead.getOrgMachine());
+		options.setValue("ORG_ADDRESS", invoiceHead.getOrgAddress());
+		options.setValue("ORG_TELEPHONE", invoiceHead.getOrgTelephone());
+		options.setValue("ORG_BANKNAME", invoiceHead.getOrgBankname());
+		options.setValue("ORG_BANKACCOUNT", invoiceHead.getOrgBankaccount());
+		if(invoiceHead.getOrgTaxexceed()!=null){
+			options.setValue("ORG_TAXEXCEED", invoiceHead.getOrgTaxexceed());
+		}
+		options.setValue("ORG_CONTROLTAX", invoiceHead.getOrgControltax());
+		options.setValue("CUST_ID_AR", invoiceHead.getCustIdAr());
+		options.setValue("CUST_NAME_AR", invoiceHead.getCustNameAr());
+		options.setValue("CUST_ID_BILL", invoiceHead.getCustIdBill());
+		options.setValue("CUST_NAME_BILL", invoiceHead.getCustNameBill());
+		options.setValue("CUST_NAME", invoiceHead.getCustName());
+		options.setValue("CUST_TAXCODE", invoiceHead.getCustTaxcode());
+		options.setValue("CUST_ADDRESS", invoiceHead.getCustAddress());
+		options.setValue("CUST_TELEPHONE", invoiceHead.getCustTelephone());
+		options.setValue("CUST_BANKNAME", invoiceHead.getCustBankname());
+		options.setValue("CUST_BANKACCOUNT", invoiceHead.getCustBankaccount());
+		options.setValue("CUST_EMAIL", invoiceHead.getCustEmail());
+		options.setValue("CUST_MOBILE", invoiceHead.getCustMobile());
+
+		options.setValue("INVOICE_TYPE", invoiceHead.getInvoiceType());
+		options.setValue("INVOICE_TYPES", invoiceHead.getInvoiceTypes());
+		options.setValue("INVOICE_BASE", invoiceHead.getInvoiceBase());
+		options.setValue("INVOICE_WAY", invoiceHead.getInvoiceWay());
+		if(invoiceHead.getMergeAmt()!=null){
+			options.setValue("MERGE_AMT", invoiceHead.getMergeAmt());
+		}
+		if(invoiceHead.getMergeQty()!=null){
+			options.setValue("MERGE_QTY", invoiceHead.getMergeQty());
+		}
+
+		options.setValue("TAX_RATE", invoiceHead.getTaxRate());
+		options.setValue("DISCOUNT_TYPE", invoiceHead.getDiscountType());
+		if(invoiceHead.getDiscountRate()!=null){
+			options.setValue("DISCOUNT_RATE", invoiceHead.getDiscountRate());
+		}
+
+		options.setValue("MERGE_GIFT", invoiceHead.getMergeGift());
+		options.setValue("INVOICE_LIST", invoiceHead.getInvoiceList());
+		options.setValue("INVOICE_RED", invoiceHead.getInvoiceRed());
+		options.setValue("MERGEF_TYPE", invoiceHead.getMergefType());
+		options.setValue("MERGES_TYPE", invoiceHead.getMergesType());
+		options.setValue("GOLDTAX_CODE", invoiceHead.getGoldtaxCode());
+		options.setValue("GOLDTAX_NUM", invoiceHead.getGoldtaxNum());
+
+		options.setValue("USER_ID", invoiceHead.getUserId());
+		options.setValue("USER_NAME", invoiceHead.getUserName());
+		options.setValue("CHECK_NAME", invoiceHead.getCheckName());
+		options.setValue("PAYEE_NAME", invoiceHead.getPayeeName());
+
+		options.setValue("BILL_DATE", invoiceHead.getBillDate());
+		options.setValue("CANCEL_DATE", invoiceHead.getCancelDate());
+		options.setValue("BILL_GDATE", invoiceHead.getBillGdate());
+		options.setValue("CANCEL_GDATE", invoiceHead.getCancelGdate());
+		options.setValue("INVOICE_RED_REQM", invoiceHead.getInvoiceRedReqm());
+		options.setValue("INVOICE_RED_XXBM", invoiceHead.getInvoiceRedXxbm());
+		options.setValue("INVOICE_RED_FPDM", invoiceHead.getInvoiceRedFpdm());
+		options.setValue("INVOICE_RED_FPHM", invoiceHead.getInvoiceRedFphm());
+
+		options.setValue("BILL_REMARK", invoiceHead.getBillRemark());
+
+		if(invoiceHead.getZamountHswc()!=null){
+			options.setValue("ZAMOUNT_HSWC", invoiceHead.getZamountHswc());
+		}
+
+		if(invoiceHead.getZamountWswc()!=null){
+			options.setValue("ZAMOUNT_WSWC", invoiceHead.getZamountWswc());
+		}
+
+		if(invoiceHead.getZamountSewc()!=null){
+			options.setValue("ZAMOUNT_SEWC", invoiceHead.getZamountSewc());
+		}
+
+
+		options.setValue("CREATED_BY", invoiceHead.getCreatedBy());
+		options.setValue("CREATION_DATE", invoiceHead.getCreationDate());
+		options.setValue("LAST_UPDATED_BY", invoiceHead.getLastUpdatedBy());
+		options.setValue("LAST_UPDATED_DAT", invoiceHead.getLastUpdatedDat());
+
+
+		//options.setValue("ATTRIBUTE1", invoiceHead.getAttribute1());
+		options.setValue("ATTRIBUTF1", invoiceHead.getAttributf1());
+		//options.setValue("ATTRIBUTE2", invoiceHead.getAttribute2());
+		//options.setValue("ATTRIBUTE3", invoiceHead.getAttribute3());
+
+		JCoTable options1 = function4.getTableParameterList().getTable("IT_TABLE_GR");
+		for(com.zhys.invoice.po.InvoiceSplitLine invoiceSplitLine:invoiceHead.getInvoiceSplitLines()) {
+			options1.appendRow();
+			options1.setValue("MANDT", invoiceSplitLine.getMandt());
+			options1.setValue("DOC_NUM", invoiceSplitLine.getDocNum());
+			options1.setValue("DOC_LINE", invoiceSplitLine.getDocLine());
+			options1.setValue("GROUP_NUM", invoiceSplitLine.getGroupNum());
+			options1.setValue("GROUP_STATUS", invoiceSplitLine.getGroupStatus());
+			options1.setValue("GOLDTAX_CODE", invoiceSplitLine.getGoldtaxCode());
+			options1.setValue("GOLDTAX_NUM", invoiceSplitLine.getGoldtaxNum());
+
+			options1.setValue("ITEM_NAME", invoiceSplitLine.getItemName());
+			options1.setValue("ITEM_SPEC", invoiceSplitLine.getItemSpec());
+			options1.setValue("UNIT_NAME", invoiceSplitLine.getUnitName());
+
+			options1.setValue("TAX_CATECODE", invoiceSplitLine.getTaxCatecode());
+			if(invoiceSplitLine.getQuantity()!=null){
+				options1.setValue("QUANTITY", invoiceSplitLine.getQuantity());
+			}
+			if(invoiceSplitLine.getTaxRate()!=null){
+				options1.setValue("TAX_RATE", invoiceSplitLine.getTaxRate());
+			}
+			options1.setValue("GIFT_FLAG", invoiceSplitLine.getGiftFlag());
+
+			if(invoiceSplitLine.getZamountHsj()!=null){
+				options1.setValue("ZAMOUNT_HSJ", invoiceSplitLine.getZamountHsj());
+			}
+			if(invoiceSplitLine.getZamountWsj()!=null){
+				options1.setValue("ZAMOUNT_WSJ", invoiceSplitLine.getZamountWsj());
+			}
+			if(invoiceSplitLine.getZamountSej()!=null){
+				options1.setValue("ZAMOUNT_SEJ", invoiceSplitLine.getZamountSej());
+			}
+			if(invoiceSplitLine.getZamountHzhs()!=null){
+				options1.setValue("ZAMOUNT_HZHS", invoiceSplitLine.getZamountHzhs());
+			}
+			if(invoiceSplitLine.getZamountHzws()!=null){
+				options1.setValue("ZAMOUNT_HZWS", invoiceSplitLine.getZamountHzws());
+			}
+			if(invoiceSplitLine.getZamountHzse()!=null){
+				options1.setValue("ZAMOUNT_HZSE", invoiceSplitLine.getZamountHzse());
+			}
+			if(invoiceSplitLine.getZamountHsy()!=null){
+				options1.setValue("ZAMOUNT_HSY", invoiceSplitLine.getZamountHsy());
+			}
+			if(invoiceSplitLine.getZamountWsy()!=null){
+				options1.setValue("ZAMOUNT_WSY", invoiceSplitLine.getZamountWsy());
+			}
+			if(invoiceSplitLine.getZamountSey()!=null){
+				options1.setValue("ZAMOUNT_SEY", invoiceSplitLine.getZamountSey());
+			}
+			if(invoiceSplitLine.getZpriceHsj()!=null){
+				options1.setValue("ZPRICE_HSJ", invoiceSplitLine.getZpriceHsj());
+			}
+			if(invoiceSplitLine.getZpriceWsj()!=null){
+				options1.setValue("ZPRICE_WSJ", invoiceSplitLine.getZpriceWsj());
+			}
+			if(invoiceSplitLine.getZpriceHsy()!=null){
+				options1.setValue("ZPRICE_HSY", invoiceSplitLine.getZpriceHsy());
+			}
+			if(invoiceSplitLine.getZpriceWsy()!=null){
+				options1.setValue("ZPRICE_WSY", invoiceSplitLine.getZpriceWsy());
+			}
+			options1.setValue("BILL_DATE", invoiceSplitLine.getBillDate());
+			options1.setValue("CANCEL_DATE", invoiceSplitLine.getCancelDate());
+			options1.setValue("BILL_GDATE", invoiceSplitLine.getBillGdate());
+			options1.setValue("CANCEL_GDATE", invoiceSplitLine.getCancelGdate());
+			options1.setValue("GROUP_COPYFROM", invoiceSplitLine.getGroupCopyfrom());
+
+
+			//options1.setValue("ATTRIBUTE1", invoiceSplitLine.getAttribute1());
+			options1.setValue("ATTRIBUTF1", invoiceSplitLine.getAttributf1());
+			//options1.setValue("ATTRIBUTE2", invoiceSplitLine.getAttribute2());
+			//options1.setValue("ATTRIBUTE3", invoiceSplitLine.getAttribute3());
+
+		}
+		try {
+
+			function4.execute(destination);
+
+		} catch (AbapException e) {
+
+			log.info(e.toString());
+
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("msg","错误原因：执行回传解锁异常");
+			jsonObject.put("success",false);
+			throw  new BusinessException(ResultCode.INTERFACE_OUTTER_INVOKE_ERROR,jsonObject);
+
+		}
+
+		String EX_TYPE = function4.getExportParameterList()
+
+				.getString("EX_TYPE");
+		System.out.println("发票回传EX_TYPE "
+
+				+ EX_TYPE + ":\n");
+
+		String EX_MESSAGE = function4.getExportParameterList()
+
+				.getString("EX_MESSAGE");
+		log.info(invoiceHead.getDocNum()+"发票回传EX_MESSAGE "
+
+				+ EX_MESSAGE + ":\n");
+		if(EX_TYPE.equals("S")){
+			//更新发票同步状态
+			invoiceHead.setIssync("2");
+			manager.update("invoice_head.changeIssyncById",invoiceHead);
+		}else{
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("msg",EX_MESSAGE);
+			jsonObject.put("success",false);
+			throw  new BusinessException(ResultCode.INTERFACE_OUTTER_INVOKE_ERROR,jsonObject);
+		}
+
+
+		manager.delete("invoice_head.del",invoiceHead);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("msg","撤销成功");
+		jsonObject.put("success",true);
+		return jsonObject;
+	}
+
+	/**
+	 * 开票
+	 * @param org_id
+	 * @return
+	 */
+	@Override
+	public Object  kp(String org_id){
+		try{
+			VInvoiceHead vInvoiceHead = new VInvoiceHead();
+			vInvoiceHead.setORG_ID(org_id);
+			vInvoiceHead= (VInvoiceHead) manager.query("invoice_head.dkpxx",vInvoiceHead);
+
+			if (vInvoiceHead!=null && StringUtil.isNotEmpty(vInvoiceHead.getDOC_NUM()))
+			{
+				Body body = new Body();
+				body.fyxm = new Fyxm();
+
+				body.tspz = "00";
+				body.zsfs = "0";
+				body.yylxdm = "1";
+				body.jshj = "";
+				body.kce = "";
+				body.tzdbh = "";
+				body.yfpdm = "";
+				body.yfphm = "";
+				body.qmcs = "";
+				body.kpzdbs = getKpzdbs(vInvoiceHead.getORG_ID());
+				List<Group> groups = new ArrayList<Group>();
+				body.fyxm.groups = groups;
+
+				REQUEST_COMMON_FPKJ e_fpkj = new REQUEST_COMMON_FPKJ();
+				REQUEST_COMMON_ZZFPKJ zz_fpkj = new REQUEST_COMMON_ZZFPKJ();
+				List<COMMON_FPKJ_XMXX> COMMON_FPKJ_XMXX = new ArrayList<COMMON_FPKJ_XMXX>();
+				List<COMMON_FPKJ_XMXX_ZP> COMMON_FPKJ_XMXX_ZP = new ArrayList<COMMON_FPKJ_XMXX_ZP>();
+				e_fpkj.COMMON_FPKJ_XMXXS = new Common_fpkj_xmxxs();
+				zz_fpkj.COMMON_FPKJ_XMXXS = new Common_fpkj_xmxxs_zp();
+				e_fpkj.COMMON_FPKJ_XMXXS.COMMON_FPKJ_XMXX = COMMON_FPKJ_XMXX;
+				zz_fpkj.COMMON_FPKJ_XMXXS.COMMON_FPKJ_XMXX = COMMON_FPKJ_XMXX_ZP;
+
+				zz_fpkj.KPZDBS= getKpzdbs(vInvoiceHead.getORG_ID());
+				String djzj = vInvoiceHead.getDOC_NUM();
+				String hzh = vInvoiceHead.getGROUP_NUM();
+				body.fpqqlsh = djzj + hzh;
+				e_fpkj.FPQQLSH = djzj + hzh;
+				zz_fpkj.FPQQLSH= djzj + hzh;
+				int InfoKind = -1;
+				if (!"1".equals(vInvoiceHead.getGOLDTAX_CODE()))
+				{
+					log.info("update invoice_split_line set GOLDTAX_CODE ='1' where DOC_NUM='" + djzj + "' and GROUP_NUM=" + hzh);
+					//更新
+					//updteDatabase("update " + dbuser + ".invoice_split_line set GOLDTAX_CODE ='1' where DOC_NUM='" + djzj + "' and GROUP_NUM=" + hzh);
+					InvoiceSplitLine invoiceSplitLine = new InvoiceSplitLine();
+					invoiceSplitLine.setGoldtaxCode("1");
+					invoiceSplitLine.setDocNum(djzj);
+					invoiceSplitLine.setGroupNum(hzh);
+					manager.update("invoice_split_line.update",invoiceSplitLine);
+					String fpbz ="";
+					if(vInvoiceHead.getBILL_REMARK()!=null){
+						fpbz = vInvoiceHead.getBILL_REMARK().replace("#", "\n");
+					}
+					log.info("kp1");
+					String fplx = vInvoiceHead.getINVOICE_TYPE();
+					String jzfs =vInvoiceHead.getINVOICE_BASE();
+					String qdp =  vInvoiceHead.getINVOICE_LIST_QZ();
+					log.info("kp2");
+					body.bz = fpbz;
+					e_fpkj.BZ = fpbz;
+					zz_fpkj.BZ = fpbz;
+					BigDecimal ljhjje = BigDecimal.ZERO;
+					BigDecimal ljhjse = BigDecimal.ZERO;
+					BigDecimal ljhjjshj = BigDecimal.ZERO;
+					log.info("kp3");
+					body.hjje = "0";
+					body.hjse = "0";
+					body.jshj = "0";
+					e_fpkj.HJJE = "0";
+					e_fpkj.HJSE = "0";
+					zz_fpkj.HJJE = "0";
+					zz_fpkj.HJSE = "0";
+					log.info("kp4");
+					if ("0".equals(fplx))
+					{
+						log.info("专票》》》》");
+						InfoKind = 0;
+						body.fplxdm = "004";
+						zz_fpkj.FPLXDM= "004";
+					}
+					else if ("1".equals(fplx) || "5".equals(fplx))
+					{
+						log.info("普票》》》》");
+						InfoKind = 2;
+						body.fplxdm = "007";
+						zz_fpkj.FPLXDM= "007";
+					}
+					else if ("3".equals(fplx) )
+					{
+						log.info("电票》》》》");
+						InfoKind = 3;
+						body.fplxdm = "007";
+						zz_fpkj.FPLXDM= "007";
+					}
+					else
+					{
+						log.info("发票类型异常");
+						JSONObject jsonObject = new JSONObject();
+						jsonObject.put("msg","发票类型异常");
+						jsonObject.put("success",false);
+						throw  new BusinessException(ResultCode.INTERFACE_OUTTER_INVOKE_ERROR,jsonObject);
+					}
+
+					e_fpkj.KPLX = "0";
+					body.kplx = "0";
+					zz_fpkj.KPLX = "0";
+					if ("1".equals(vInvoiceHead.getINVOICE_RED()))
+					{
+						log.info( " 红票>>>>>>>>>>>>>>>");
+						e_fpkj.KPLX = "1";
+						body.kplx = "1";
+						zz_fpkj.KPLX = "1";
+						//判断蓝字发票代码、号码里是否包含 “|” 若包含则根据分组号进行对应 每个分组必须对应一个发票号码
+						String lzdm = "";
+						String lzhm = "";
+						try
+						{
+							String lzfpdm = vInvoiceHead.getINVOICE_RED_FPDM();
+							if (StringUtils.isNotEmpty(lzfpdm)&&lzfpdm.contains("|"))
+							{
+								int zh = Integer.parseInt(hzh) - 101;
+								String[] fpdms = lzfpdm.split("|");
+								String dm = fpdms[zh];
+								lzdm = dm.trim();
+
+							}
+							else {
+								if(lzfpdm!=null){
+									lzdm = lzfpdm;
+								}
+
+							}
+
+							String lzfphm =vInvoiceHead.getINVOICE_RED_FPHM();
+							if (StringUtils.isNotEmpty(lzfphm)&&lzfphm.contains("-")) {
+
+								log.info( " 拆分蓝字发票号码"+ lzfphm);
+								int zh = Integer.parseInt(hzh) - 101;
+								String[] fphms = lzfphm.split("-");
+
+								Integer hm = Integer.parseInt(fphms[0]);
+								hm = hm + zh ;
+								int cd  =hm.toString().length();
+								if (cd == 7)
+								{
+									lzhm = "0" + hm.toString();
+								}
+								else if (cd == 6)
+								{
+									lzhm = "00" + hm.toString();
+								}
+								else if (cd == 5)
+								{
+									lzhm = "000" + hm.toString();
+								}
+								else if (cd == 4)
+								{
+									lzhm = "0000" + hm.toString();
+								}
+								else if (cd == 3)
+								{
+									lzhm = "00000" + hm.toString();
+								}
+								else if (cd == 2)
+								{
+									lzhm = "000000" + hm.toString();
+								}
+								else if (cd == 1)
+								{
+									lzhm = "0000000" + hm.toString();
+								}
+								else {
+									lzhm= hm.toString();
+								}
+								;
+							}
+							else {
+
+								log.info( " 无需拆分蓝字发票号码" + lzfphm);
+								if(lzfphm!=null){
+									lzhm = lzfphm;
+								}
+
+							}
+						}
+						catch (Exception e)
+						{
+							log.info( " 拆分蓝字发票号码、代码异常");
+e.printStackTrace();
+							return null;
+
+						}
+
+
+						log.info( "蓝字发票号码：" + lzhm);
+						if (InfoKind == 2)
+						{
+							log.info( " 红票-普票");
+						}
+						else if (InfoKind == 3)
+						{
+							log.info( " 红票-电票");
+							redTicket_e(vInvoiceHead);
+							return null;
+						}
+						else if (InfoKind == 0)
+						{
+							log.info( " 红票-专票");
+							body.yfpdm = lzdm;
+							body.yfphm = lzhm;
+							zz_fpkj.YFP_DM= lzdm;
+							zz_fpkj.YFP_HM= lzdm;
+							if (vInvoiceHead.getINVOICE_RED_XXBM()==null||vInvoiceHead.getINVOICE_RED_XXBM().length() <= 0)
+							{
+								log.info( " 申请信息表编码");
+								String xxbbm = redTicket(vInvoiceHead,"0",0);
+								log.info( " 获取到信息表编码：" + xxbbm);
+								if (xxbbm == null)
+								{
+									JSONObject jsonObject = new JSONObject();
+									jsonObject.put("msg","获取信息表编码失败");
+									jsonObject.put("success",false);
+									throw  new BusinessException(ResultCode.INTERFACE_OUTTER_INVOKE_ERROR,jsonObject);
+								}
+								body.tzdbh = xxbbm;
+								zz_fpkj.TZDBH= xxbbm;
+							}
+							else
+							{
+								log.info( " 已有申请信息表编码");
+								body.tzdbh = vInvoiceHead.getINVOICE_RED_XXBM();
+								zz_fpkj.TZDBH=vInvoiceHead.getINVOICE_RED_XXBM();
+							}
+
+
+
+						}
+					}
+
+
+
+
+
+					log.info("设置信息1》》》》");
+					body.ghdwmc = vInvoiceHead.getCUST_NAME().trim();
+					body.ghdwsbh = vInvoiceHead.getCUST_TAXCODE().trim();
+					body.ghdwyhzh = vInvoiceHead.getCUST_BANKNAME()+ " " + vInvoiceHead.getCUST_BANKACCOUNT();
+					body.ghdwdzdh = vInvoiceHead.getCUST_ADDRESS()+ " " + vInvoiceHead.getCUST_TELEPHONE();
+					body.xhdwyhzh = vInvoiceHead.getORG_BANKNAME().trim() + " " + vInvoiceHead.getORG_BANKACCOUNT().trim();
+					body.xhdwdzdh = vInvoiceHead.getORG_ADDRESS().trim() + " " + vInvoiceHead.getORG_TELEPHONE().trim();
+					body.xhdwsbh = vInvoiceHead.getORG_TAXCODE().trim();
+					body.xhdwmc = vInvoiceHead.getORG_NAME().trim();
+//body.xhdwsbh = "50012345671180300";
+//body.xhdwmc = "深圳市万科房地产有限公司";
+					// body.成品油 = "0";
+					body.kpr = vInvoiceHead.getUSER_NAME();
+					body.fhr = vInvoiceHead.getCHECK_NAME();
+					body.skr = vInvoiceHead.getPAYEE_NAME();
+
+					log.info("设置信息1.1》》》》");
+					e_fpkj.GMF_MC = vInvoiceHead.getCUST_NAME().trim();
+					e_fpkj.GMF_NSRSBH = vInvoiceHead.getCUST_TAXCODE().trim();
+					e_fpkj.GMF_YHZH = vInvoiceHead.getCUST_BANKNAME() + " " + vInvoiceHead.getCUST_BANKACCOUNT();
+					e_fpkj.GMF_DZDH = vInvoiceHead.getCUST_ADDRESS() + " " + vInvoiceHead.getCUST_TELEPHONE();
+					e_fpkj.XSF_YHZH = vInvoiceHead.getORG_BANKNAME().trim() + " " + vInvoiceHead.getORG_BANKACCOUNT().trim();
+					e_fpkj.XSF_DZDH = vInvoiceHead.getORG_ADDRESS().trim() + " " + vInvoiceHead.getORG_TELEPHONE().trim();
+					e_fpkj.XSF_NSRSBH = vInvoiceHead.getORG_TAXCODE().trim();
+					e_fpkj.XSF_MC = vInvoiceHead.getORG_NAME().trim();
+//				e_fpkj.XSF_NSRSBH = "110109500321655";
+//				e_fpkj.XSF_MC = "百旺电子测试2";
+					// e_fpkj.成品油 = "0";
+					e_fpkj.KPR =  vInvoiceHead.getUSER_NAME();
+					e_fpkj.FHR = vInvoiceHead.getCHECK_NAME();
+					e_fpkj.SKR = vInvoiceHead.getPAYEE_NAME();
+					e_fpkj.ZSFS = "0";
+					if(vInvoiceHead.getCUST_EMAIL()!=null){
+						e_fpkj.GMF_DZYX = vInvoiceHead.getCUST_EMAIL().trim();
+					}
+					log.info("设置信息1.2》》》》");
+					e_fpkj.HYLX = "0";
+					e_fpkj.KCE = "";
+					//e_fpkj.TSPZ = "00";
+
+					zz_fpkj.GMF_MC = vInvoiceHead.getCUST_NAME().trim();
+					zz_fpkj.GMF_NSRSBH = vInvoiceHead.getCUST_TAXCODE().trim();
+					zz_fpkj.GMF_YHZH = vInvoiceHead.getCUST_BANKNAME() + " " + vInvoiceHead.getCUST_BANKACCOUNT();
+					zz_fpkj.GMF_DZDH = vInvoiceHead.getCUST_ADDRESS() + " " + vInvoiceHead.getCUST_TELEPHONE();
+					zz_fpkj.XSF_YHZH = vInvoiceHead.getORG_BANKNAME().trim() + " " + vInvoiceHead.getORG_BANKACCOUNT().trim();
+					zz_fpkj.XSF_DZDH = vInvoiceHead.getORG_ADDRESS().trim() + " " + vInvoiceHead.getORG_TELEPHONE().trim();
+					zz_fpkj.XSF_NSRSBH = vInvoiceHead.getORG_TAXCODE().trim();
+					zz_fpkj.XSF_MC = vInvoiceHead.getORG_NAME().trim();
+//				zz_fpkj.XSF_NSRSBH = "110109500321655";
+//				zz_fpkj.XSF_MC = "百旺电子测试2";
+					// e_fpkj.成品油 = "0";
+					log.info("设置信息1.3》》》》");
+					zz_fpkj.KPR =  vInvoiceHead.getUSER_NAME();
+					zz_fpkj.FHR = vInvoiceHead.getCHECK_NAME();
+					zz_fpkj.SKR = vInvoiceHead.getPAYEE_NAME();
+					zz_fpkj.ZSFS = "0";
+					if(vInvoiceHead.getCUST_EMAIL()!=null){
+						e_fpkj.GMF_DZYX = vInvoiceHead.getCUST_EMAIL().trim();
+					}
+
+					zz_fpkj.KCE = "";
+					zz_fpkj.TSPZ = "00";
+
+					log.info("设置信息2》》》》");
+
+					//String d1s = "select * from .v_invoice_detail_add where 单据主键='" + djzj + "' and 行组号=" + hzh;
+					InvoiceSplitLine is = new InvoiceSplitLine();
+					is.setDocNum(djzj);
+					is.setGroupNum(hzh);
+					vInvoiceHead.detailList = (List<VInvoiceDetail>)manager.list("invoice_split_line.queryVList",is);
+					int co = 0;
+					for (VInvoiceDetail vInvoiceDetail:vInvoiceHead.detailList)
+					{
+						co++;
+						Group group = new Group();
+						group.xh = ""+co;
+						COMMON_FPKJ_XMXX fpmx = new COMMON_FPKJ_XMXX();
+						COMMON_FPKJ_XMXX_ZP zz_fpmx = new COMMON_FPKJ_XMXX_ZP();
+						//detail fpmx = new detail();
+						//String kpcpmc = d1.Rows[i]["开票产品名称"].toString();
+						String kpcpmc = "";
+						if (vInvoiceDetail.getITEM_NAME()!=null&&vInvoiceDetail.getITEM_NAME().length() >= 72)
+						{
+							kpcpmc = vInvoiceDetail.getITEM_NAME().substring(0, 72);
+						}
+						else
+						{
+							kpcpmc = vInvoiceDetail.getITEM_NAME();
+						}
+						String kpcpggxh = "";
+						if (vInvoiceDetail.getITEM_SPEC()!=null&&vInvoiceDetail.getITEM_SPEC().length() >= 36)
+						{
+							kpcpggxh = vInvoiceDetail.getITEM_SPEC().substring(0, 36);
+						}
+						else
+						{
+							kpcpggxh = vInvoiceDetail.getITEM_SPEC();
+						}
+						if(kpcpggxh==null){
+							kpcpggxh="";
+						}
+						String kpjjdw = vInvoiceDetail.getUNIT_NAME();
+						String kpsl = vInvoiceDetail.getQUANTITY();
+						kpsl = setkpsl(kpsl);
+						Boolean mcg = shuicha(vInvoiceDetail.getZAMOUNT_HSJ(), vInvoiceDetail.getZAMOUNT_WSJ(), vInvoiceDetail.getZAMOUNT_SEJ(), vInvoiceDetail.getTAX_RATE());//没超过
+						/**
+						 * 获取基准方式
+						 */
+						//String jzfs = "" + v;
+						//判断是否严格控制税差
+						String v="1";
+						v = redis.get("kzxx").toString();//vInvoiceHead.getORG_CONTROLTAX();
+//					if ("1".equals(v) && !mcg)
+//					{
+//						jzfs = "2";
+//					}
+						String dj = "";
+						String je = "";
+
+
+						if (1==1||"1".equals(vInvoiceHead.getINVOICE_WAY()))
+						{
+
+							log.info("设置信息3》》》》");
+							if (jzfs.equals("1") )
+							{
+
+								//dj = d1.Rows[i]["开票含税单价"].toString();
+								je = vInvoiceDetail.getZAMOUNT_HSY();
+
+								group.je = je;
+
+								group.hsbz = "1";
+
+								dj = vInvoiceDetail.getZPRICE_HSY();
+								group.dj = dj;
+								group.se = vInvoiceDetail.getZAMOUNT_SEY();
+								zz_fpmx.SE = vInvoiceDetail.getZAMOUNT_SEY();
+								fpmx.SE = vInvoiceDetail.getZAMOUNT_SEY();
+								fpmx.XMJE = vInvoiceDetail.getZAMOUNT_WSY();
+								zz_fpmx.XMJE = je;
+								fpmx.XMDJ = vInvoiceDetail.getZPRICE_WSY();
+								log.info(co+"是否超过6分"+!mcg);
+								if(!mcg){
+									try {
+										group.se = new BigDecimal(je).multiply(new BigDecimal(vInvoiceDetail.getTAX_RATE()).divide(new BigDecimal("100"),2, BigDecimal.ROUND_HALF_UP)).divide(new BigDecimal(vInvoiceDetail.getTAX_RATE()).divide(new BigDecimal("100"),2, BigDecimal.ROUND_HALF_UP).add(new BigDecimal("1")),2, BigDecimal.ROUND_HALF_UP).toString();
+										log.info("税额："+group.se);
+										fpmx.SE =group.se;
+										zz_fpmx.SE =group.se;
+										vInvoiceDetail.setZAMOUNT_SEJ(group.se);
+										vInvoiceDetail.setZAMOUNT_WSJ(new BigDecimal(je).subtract(new BigDecimal(group.se)).toString());
+										fpmx.XMJE =new BigDecimal(je).subtract(new BigDecimal(group.se)).toString();
+										fpmx.XMDJ = new BigDecimal(fpmx.XMJE).divide(new BigDecimal(vInvoiceDetail.getQUANTITY()),2, BigDecimal.ROUND_HALF_UP).toString();
+									}catch (Exception e){
+										e.printStackTrace();
+										log.info("税额异常："+e.getMessage());
+									}
+
+
+								}
+
+
+								//fpmx.SE = vInvoiceDetail.getZAMOUNT_SEY();
+
+
+								zz_fpmx.XMDJ = dj;
+								//zz_fpmx.SE = vInvoiceDetail.getZAMOUNT_SEY();
+								zz_fpmx.HSBZ="1";
+
+
+
+
+							}
+							else if (jzfs.equals("2"))
+							{
+
+								je = vInvoiceDetail.getZAMOUNT_WSY();
+
+								group.je = je;
+								group.hsbz = "0";
+								//fpmx.单价 = "";
+								group.se = vInvoiceDetail.getZAMOUNT_SEY();
+								dj = vInvoiceDetail.getZPRICE_WSY();
+								group.dj = dj;
+								fpmx.XMJE = je;
+								fpmx.SE = vInvoiceDetail.getZAMOUNT_SEY();
+
+								zz_fpmx.XMJE = je;
+								zz_fpmx.HSBZ = "0";
+								//fpmx.单价 = "";
+								zz_fpmx.SE = vInvoiceDetail.getZAMOUNT_SEY();
+								zz_fpmx.XMDJ = dj;
+
+							}
+							else if (jzfs.equals("3"))
+							{
+								dj = vInvoiceDetail.getZPRICE_HSY();
+
+								je = vInvoiceDetail.getZAMOUNT_HSY();
+
+								group.dj = dj;
+								group.hsbz = "1";
+								group.je = je;
+
+								fpmx.XMJE = je;
+								fpmx.XMDJ = dj;
+
+								zz_fpmx.XMJE = je;
+								zz_fpmx.XMDJ = dj;
+								zz_fpmx.HSBZ="1";
+
+
+							}
+							else if (jzfs.equals("4"))
+							{
+								dj = vInvoiceDetail.getZPRICE_WSY();
+								je = vInvoiceDetail.getZAMOUNT_WSY();
+
+								group.dj = dj;
+								group.hsbz = "0";
+								group.se = vInvoiceDetail.getZAMOUNT_SEY();
+								group.je = je;
+
+								fpmx.XMJE = je;
+								fpmx.XMDJ = dj ;
+								fpmx.SE = vInvoiceDetail.getZAMOUNT_SEY();
+
+								zz_fpmx.XMJE = je;
+								zz_fpmx.XMDJ = dj ;
+								zz_fpmx.SE = vInvoiceDetail.getZAMOUNT_SEY();
+								zz_fpmx.HSBZ="0";
+							}
+
+						}
+						else
+						{
+
+
+
+							if (jzfs.equals("1"))
+							{
+								dj = vInvoiceDetail.getZPRICE_HSJ();
+								je = vInvoiceDetail.getZAMOUNT_HSJ();
+								group.se = vInvoiceDetail.getZAMOUNT_SEJ();
+								group.je = je;
+								group.hsbz = "1";
+								group.dj = dj;
+								//log.info("是否超过6分"+mcg);
+								if(!mcg){
+									group.se = new BigDecimal(je).multiply(new BigDecimal(vInvoiceDetail.getTAX_RATE()).divide(new BigDecimal("100"))).divide(new BigDecimal(vInvoiceDetail.getTAX_RATE()).divide(new BigDecimal("100")).add(new BigDecimal("1"))).toString();
+									vInvoiceDetail.setZAMOUNT_SEJ(group.se);
+									vInvoiceDetail.setZAMOUNT_WSJ(new BigDecimal(je).subtract(new BigDecimal(group.se)).toString());
+								}
+								zz_fpmx.XMJE = je;
+								zz_fpmx.XMDJ = dj ;
+								zz_fpmx.SE = vInvoiceDetail.getZAMOUNT_SEJ();
+								zz_fpmx.HSBZ="1";
+
+								fpmx.XMJE = vInvoiceDetail.getZAMOUNT_WSJ();
+								fpmx.XMDJ = vInvoiceDetail.getZPRICE_WSJ(); ;
+								fpmx.SE = vInvoiceDetail.getZAMOUNT_SEJ();
+							}
+							else if (jzfs.equals("2"))
+							{
+								dj = vInvoiceDetail.getZPRICE_WSJ();
+								je = vInvoiceDetail.getZAMOUNT_WSJ();
+								group.dj = dj;
+								group.je = je;
+								group.hsbz = "0";
+								group.se = vInvoiceDetail.getZAMOUNT_SEJ();
+
+								zz_fpmx.XMJE = je;
+								zz_fpmx.SE = vInvoiceDetail.getZAMOUNT_SEJ();
+								zz_fpmx.HSBZ="0";
+								zz_fpmx.XMDJ=dj;
+								fpmx.XMJE = je;
+
+								fpmx.SE = vInvoiceDetail.getZAMOUNT_SEJ();
+							}
+							else if (jzfs.equals("3"))
+							{
+								dj = vInvoiceDetail.getZPRICE_HSJ();
+
+								group.dj = dj;
+								je = vInvoiceDetail.getZAMOUNT_HSJ();
+
+								group.hsbz = "1";
+								group.je = je;
+
+								zz_fpmx.XMDJ = dj; ;
+								zz_fpmx.XMJE = je;
+								//zz_fpmx.SE = vInvoiceDetail.getZAMOUNT_SEJ();
+								zz_fpmx.HSBZ="0";
+
+								fpmx.XMJE = je;
+								fpmx.XMDJ = dj;
+
+
+
+							}
+							else if (jzfs.equals("4"))
+							{
+								dj = vInvoiceDetail.getZPRICE_WSJ();
+								je = vInvoiceDetail.getZAMOUNT_WSJ();
+								group.se =vInvoiceDetail.getZAMOUNT_SEJ();
+								group.dj = dj;
+								group.je = je;
+								group.hsbz = "0";
+
+
+								zz_fpmx.XMJE = je;
+								zz_fpmx.XMDJ = dj ;
+								zz_fpmx.SE = vInvoiceDetail.getZAMOUNT_SEJ();
+								zz_fpmx.HSBZ="0";
+
+								fpmx.XMJE = je;
+								fpmx.XMDJ = dj;
+								fpmx.SE = vInvoiceDetail.getZAMOUNT_SEJ();
+							}
+
+						}
+
+
+						ljhjje = new BigDecimal(vInvoiceDetail.getZAMOUNT_WSJ()).add(ljhjje) ;
+						ljhjse =new BigDecimal(vInvoiceDetail.getZAMOUNT_SEJ()).add(ljhjse) ;
+						ljhjjshj = new BigDecimal(vInvoiceDetail.getZAMOUNT_HSJ()).add(ljhjjshj) ;
+						//ljhjjshj = ljhjje.subtract(ljhjse);
+
+						group.spmc = kpcpmc;
+						group.spsm = "";
+						group.zxbm = "";
+						group.ggxh = kpcpggxh;
+						group.dw = kpjjdw;
+						group.spsl = kpsl;
+						group.sl = ""+(Float.parseFloat(vInvoiceDetail.getTAX_RATE()))/100;
+
+						group.yhzcbs = "";
+						group.zzstsgl = "";
+
+
+						fpmx.XMMC = kpcpmc;
+						fpmx.GGXH = kpcpggxh;
+						fpmx.DW = kpjjdw;
+						fpmx.XMSL = kpsl;
+						fpmx.SL = "" + (Float.parseFloat(vInvoiceDetail.getTAX_RATE())) / 100;
+						fpmx.YHZCBS = "0";
+						fpmx.ZXBM = "";
+						fpmx.ZZSTSGL = "";
+						fpmx.BY1 = "";
+						fpmx.BY2 = "";
+						fpmx.BY3 = "";
+						fpmx.BY4 = "";
+						fpmx.BY5 = "";
+
+						zz_fpmx.XMMC = kpcpmc;
+						zz_fpmx.GGXH = kpcpggxh;
+						zz_fpmx.DW = kpjjdw;
+						zz_fpmx.XMSL = kpsl;
+						zz_fpmx.SL = "" + (Float.parseFloat(vInvoiceDetail.getTAX_RATE())) / 100;
+						zz_fpmx.YHZCBS = "0";
+						zz_fpmx.ZXBM = "";
+						zz_fpmx.ZZSTSGL = "";
+
+
+
+						String GoodsNoVer = vInvoiceHead.getBmbbh() ;
+						String GoodsTaxNo = setssflbm(vInvoiceDetail.getTAX_CATECODE());
+//					String GoodsTaxNo = "1070223010000000000";
+						String TaxPre = vInvoiceDetail.getYhbz();
+						String TaxPreCon = vInvoiceDetail.getYhzcnr();
+						String ZeroTax =vInvoiceDetail.getLsbz();
+						String CropGoodsNo = vInvoiceDetail.getQyzbm();
+						String TaxDeduction = "";
+
+						group.spbm = GoodsTaxNo;
+						group.lslbs = "";
+
+						fpmx.SPBM = GoodsTaxNo;
+						fpmx.LSLBS = "";
+						fpmx.FPHXZ = "0";
+						zz_fpmx.SPBM = GoodsTaxNo;
+						zz_fpmx.SPSM = "";
+						zz_fpmx.LSLBS = "";
+						zz_fpmx.FPHXZ = "0";
+						group.fphxz = "0";
+
+
+						COMMON_FPKJ_XMXX fPKJ_XMXX = new COMMON_FPKJ_XMXX();
+						COMMON_FPKJ_XMXX_ZP zz_fPKJ_XMXX = new COMMON_FPKJ_XMXX_ZP();
+						Group group1 = new Group();
+						fPKJ_XMXX.FPHXZ = null ;
+						zz_fPKJ_XMXX.FPHXZ = null ;
+						group1.fphxz = null;
+						if ( !StringUtils.isEmpty(vInvoiceDetail.getZAMOUNT_HZHS()) && Double.parseDouble(vInvoiceDetail.getZAMOUNT_HZHS()) < 0
+								&& "1".equals(vInvoiceHead.getINVOICE_WAY()) && "0".equals(vInvoiceHead.getINVOICE_RED()))
+						{
+
+							fPKJ_XMXX.FPHXZ = "1";
+							zz_fPKJ_XMXX.FPHXZ = "1";
+
+							group1.spsm = group.spsm;
+							group1.ggxh = group.ggxh;
+							group1.dw = "";// group.dw;
+							group1.hsbz = group.hsbz;
+							group1.zxbm = group.zxbm;
+							group1.yhzcbs = group.yhzcbs;
+							group1.zzstsgl = group.zzstsgl;
+
+							group1.dj = "";// group.dj;
+							group1.fphxz = "1";
+
+							if (group1.hsbz.equals("1") )
+							{
+								//含税
+								group1.je = vInvoiceDetail.getZAMOUNT_HZHS();
+								zz_fPKJ_XMXX.XMJE  = vInvoiceDetail.getZAMOUNT_HZHS();
+
+
+							}
+							else {
+								group1.je = vInvoiceDetail.getZAMOUNT_HZWS();
+								zz_fPKJ_XMXX.XMJE  = vInvoiceDetail.getZAMOUNT_HZWS();
+							}
+							group1.spsl = "";// ((Double.parseDouble(group1.je)) / (Double.parseDouble(group1.dj))).toString("0.00000000");
+							group1.sl = "" + (Float.parseFloat(vInvoiceDetail.getTAX_RATE())) / 100;
+							group1.lslbs = ZeroTax;
+							group1.se = vInvoiceDetail.getZAMOUNT_HZSE();
+							group1.spbm = GoodsTaxNo;
+							group1.spmc = kpcpmc;
+							group.fphxz = "2";
+
+							co++;
+
+							fPKJ_XMXX.SL = "" + (Float.parseFloat(vInvoiceDetail.getTAX_RATE())) / 100;
+							fPKJ_XMXX.XMDJ = "";// group.dj;
+							fPKJ_XMXX.XMJE = vInvoiceDetail.getZAMOUNT_HZWS();
+							fPKJ_XMXX.LSLBS = ZeroTax;
+							fPKJ_XMXX.SE = vInvoiceDetail.getZAMOUNT_HZSE();
+							fPKJ_XMXX.SPBM = GoodsTaxNo;
+							fPKJ_XMXX.XMMC = kpcpmc;
+							fPKJ_XMXX.XMSL = "";
+							fPKJ_XMXX.YHZCBS = "0";
+							fPKJ_XMXX.ZXBM = "";
+							fPKJ_XMXX.ZZSTSGL = "";
+							fPKJ_XMXX.GGXH = "";
+							fPKJ_XMXX.DW = "";// fpmx.DW;
+							fPKJ_XMXX.BY1 = "";
+							fPKJ_XMXX.BY2 = "";
+							fPKJ_XMXX.BY3 = "";
+							fPKJ_XMXX.BY4 = "";
+							fPKJ_XMXX.BY5 = "";
+
+							zz_fPKJ_XMXX.SL = "" + (Float.parseFloat(vInvoiceDetail.getTAX_RATE())) / 100;
+							zz_fPKJ_XMXX.XMDJ = "";// group.dj;
+							zz_fPKJ_XMXX.XMJE = vInvoiceDetail.getZAMOUNT_HZWS();
+							zz_fPKJ_XMXX.LSLBS = ZeroTax;
+							zz_fPKJ_XMXX.SE = vInvoiceDetail.getZAMOUNT_HZSE();
+							zz_fPKJ_XMXX.SPBM = GoodsTaxNo;
+							zz_fPKJ_XMXX.XMMC = kpcpmc;
+							zz_fPKJ_XMXX.XMSL = "";
+							zz_fPKJ_XMXX.YHZCBS = "0";
+							zz_fPKJ_XMXX.ZXBM = "";
+							zz_fPKJ_XMXX.ZZSTSGL = "";
+							zz_fPKJ_XMXX.GGXH = "";
+							zz_fPKJ_XMXX.DW = "";// fpmx.DW;
+							zz_fPKJ_XMXX.SPSM = "";
+
+							fpmx.FPHXZ = "2";
+							zz_fpmx.FPHXZ = "2";
+							group1.xh = "" + co;
+						}
+						groups.add(group);
+						COMMON_FPKJ_XMXX.add(fpmx);
+						COMMON_FPKJ_XMXX_ZP.add(zz_fpmx);
+						if (fPKJ_XMXX.FPHXZ !=null) {
+							COMMON_FPKJ_XMXX.add(fPKJ_XMXX);
+							COMMON_FPKJ_XMXX_ZP.add(zz_fPKJ_XMXX);
+						}
+
+						if (group1.fphxz!=null) {
+
+							groups.add(group1);
+
+						}
+
+
+					}
+
+					body.fyxm.count = "" + co;
+					body.qdbz = "0";
+
+					body.hjje = ""+ljhjje;
+					body.hjse = ""+ljhjse;
+					body.jshj = ""+ljhjjshj;
+
+					e_fpkj.HJJE = "" + ljhjje;
+					e_fpkj.HJSE = "" + ljhjse;
+					e_fpkj.JSHJ = "" + ljhjjshj;
+
+					zz_fpkj.HJJE = "" + ljhjje;
+					zz_fpkj.HJSE = "" + ljhjse;
+					zz_fpkj.JSHJ = "" + ljhjjshj;
+					zz_fpkj.QDBZ="0";
+					//电票清单标志没有
+					InvoiceSplitLine line = new InvoiceSplitLine();
+					line.setDocNum(djzj);
+					line.setGroupNum(hzh);
+					if (co > 8|| qdp.equals("1"))
+					{
+
+						body.qdbz = "1";
+						line.setInvoiceList("1");
+						manager.update("invoice_split_line.update",line);
+					}
+					else
+					{
+						line.setInvoiceList("0");
+						manager.update("invoice_split_line.update",line);
+					}
+
+					log.info( " 开立发票--");
+
+
+					if (InfoKind != 3) {
+						log.info("进入纸票开具模块");
+						Business business = new Business();
+						business.id = "10008";
+						business.comment = "发票开具";
+						business.body = body;
+
+						String ss = JaxbUtils.jaxbBeanToxmlGBK(business);
+						ss = ss + "\r\n";
+						log.info("纸票开票信息：" + ss);
+						byte[] bytes = ss.getBytes(StandardCharsets.UTF_8);
+						String base64 = Base64.getEncoder().encodeToString(bytes);
+						String req = "<content>" + base64 + "</content>";
+						log.info("纸票开票请求信息：" + req);
+						JSONObject jo = null;
+						try {
+							jo = PostUtil.postResponse(zpdz, req, "text/xml");
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+
+						log.info(" 纸票开票返回信息" + jo.toJSONString());
+
+
+						if ("0".equals(jo.getString("Result"))) {
+							String res = new String(Base64.getDecoder().decode(jo.getString("Data")), StandardCharsets.UTF_8);
+
+							log.info(" 纸票开票返回解密信息" + res);
+							//redis.zSetAndTime("log",60*60*24*7,new Date().getTime()," 纸票开票返回解密信息" + res);
+							String returncode = res.substring(res.indexOf("<returncode>") + 12, res.indexOf("</returncode>"));
+							if (returncode.equals("0")) {
+								String fpdm = res.substring(res.indexOf("<fpdm>") + 6, res.indexOf("</fpdm>"));
+								String fphm = res.substring(res.indexOf("<fphm>") + 6, res.indexOf("</fphm>"));
+								double wsje = Double.parseDouble(res.substring(res.indexOf("<hjje>") + 6, res.indexOf("</hjje>")));
+								double hjse = Double.parseDouble(res.substring(res.indexOf("<hjse>") + 6, res.indexOf("</hjse>")));
+								double hjje = Double.parseDouble(res.substring(res.indexOf("<jshj>") + 6, res.indexOf("</jshj>")));
+								String kprq = res.substring(res.indexOf("<kprq>") + 6, res.indexOf("</kprq>"));
+								log.info(body.fpqqlsh + "纸票开立成功,开出发票代码、号码：" + fpdm + "、" + fphm);
+								redis.zSetAndTime("kplog", 60 * 60 * 24 * 7, new Date().getTime(), body.fpqqlsh + "纸票开立成功,开出发票代码、号码：" + fpdm + "、" + fphm);
+								invoiceSuccess(kprq, fphm, fpdm, wsje, hjse, hjje, vInvoiceHead, djzj, hzh);
+								log.info(body.fpqqlsh + ":" + fpdm + "、" + fphm + "纸票回传成功--");
+								redis.zSetAndTime("kplog", 60 * 60 * 24 * 7, new Date().getTime(), body.fpqqlsh + ":" + fpdm + "、" + fphm + "纸票回传成功--");
+							} else {
+								String returnmsg = res.substring(res.indexOf("<returnmsg>") + 11, res.indexOf("</returnmsg>"));
+								log.info(body.fpqqlsh + ":" + "纸票开立失败，原因：" + returnmsg);
+								errLog(vInvoiceHead.getDOC_NUM(), vInvoiceHead.getGROUP_NUM(), returnmsg);
+								redis.zSetAndTime("kplog", 60 * 60 * 24 * 7, new Date().getTime(), body.fpqqlsh + ":" + "纸票开立失败，原因：" + returnmsg);
+							}
+
+							//纸票请求开具
+//					log.info( "进入纸票开具模块");
+//					String zz_fpkj_str = JSONObject.toJSONString(zz_fpkj);
+//					zz_fpkj_str = "{\"REQUEST_COMMON_ZZFPKJ\": " + zz_fpkj_str + "}";
+//					log.info( "纸票开票请求未封装信息：" + zz_fpkj_str);
+//					byte[] bytes = zz_fpkj_str.getBytes(StandardCharsets.UTF_8);
+//
+//					String base64 = Base64.getEncoder().encodeToString(bytes);
+//					String strPassword = pwd;
+//					log.info( "base64:" + base64);
+//					String strHash = MD5.GetMD5Code(base64);
+//					log.info( "Hash=" + strHash + "(" + base64.length()+ ")");
+//					String strResult = null;
+//					try {
+//						strResult = AESUtil.Encrypt(strHash, strPassword);
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//					log.info( "密文=" + strResult);
+//					SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//					SimpleDateFormat sdf1  = new SimpleDateFormat("yyyyMMdd");
+//					String req = "{ \"interface\": { \"globalInfo\": { \n" +
+//							"\"appId\": \""+getAppId(vInvoiceHead.getORG_ID())+"\",  \"interfaceId\": \"\",  \"interfaceCode\": \"DFXJ1009\",  \"requestCode\": \"DZFPQZ\",  \n" +
+//							"\"requestTime\": \""+ sdf.format(new Date()) + "\",  \"responseCode\": \"DS\",  \n" +
+//							"\"dataExchangeId\": \"DZFPQZDFXJ1009"+sdf1.format(new Date())+rand()+"\"     },  \"returnStateInfo\": { \"returnCode\": \"\",  \"returnMessage\": \"\"     },  \"Data\": { \"dataDescription\": { \"zipCode\": \"0\"         },  \n" +
+//							"\"content\": \""+ base64 + "\", \n" +
+//							"\"contentKey\": \""+ strResult + "\"     } } }";
+//
+//					log.info( "纸票开票请求信息：" + req);
+//					JSONObject jo = null;
+//					try {
+//						jo = PostUtil.postResponse(dpdz,req,"application/json");
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//					}
+//					log.info( " 纸票开票返回信息" + jo.toJSONString());
+//					String returnCode =  jo.getJSONObject("interface").getJSONObject("returnStateInfo").getString("returnCode");
+//					if ("0000".equals(returnCode)) {
+//
+//						String content = jo.getJSONObject("interface").getJSONObject("Data").getString("content");
+//						String ba = new String(Base64.getDecoder().decode(content),StandardCharsets.UTF_8);
+//
+//						log.info( " 纸票开票返回解密信息：" + ba);
+//						JSONObject jsonObject = JSONObject.parseObject(ba);
+//						String FPQQLSH = jsonObject.getString("FPQQLSH");
+//						String fpdm = jsonObject.getString("FP_DM");
+//						String fphm = jsonObject.getString("FP_HM");
+//						String kprq = jsonObject.getString("KPRQ");
+//						String JYM = jsonObject.getString("JYM");
+//
+//						log.info( body.fpqqlsh+":"+"纸票开立成功,开出发票代码、号码："+fpdm+"、"+fphm);
+//						redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),body.fpqqlsh+":"+"纸票开立成功,开出发票代码、号码："+fpdm+"、"+fphm);
+//						invoiceSuccessNoMoney(kprq, fphm, fpdm, vInvoiceHead, djzj, hzh, "");
+//						redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),body.fpqqlsh+":"+fpdm+"、"+fphm+"纸票回传成功--");
+//
+//
+//					}else{
+//						String returnMessage =  jo.getJSONObject("interface").getJSONObject("returnStateInfo").getString("returnMessage");
+//						log.info( body.fpqqlsh+":"+" 纸票开立失败，原因："+ returnMessage);
+//						errLog(vInvoiceHead.getDOC_NUM(),vInvoiceHead.getGROUP_NUM(),returnMessage);
+//						redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),body.fpqqlsh+":"+"纸票开立失败，原因："+returnMessage);
+//					}
+
+						}
+					}
+					else {
+						//电票请求开具
+						log.info( "进入电票开具模块");
+						String e_fpkj_str = JSONObject.toJSONString(e_fpkj, SerializerFeature.DisableCircularReferenceDetect).replace("null","");
+						e_fpkj_str = "{\"REQUEST_COMMON_FPKJ\": " + e_fpkj_str + "}";
+						log.info( "电票开票请求未封装信息：" + e_fpkj_str);
+						byte[] bytes = e_fpkj_str.getBytes(StandardCharsets.UTF_8);
+
+						String base64 = Base64.getEncoder().encodeToString(bytes);
+						String strPassword = pwd;
+						log.info( "base64:" + base64);
+						String strHash = MD5.GetMD5Code(base64);
+						log.info( "Hash=" + strHash + "(" + base64.length()+ ")");
+						String strResult = null;
+						try {
+							strResult = AESUtil.Encrypt(strHash, strPassword);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						log.info( "密文=" + strResult);
+						SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+						SimpleDateFormat sdf1  = new SimpleDateFormat("yyyyMMdd");
+						String req = "{ \"interface\": { \"globalInfo\": { \n" +
+								"\"appId\": \""+getAppId(vInvoiceHead.getORG_ID())+"\",  \"interfaceId\": \"\",  \"interfaceCode\": \"DFXJ1001\",  \"requestCode\": \"DZFPQZ\",  \n" +
+								"\"requestTime\": \""+ sdf.format(new Date()) + "\",  \"responseCode\": \"DS\",  \n" +
+								"\"dataExchangeId\": \"DZFPQZDFXJ1001"+sdf1.format(new Date())+rand()+"\"     },  \"returnStateInfo\": { \"returnCode\": \"\",  \"returnMessage\": \"\"     },  \"Data\": { \"dataDescription\": { \"zipCode\": \"0\"         },  \n" +
+								"\"content\": \""+ base64 + "\", \n" +
+								"\"contentKey\": \""+ strResult + "\"     } } }";
+
+						log.info( "电票开票请求信息：" + req);
+						JSONObject jo = null;
+						try {
+							jo = JSONObject.parseObject(HttpClientUtil.doPost(dpdz,req,"utf-8"));
+						} catch (Exception e) {
+							e.printStackTrace();
+							log.info( " 电票开票请求异常》》》》"+e.getMessage());
+						}
+						log.info( " 电票开票返回信息" + jo.toJSONString());
+						String returnCode =  jo.getJSONObject("interface").getJSONObject("returnStateInfo").getString("returnCode");
+						if ("0000".equals(returnCode)) {
+
+							String content = jo.getJSONObject("interface").getJSONObject("Data").getString("content");
+							String ba = new String(Base64.getDecoder().decode(content),StandardCharsets.UTF_8);
+
+							log.info( " 电票开票返回解密信息：" + ba);
+							JSONObject jsonObject = JSONObject.parseObject(ba);
+							String FPQQLSH = jsonObject.getString("FPQQLSH");
+							String fpdm = jsonObject.getString("FP_DM");
+							String fphm = jsonObject.getString("FP_HM");
+							String kprq = jsonObject.getString("KPRQ");
+							String JYM = jsonObject.getString("JYM");
+							String PDF_URL = jsonObject.getString("PDF_URL");
+							String SP_URL =jsonObject.getString("SP_URL");
+							log.info( body.fpqqlsh+":"+"电票开立成功,开出发票代码、号码："+fpdm+"、"+fphm);
+							redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),body.fpqqlsh+":"+"电票开立成功,开出发票代码、号码："+fpdm+"、"+fphm);
+							invoiceSuccessNoMoney(kprq, fphm, fpdm, vInvoiceHead, djzj, hzh, PDF_URL);
+							redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),body.fpqqlsh+":"+fpdm+"、"+fphm+"电票回传成功--");
+
+
+						}else{
+							String returnMessage =  jo.getJSONObject("interface").getJSONObject("returnStateInfo").getString("returnMessage");
+							log.info( body.fpqqlsh+":"+" 电票开立失败，原因："+ returnMessage);
+							errLog(vInvoiceHead.getDOC_NUM(),vInvoiceHead.getGROUP_NUM(),returnMessage);
+							redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),body.fpqqlsh+":"+"电票开立失败，原因："+returnMessage);
+						}
+
+
+					}
+
+
+
+				}
+				else
+				{
+					log.info( "发票已提交未返回数据--请点击[断点续传]");
+					redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),"发票已提交未返回数据--请点击[断点续传]");
+					return null;
+				}
+
+			}
+
+			return null;
+		}catch (Exception e){
+			e.printStackTrace();
+			log.info("开票异常："+e.getCause().getMessage());
+			return null;
+		}
+
+	}
+
+	@Override
+	public Object loadData() {
+
+		threadPoolManager.threadPool.execute(new Runnable() {
+			@Override
+			public void run() {
+				revoke("2200","1","1");
+			}
+		});
+		threadPoolManager.threadPool.execute(new Runnable() {
+			@Override
+			public void run() {
+				revoke("2500","1","1");
+			}
+		});
+		threadPoolManager.threadPool.execute(new Runnable() {
+			@Override
+			public void run() {
+				revoke("1000","1","1");
+			}
+		});
+		return null;
+	}
+
+
+	private Boolean shuicha(String hsje, String wsje, String se, String sl)
+	{
+		if (hsje != "" && hsje != null && se != null && se != "" && sl != null && sl != "")
+		{
+			double ce = Double.parseDouble(hsje) * (Double.parseDouble(sl) / 100) / (1 + (Double.parseDouble(sl) / 100));
+			if (ce - Double.parseDouble(se) > 0.06 || Double.parseDouble(se) - ce > 0.06)
+			{
+				return false;
+			}
+		}
+
+		if (wsje != "" && wsje != null && se != null && se != "" && sl != null && sl != "")
+		{
+			double ce = Double.parseDouble(wsje) * (Double.parseDouble(sl) / 100);
+			if (ce - Double.parseDouble(se) > 0.06 || Double.parseDouble(se) - ce > 0.06)
+			{
+				return false;
+			}
+		}
+
+		return true;
+
+	}
+
+	private int rand() {
+		int max=999999999,min=100000000;
+		int ran2 = (int) (Math.random()*(max-min)+min);
+		return ran2;
+	}
+
+
+
+
+
+
+
+
+	private String redTicket(VInvoiceHead dt1,String ywlx,int js)
+	{
+		String xxbm = null;
+		if (dt1!=null)
+		{
+			log.info(" 进入信息表申请");
+			redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),"进入信息表申请");
+			String reqString = "<?xml version=\"1.0\" encoding=\"gbk\"?> \n" +
+					"<business id=\"11008\" comment=\"红字信息表申请\"> \n" +
+					"<body yylxdm=\"1\">\n" +
+					" <nsrsbh>" + dt1.getORG_TAXCODE()+ "</nsrsbh>\n" +
+					" <fplxdm>004</fplxdm> \n" +
+					" <yfpdm>" + dt1.getINVOICE_RED_FPDM() + "</yfpdm> \n" +
+					" <yfphm>" + dt1.getINVOICE_RED_FPHM() + "</yfphm>\n" +
+					" <kpzddm>" + getKpzdbs(dt1.getORG_ID()) + "</kpzddm> \n" +
+					" <sqyy>2</sqyy>\n" +
+					" <ywlx>" + ywlx + "</ywlx>\n" +
+					" <sqrmc>" + dt1.getUSER_NAME() + "</sqrmc>\n" +
+					" <sqjgmc>" + dt1.getORG_NAME() + "</sqjgmc>\n" +
+					" <lxfs></lxfs> \n" +
+					" <xhdwsbh>" + dt1.getORG_TAXCODE() + "</xhdwsbh> \n" +
+					" <xhdwmc>" + dt1.getORG_NAME() + "</xhdwmc> \n" +
+					" <ghdwsbh>" + dt1.getCUST_TAXCODE() + "</ghdwsbh>\n" +
+					" <ghdwmc>" + dt1.getCUST_NAME() + "</ghdwmc>\n" +
+					" <zdbz>2</zdbz> \n" +
+					"</body> </business>\r\n";
+
+//			String reqString = "<?xml version=\"1.0\" encoding=\"gbk\"?> \n" +
+//					"<business id=\"11008\" comment=\"红字信息表申请\"> \n" +
+//					"<body yylxdm=\"1\">\n" +
+//					" <nsrsbh>50012345671180300</nsrsbh>\n" +
+//					" <fplxdm>004</fplxdm> \n" +
+//					" <yfpdm>" + dt1.getINVOICE_RED_FPDM() + "</yfpdm> \n" +
+//					" <yfphm>" + dt1.getINVOICE_RED_FPHM() + "</yfphm>\n" +
+//					" <kpzddm>" + getKpzdbs(dt1.getORG_ID()) + "</kpzddm> \n" +
+//					" <sqyy>2</sqyy>\n" +
+//					" <ywlx>" + ywlx + "</ywlx>\n" +
+//					" <sqrmc>" + dt1.getUSER_NAME() + "</sqrmc>\n" +
+//					" <sqjgmc>深圳市万科房地产有限公司</sqjgmc>\n" +
+//					" <lxfs></lxfs> \n" +
+//					" <xhdwsbh>50012345671180300</xhdwsbh> \n" +
+//					" <xhdwmc>深圳市万科房地产有限公司</xhdwmc> \n" +
+//					" <ghdwsbh>" + dt1.getCUST_TAXCODE() + "</ghdwsbh>\n" +
+//					" <ghdwmc>" + dt1.getCUST_NAME() + "</ghdwmc>\n" +
+//					" <zdbz>2</zdbz> \n" +
+//					"</body> </business>\r\n";
+
+
+			log.info("红字信息表申请信息：" + reqString);
+			byte[] bytes = reqString.getBytes(StandardCharsets.UTF_8);
+
+			String base64 = Base64.getEncoder().encodeToString(bytes);
+			String req = "<content>" + base64 + "</content>";
+			log.info( "红字信息表申请请求信息：" + req);
+			JSONObject jo = null;
+			try {
+				jo = PostUtil.postResponse(zpdz,req,"text/xml");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			log.info( " 红字信息表申请返回信息" + jo.toJSONString());
+
+
+
+			if ("0".equals(jo.getString("Result")))
+			{
+				String res = new String(Base64.getDecoder().decode(jo.getString("Data")),StandardCharsets.UTF_8);
+
+				log.info( " 红字信息表申请返回解密信息" + res);
+				String returncode = res.substring(res.indexOf("<returncode>") + 12, res.indexOf("</returncode>") );
+				if (returncode.equals("0"))
+				{
+					String yfpdm = res.substring(res.indexOf("<yfpdm>") + 7, res.indexOf("</yfpdm>"));
+					String yfphm = res.substring(res.indexOf("<yfphm>") + 7, res.indexOf("</yfphm>"));
+					String xxbbh = res.substring(res.indexOf("<xxbbh>") + 7, res.indexOf("</xxbbh>"));
+					if (xxbbh.length() > 0)
+					{
+
+						log.info("红字信息表申请成功，编号：" + xxbbh);
+						redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),"红字信息表申请成功，编号：" + xxbbh);
+
+						if(StringUtils.isNotEmpty(xxbm)){
+							//保存红字信息编码 暂定保存在表头
+							InvoiceHead invoiceHead = new InvoiceHead();
+							invoiceHead.setDocNum(dt1.getDOC_NUM());
+							invoiceHead.setInvoiceRedXxbm(xxbm);
+							manager.update("invoice_head.update",invoiceHead);
+						}
+
+						return xxbbh;
+					}
+					else
+					{
+
+						log.info("红字信息表申请成功，无编号");
+						redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),"红字信息表申请成功，无编号");
+						log.info("查询红字信息表");
+						redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),"查询红字信息表");
+						try {
+							Thread.sleep(2000  );
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						if(js==40){
+							return null;
+						}
+						xxbm = redTicket( dt1,"1",js++);
+
+
+					}
+
+				}
+				else
+				{
+					String returnmsg = res.substring(res.indexOf("<returnmsg>") + 11, res.indexOf("</returnmsg>") );
+					log.info( " 红字信息表申请申请失败，原因："+ returnmsg);
+					errLog(dt1.getDOC_NUM(),dt1.getGROUP_NUM(),returnmsg);
+					redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), " 红字信息表申请申请失败，原因："+ returnmsg);
+					return xxbm;
+
+				}
+
+			}
+
+		}
+		return xxbm;
+
+
+	}
+
+
+	private String redTicket1(VInvoiceHead dt1,String ywlx,int js)
+	{
+		String xxbm = null;
+		if (dt1!=null)
+		{
+			log.info( dt1.getDOC_NUM()+","+dt1.getGROUP_NUM()+":"+"进入红字信息编码申请");
+			redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),dt1.getDOC_NUM()+","+dt1.getGROUP_NUM()+":"+"进入红字信息编码申请");
+			String xxb_req = "{\n" +
+					"    \"REQUEST_COMMON_HZFPSQ\":{\n" +
+					"        \"NSRSBH\":\"" + dt1.getORG_TAXCODE()+ "\",\n" +
+					"        \"FPLXDM\":\"004\",\n" +
+					"        \"YFP_DM\":\""+ dt1.getINVOICE_RED_FPDM() +"\",\n" +
+					"        \"YFP_HM\":\""+ dt1.getINVOICE_RED_FPHM() + "\",\n" +
+					"        \"KPZDDM\":\""+ getKpzdbs(dt1.getORG_ID()) +"\",\n" +
+					"        \"SQYY\":\"2\",\n" +
+					"        \"YWLX\":\""+ ywlx + "\",\n" +
+					"        \"SQRMC\":\""+ dt1.getUSER_NAME() +"\",\n" +
+					"        \"SQJGMC\":\""+ dt1.getORG_NAME() + "\",\n" +
+					"        \"LXFS\":\"\",\n" +
+					"        \"XSF_NSRSBH\":\""+ dt1.getORG_TAXCODE() +"\",\n" +
+					"        \"XSF_MC\":\""+ dt1.getORG_NAME() +"\",\n" +
+					"        \"GMF_NSRSBH\":\""+ dt1.getCUST_TAXCODE() +"\",\n" +
+					"        \"GMF_MC\":\""+ dt1.getCUST_NAME() + "\",\n" +
+					"        \"ZDBZ\":\"2\"\n" +
+					"    }\n" +
+					"}";
+			String e_fpkj_str = JSONObject.toJSONString(xxb_req, SerializerFeature.DisableCircularReferenceDetect).replace("null","");
+			log.info( dt1.getDOC_NUM()+","+dt1.getGROUP_NUM()+":"+"红字信息编码申请请求未封装信息：" + xxb_req);
+			redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),dt1.getDOC_NUM()+","+dt1.getGROUP_NUM()+":"+"红字信息编码申请请求未封装信息");
+			byte[] bytes = e_fpkj_str.getBytes(StandardCharsets.UTF_8);
+
+			String base64 = Base64.getEncoder().encodeToString(bytes);
+			String strPassword = pwd;
+			log.info( "base64:" + base64);
+			String strHash = MD5.GetMD5Code(base64);
+			log.info( "Hash=" + strHash + "(" + base64.length()+ ")");
+			String strResult = null;
+			try {
+				strResult = AESUtil.Encrypt(strHash, strPassword);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			log.info( "密文=" + strResult);
+			SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			SimpleDateFormat sdf1  = new SimpleDateFormat("yyyyMMdd");
+			String req = "{ \"interface\": { \"globalInfo\": { \n" +
+					"\"appId\": \""+getAppId(dt1.getORG_ID())+"\",  \"interfaceId\": \"\",  \"interfaceCode\": \"DFXJ1011\",  \"requestCode\": \"DZFPQZ\",  \n" +
+					"\"requestTime\": \""+ sdf.format(new Date()) + "\",  \"responseCode\": \"DS\",  \n" +
+					"\"dataExchangeId\": \"DZFPQZDFXJ1011"+sdf1.format(new Date())+rand()+"\"     },  \"returnStateInfo\": { \"returnCode\": \"\",  \"returnMessage\": \"\"     },  \"Data\": { \"dataDescription\": { \"zipCode\": \"0\"         },  \n" +
+					"\"content\": \""+ base64 + "\", \n" +
+					"\"contentKey\": \""+ strResult + "\"     } } }";
+
+			log.info( dt1.getDOC_NUM()+","+dt1.getGROUP_NUM()+":"+"红字信息编码申请请求未封装信息请求封装信息：" + req);
+			redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),dt1.getDOC_NUM()+","+dt1.getGROUP_NUM()+":"+"红字信息编码申请请求封装信息：" + req);
+			JSONObject jo = null;
+			try {
+				jo = PostUtil.postResponse(dpdz,req,"application/json");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			log.info( dt1.getDOC_NUM()+","+dt1.getGROUP_NUM()+":"+" 红字信息编码申请返回信息" + jo.toJSONString());
+			redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),dt1.getDOC_NUM()+","+dt1.getGROUP_NUM()+":"+"红字信息编码申请返回信息：" +  jo.toJSONString());
+			String returnCode =  jo.getJSONObject("interface").getJSONObject("returnStateInfo").getString("returnCode");
+			if ("0000".equals(returnCode)) {
+
+				String content = jo.getJSONObject("interface").getJSONObject("Data").getString("content");
+				String ba = new String(Base64.getDecoder().decode(content),StandardCharsets.UTF_8);
+
+				log.info( dt1.getDOC_NUM()+","+dt1.getGROUP_NUM()+":"+" 红字信息编码申请返回解密信息" + ba);
+				redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),dt1.getDOC_NUM()+","+dt1.getGROUP_NUM()+":"+"红字信息编码申请返回解密信息：" +  ba);
+				JSONObject jsonObject = JSONObject.parseObject(ba);
+				//"CLZT": "处理状态",  "YFPDM": "原发票代码",  "YFPHM": "原发票号码",  "XXBBH": "红字信息表编号",  "SQDH": "申请单号"
+				String CLZT = jsonObject.getString("CLZT");
+				String YFPDM = jsonObject.getString("YFPDM");
+				String YFPHM = jsonObject.getString("YFPHM");
+				String xxbbh = jsonObject.getString("XXBBH");
+				String SQDH = jsonObject.getString("SQDH");
+				if (xxbbh!=null&&xxbbh.trim().length() > 0)
+				{
+					log.info("红字信息表申请成功，编号：" + xxbbh);
+					redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),"红字信息表申请成功，编号：" + xxbbh);
+
+					if(StringUtils.isNotEmpty(xxbm)){
+						//保存红字信息编码 暂定保存在表头
+						InvoiceHead invoiceHead = new InvoiceHead();
+						invoiceHead.setDocNum(dt1.getDOC_NUM());
+						invoiceHead.setInvoiceRedXxbm(xxbm);
+						manager.update("invoice_head.update",invoiceHead);
+					}
+
+					return xxbbh;
+				}else{
+					log.info("红字信息表申请成功，无编号");
+					redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),"红字信息表申请成功，无编号");
+					log.info("查询红字信息表");
+					redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),"查询红字信息表");
+					try {
+						Thread.sleep(2000  );
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					if(js==40){
+						return null;
+					}
+					xxbm = redTicket( dt1,"1",js++);
+				}
+
+
+			}else{
+
+				String returnMessage =  jo.getJSONObject("interface").getJSONObject("returnStateInfo").getString("returnMessage");
+				log.info( dt1.getDOC_NUM()+","+dt1.getGROUP_NUM()+" 红字信息表申请申请失败，原因："+ returnMessage);
+				errLog(dt1.getDOC_NUM(),dt1.getGROUP_NUM(),returnMessage);
+				redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), dt1.getDOC_NUM()+","+dt1.getGROUP_NUM()+" 红字信息表申请申请失败，原因："+ returnMessage);
+				return xxbm;
+			}
+		}
+		return xxbm;
+
+
+	}
+
+
+	private void redTicket_e(VInvoiceHead dt1)
+	{
+		//电票红字请求开具
+		log.info("进入电票红字开具模块");
+		redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), "进入电票红字开具模块");
+		String e_fpkj = "{ \n" +
+				"\"REQUEST_COMMON_FPKSHC\":{ \n" +
+				"\"FPQQLSH\": \""+dt1.getDOC_NUM()+dt1.getGROUP_NUM()+"\", \n" +
+				"\"XSF_NSRSBH\": \""+ dt1.getORG_TAXCODE()+ "\", \n" +
+				"\"XSF_MC\": \""+ dt1.getORG_NAME() + "\", \n" +
+				"\"YFP_DM\": \""+ dt1.getINVOICE_RED_FPDM() + "\", \n" +
+				"\"YFP_HM\": \"" + dt1.getINVOICE_RED_FPHM() + "\" } \n" +
+				"}";
+		log.info( "电票红字开票请求未封装信息：" + e_fpkj);
+		byte[] bytes = e_fpkj.getBytes(StandardCharsets.UTF_8);
+
+		String base64 = Base64.getEncoder().encodeToString(bytes);
+		String strPassword = pwd;
+		log.info( "base64:" + base64);
+		String strHash = MD5.GetMD5Code(base64);
+		log.info( "Hash=" + strHash + "(" + base64.length()+ ")");
+		String strResult = null;
+		try {
+			strResult = AESUtil.Encrypt(strHash, strPassword);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		log.info( "密文=" + strResult);
+		SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat sdf1  = new SimpleDateFormat("yyyyMMdd");
+		String req = "{ \"interface\": { \"globalInfo\": { \n" +
+				"\"appId\": \"" + getAppId(dt1.getORG_ID()) + "\",  \"interfaceId\": \"\",  \"interfaceCode\": \"DFXJ1008\",  \"requestCode\": \"DZFPQZ\",  \n" +
+				"\"requestTime\": \""+ sdf.format(new Date()) + "\",  \"responseCode\": \"DS\",  \n" +
+				"\"dataExchangeId\": \"DZFPQZDFXJ1008"+sdf1.format(new Date())+rand()+"\"     },  \"returnStateInfo\": { \"returnCode\": \"\",  \"returnMessage\": \"\"     },  \"Data\": { \"dataDescription\": { \"zipCode\": \"0\"         },  \n" +
+				"\"content\": \"" + base64 + "\", \n" +
+				"\"contentKey\": \"" + strResult + "\"     } } }";
+
+		log.info( "电票红字开票请求信息：" + req);
+		JSONObject jo = null;
+		jo = JSONObject.parseObject(HttpClientUtil.doPost(dpdz,req,"utf-8"));
+		log.info( " 电票红字开票返回信息" + jo.toJSONString());
+		String returnCode =  jo.getJSONObject("interface").getJSONObject("returnStateInfo").getString("returnCode");
+		if ("0000".equals(returnCode)) {
+
+			String content = jo.getJSONObject("interface").getJSONObject("Data").getString("content");
+			String ba = new String(Base64.getDecoder().decode(content),StandardCharsets.UTF_8);
+
+			log.info( " 电票红字开票返回解密信息：" + ba);
+			JSONObject jsonObject = JSONObject.parseObject(ba);
+			String FPQQLSH = jsonObject.getString("FPQQLSH");
+			String fpdm = jsonObject.getString("FP_DM");
+			String fphm = jsonObject.getString("FP_HM");
+			String kprq = jsonObject.getString("KPRQ");
+			String JYM = jsonObject.getString("JYM");
+			String PDF_URL = jsonObject.getString("PDF_URL");
+			String SP_URL =jsonObject.getString("SP_URL");
+
+			log.info( "电票开立成功,开出发票代码、号码："+fpdm+"、"+fphm);
+			redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),"电票开立成功,开出发票代码、号码："+fpdm+"、"+fphm);
+			invoiceSuccessNoMoney(kprq, fphm, fpdm, dt1, dt1.getDOC_NUM(), dt1.getGROUP_NUM(), PDF_URL);
+			redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),fpdm+"、"+fphm+"电票回传成功--");
+
+		}else{
+			String returnMessage =  jo.getJSONObject("interface").getJSONObject("returnStateInfo").getString("returnMessage");
+			log.info( "电票红字开立失败，原因："+returnMessage);
+			redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(),"电票红字开立失败，原因："+returnMessage);
+			errLog(dt1.getDOC_NUM(),dt1.getGROUP_NUM(),returnMessage);
+
+		}
+
+	}
+
+	private void errLog( String doc_num,String group_num,String returnMessage){
+		InvoiceSplitLine splitLine = new InvoiceSplitLine();
+		splitLine.setDocNum(doc_num);
+		splitLine.setGroupNum(group_num);
+		splitLine.setAttribute1(returnMessage);
+		manager.update("invoice_split_line.errorLog",splitLine);
+	}
+
+
+	private void invoiceSuccess(String kprq, String fphm, String fpdm, double wsje , double hjse , double hjje, VInvoiceHead dt1, String djzj, String hzh)
+	{
+
+		if (fphm.length() == 7)
+		{
+			fphm = "0" + fphm;
+		}
+		else if (fphm.length() == 6)
+		{
+			fphm = "00" + fphm;
+		}
+		else if (fphm.length() == 5)
+		{
+			fphm = "000" + fphm;
+		}
+		else if (fphm.length() == 4)
+		{
+			fphm = "0000" + fphm;
+		}
+		else if (fphm.length() == 3)
+		{
+			fphm = "00000" + fphm;
+		}
+		else if (fphm.length() == 2)
+		{
+			fphm = "000000" + fphm;
+		}
+		else if (fphm.length() == 1)
+		{
+			fphm = "0000000" + fphm;
+		}
+
+
+		log.info( "update invoice_split_line set GROUP_STATUS = 2  , GOLDTAX_NUM = '" + fphm +
+				"' ,GOLDTAX_CODE='" + fpdm + "', WSJE=" + wsje + " ,SE=" + hjse + " ,HSJE=" + hjje +
+				" ,HSJEC=" + (hjje - Double.parseDouble(dt1.getZAMOUNT_HSJ()))
+				+ " ,WSJEC=" + (wsje - Double.parseDouble(dt1.getZAMOUNT_WSJ())) +
+				" ,SEC=" + (hjse - Double.parseDouble(dt1.getZAMOUNT_SEJ()))+ " , BILL_GDATE ='" + kprq + "' where DOC_NUM='" + djzj + "' and GROUP_NUM=" + hzh);
+		InvoiceSplitLine splitLine = new InvoiceSplitLine();
+		splitLine.setGroupStatus("2");
+		splitLine.setGoldtaxNum(fphm);
+		splitLine.setGoldtaxCode(fpdm);
+		splitLine.setWsje(wsje+"");
+		splitLine.setSe(hjse+"");
+		splitLine.setHsje(hjje+"");
+		splitLine.setHsjec((hjje - Double.parseDouble(dt1.getZAMOUNT_HSJ()))+"");
+		splitLine.setWsjec((wsje - Double.parseDouble(dt1.getZAMOUNT_WSJ())) +"");
+		splitLine.setSec((hjse - Double.parseDouble(dt1.getZAMOUNT_SEJ()))+"");
+		splitLine.setBillGdate(kprq);
+		splitLine.setDocNum(djzj);
+		splitLine.setGroupNum(hzh);
+		manager.update("invoice_split_line.update",splitLine);
+		InvoiceHead head = new InvoiceHead();
+		head.setDocNum(djzj);
+		head = (InvoiceHead)manager.query("invoice_head.queryOne",head);
+		if (head!=null&&StringUtil.isNotEmpty(head.getDocNum()))
+		{
+			String GOLDTAX_NUM = getHM(djzj);
+
+
+			InvoiceHead h = new InvoiceHead();
+			h.setDocStatus("2");
+			h.setGoldtaxCode(fpdm);
+			h.setGoldtaxNum(GOLDTAX_NUM);
+			h.setBillGdate(kprq);
+			h.setDocNum(djzj);
+			h.setIssync("1");
+
+			BigDecimal ZAMOUNT_HSWC = head.getZamountHswc().add(BigDecimal.valueOf(hjje)).multiply(head.getZamountHsj())  ;//含税净金额差
+			BigDecimal ZAMOUNT_WSWC = head.getZamountWswc().add(BigDecimal.valueOf(wsje)).multiply(head.getZamountWsj());//不含税净金额差
+			BigDecimal ZAMOUNT_SEWC = head.getZamountSewc().add(BigDecimal.valueOf(hjse)).multiply(head.getZamountSej());//净税额差
+
+			h.setZamountHswc(new BigDecimal(ZAMOUNT_HSWC+""));
+			h.setZamountWswc(new BigDecimal(ZAMOUNT_WSWC+""));
+			h.setZamountSewc(new BigDecimal(ZAMOUNT_SEWC+""));
+			log.info( "update invoice_head set ISSYNC=1, doc_status = 2 ,GOLDTAX_CODE='" + fpdm + "', GOLDTAX_NUM='" + GOLDTAX_NUM + "', ZAMOUNT_HSWC=" + ZAMOUNT_HSWC + ", ZAMOUNT_WSWC=" + ZAMOUNT_WSWC + ", ZAMOUNT_SEWC=" + ZAMOUNT_SEWC + " , BILL_GDATE ='" + kprq + "'  where DOC_NUM='" + djzj + "'");
+			manager.update("invoice_head.update",h);
+
+		}
+		else
+		{
+			log.info(" 开票成功但通过该单据主键：" + djzj + " 未查到相关发票主表信息");
+			redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), "开票成功但通过该单据主键：" + djzj + " 未查到相关发票主表信息");
+		}
+	}
+
+
+	private void invoiceSuccessNoMoney(String kprq, String fphm, String fpdm, VInvoiceHead dt1, String djzj, String hzh,String pdf_url)
+	{
+
+		if (fphm.length() == 7)
+		{
+			fphm = "0" + fphm;
+		}
+		else if (fphm.length() == 6)
+		{
+			fphm = "00" + fphm;
+		}
+		else if (fphm.length() == 5)
+		{
+			fphm = "000" + fphm;
+		}
+		else if (fphm.length() == 4)
+		{
+			fphm = "0000" + fphm;
+		}
+		else if (fphm.length() == 3)
+		{
+			fphm = "00000" + fphm;
+		}
+		else if (fphm.length() == 2)
+		{
+			fphm = "000000" + fphm;
+		}
+		else if (fphm.length() == 1)
+		{
+			fphm = "0000000" + fphm;
+		}
+
+
+		log.info("update invoice_split_line set GROUP_STATUS = 2  , GOLDTAX_NUM = '" + fphm +
+				"' ,GOLDTAX_CODE='" + fpdm + "', BILL_GDATE ='" + kprq + "' where DOC_NUM='" + djzj + "' and GROUP_NUM=" + hzh);
+		InvoiceSplitLine invoiceSplitLine = new InvoiceSplitLine();
+		invoiceSplitLine.setGroupStatus("2");
+		invoiceSplitLine.setGoldtaxNum(fphm);
+		invoiceSplitLine.setGoldtaxCode(fpdm);
+		invoiceSplitLine.setBillGdate(kprq);
+		invoiceSplitLine.setEPdfUrl(pdf_url);
+		invoiceSplitLine.setDocNum(djzj);
+		invoiceSplitLine.setGroupNum(hzh);
+		manager.update("invoice_split_line.update",invoiceSplitLine);
+		InvoiceHead head = new InvoiceHead();
+		head.setDocNum(djzj);
+		head = (InvoiceHead)manager.query("invoice_head.queryOne",head);
+		if (head!=null&&StringUtil.isNotEmpty(head.getDocNum()))
+		{
+			String GOLDTAX_NUM = getHM(djzj);
+
+
+			log.info("update invoice_head set ISSYNC=1, doc_status = 2 ,GOLDTAX_CODE='" + fpdm + "', GOLDTAX_NUM='" + GOLDTAX_NUM + "',  BILL_GDATE ='" + kprq + "'  where DOC_NUM='" + djzj + "'");
+			InvoiceHead h = new InvoiceHead();
+			h.setDocStatus("2");
+			h.setGoldtaxCode(fpdm);
+			h.setGoldtaxNum(GOLDTAX_NUM);
+			h.setBillGdate(kprq);
+			h.setDocNum(djzj);
+			h.setIssync("1");
+			manager.update("invoice_head.update",h);
+
+
+		}
+		else
+		{
+			log.info(" 开票成功但通过该单据主键：" + djzj + " 未查到相关发票主表信息");
+			redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), "开票成功但通过该单据主键：" + djzj + " 未查到相关发票主表信息");
+		}
+	}
+
+	private String getHM(String doc_num)
+	{
+		String hm = "";
+		InvoiceSplitLine splitLine = new InvoiceSplitLine();
+		splitLine.setDocNum(doc_num);
+		List<InvoiceSplitLine> splitLines =  (List<InvoiceSplitLine> )manager.list("invoice_split_line.getHM",splitLine);
+		if (splitLines!=null&&splitLines.size()>0)
+		{
+
+
+			long fphm0 = 0;//参照 前一张发票号码
+			int i=0;
+			for (InvoiceSplitLine line:splitLines)
+			{
+
+				if(i!=0){
+					i++;
+				}
+				log.info("goldtax_num:" + line.getGoldtaxNum());
+				if (line.getGoldtaxNum()!=null&&line.getGoldtaxNum().trim().length()==0) {
+					continue;
+				}
+				long fphm1 = Long.parseLong(line.getGoldtaxNum());
+				String sfphm1 = "" + fphm1;
+				if (i == 0)
+				{
+					hm = formatHm(sfphm1);
+					fphm0 = fphm1;
+				}
+				else
+				{
+					if (fphm1 - 1 == fphm0)
+					{
+						if (hm.substring(hm.length() - 3, 1).contains("-"))
+						{//存在
+							hm = hm.substring(0, hm.length() - 2) + sfphm1.substring(sfphm1.length() - 2, 2);
+						}
+						else
+						{
+							hm = formatHm(hm) + "-" + sfphm1.substring(sfphm1.length() - 2, 2);
+						}
+						fphm0 = fphm1;
+
+					} else if (fphm1== fphm0) {
+
+					}
+					else
+					{
+						fphm0 = fphm1;
+						hm = hm + " " + formatHm(fphm0 + "");
+					}
+
+
+
+				}
+
+
+			}
+
+		}
+		return hm;
+	}
+
+	private String formatHm(String hm)
+	{
+
+		String fphm = "";
+		if (hm.length() == 7)
+		{
+			fphm = "0" + hm;
+		}
+		else if (hm.length() == 6)
+		{
+			fphm = "00" + hm;
+		}
+		else if (hm.length() == 5)
+		{
+			fphm = "000" + hm;
+		}
+		else if (hm.length() == 4)
+		{
+			fphm = "0000" + hm;
+		}
+		else if (hm.length() == 3)
+		{
+			fphm = "00000" + hm;
+		}
+		else if (hm.length() == 2)
+		{
+			fphm = "000000" + hm;
+		}
+		else if (hm.length() == 1)
+		{
+			fphm = "0000000" + hm;
+		}
+		else
+		{
+			fphm = hm;
+		}
+
+		return fphm;
+	}
+
+	public static void main(String[] args) {
+		//int s = test(0);
+		//System.out.println("<<<<<<<<<<<<"+s);
+
+		//System.out.println(setssflbm("207890000"));
+
+
+	}
+
+	private static int  test (int i){
+		System.out.println(">>>>>>>>>"+i);
+		try {
+			Thread.sleep(1000);
+			if(i==10){
+				return 111;
+			}
+			i=test(++i);
+			System.out.println("return:"+i);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		return i;
+	}
+
+	/**
+	 * 作废发票
+	 * @param org_id
+	 * @return
+	 */
+	@Override
+	public  Object zf(String org_id) {
+
+		VInvoiceHead vInvoiceHead = new VInvoiceHead();
+		vInvoiceHead.setORG_ID(org_id);
+		vInvoiceHead = (VInvoiceHead) manager.query("invoice_head.dzf", vInvoiceHead);
+		if (vInvoiceHead != null && StringUtils.isNotEmpty(vInvoiceHead.getDOC_NUM())) {
+			String fpdm = vInvoiceHead.getGOLDTAX_CODE();
+			String fphm = vInvoiceHead.getGOLDTAX_NUM();
+			String type = vInvoiceHead.getINVOICE_TYPE();
+			String zfr = vInvoiceHead.getUSER_NAME();
+			String docNum = vInvoiceHead.getDOC_NUM();
+			Double kphsjze = Double.parseDouble(vInvoiceHead.getZAMOUNT_WSJ());
+			Double HSJEC = Double.parseDouble(vInvoiceHead.getHSJEC());
+			Double WSJEC = Double.parseDouble(vInvoiceHead.getWSJEC());
+			Double SEC = Double.parseDouble(vInvoiceHead.getSEC());
+
+			Double ZAMOUNT_HSWC = Double.parseDouble(vInvoiceHead.getZAMOUNT_HSWC()) - HSJEC;
+			Double ZAMOUNT_WSWC = Double.parseDouble(vInvoiceHead.getZAMOUNT_WSWC()) - WSJEC;
+			Double ZAMOUNT_SEWC = Double.parseDouble(vInvoiceHead.getZAMOUNT_SEWC()) - SEC;
+			String djh = vInvoiceHead.getDOC_NUM()+","+vInvoiceHead.getGROUP_NUM()+":";
+			boolean b = cancelInv(djh,getKpzdbs(org_id),docNum,type, fpdm, fphm, ZAMOUNT_HSWC, ZAMOUNT_WSWC, ZAMOUNT_SEWC, zfr, kphsjze);
+
+		}
+
+		return null;
+	}
+
+	@Override
+	public Pages<List<VInvoiceHead>> pages_en(VInvoiceHead t, Integer pageSize, Integer pageNum) {
+		EasyPage page = new EasyPage();
+		page.pageNum(pageNum);
+		page.pageSize(pageSize);
+		return (Pages<List<VInvoiceHead>>)manager.pages("invoice_head.page_en", t, page);
+	}
+
+	@Override
+	public Pages<List<VInvoiceHead>> dy_pages_en(VInvoiceHead t, Integer pageSize, Integer pageNum) {
+		EasyPage page = new EasyPage();
+		page.pageNum(pageNum);
+		page.pageSize(pageSize);
+		return (Pages<List<VInvoiceHead>>)manager.pages("invoice_head.dy_page_en", t, page);
+	}
+
+	@Override
+	public Object invoice(InvoiceHeadDto invoiceHeadDto) {
+		return null;
+	}
+
+	@Override
+	public Object timerTask(String docNum) {
+		return null;
+	}
+
+	private boolean cancelInv(String djh, String  sbh,String doc_num,String type, String fpdm, String fphm, double ZAMOUNT_HSWC, double ZAMOUNT_WSWC, double ZAMOUNT_SEWC,String zfr,double kphsjze)
+	{
+
+
+		String fpzl = "";
+		if (type.equals("0"))
+		{
+			fpzl = "004";
+		}
+		else {
+			fpzl = "007";
+		}
+
+
+		String reqString = "<?xml version=\"1.0\" encoding=\"gbk\"?> <business id=\"10009\" comment=\"发票作废\"> <body yylxdm=\"1\">\n" +
+				" <kpzdbs>"+ sbh + "</kpzdbs> \n" +
+				" <fplxdm>"+ fpzl + "</fplxdm>\n" +
+				" <zflx>1</zflx>\n" +
+				" <fpdm>"+fpdm+"</fpdm> \n" +
+				" <fphm>"+fphm+"</fphm> \n" +
+				" <hjje>"+ kphsjze + "</hjje>\n" +
+				" <zfr>"+zfr+"</zfr> \n" +
+				" </body> </business>";
+
+
+
+		log.info( fpdm+","+fphm+"发票作废信息：" + reqString);
+		byte[] bytes = reqString.getBytes(StandardCharsets.UTF_8);//Encoding.GetEncoding("GBK").GetBytes(ss);//
+		String base64 = Base64.getEncoder().encodeToString(bytes);
+		String req = "<content>" + base64 + "</content>";
+		log.info( fpdm+","+fphm+"发票作废信息封装后：" + req);
+		JSONObject jo = null;
+		try {
+			jo = PostUtil.postResponse(zpdz,req,"text/xml");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		log.info( fpdm+","+fphm+" 发票作废返回信息" + jo.toJSONString());
+
+
+
+		if ("0".equals(jo.getString("Result")))
+		{
+			String res = new String(Base64.getDecoder().decode(jo.getString("Data")),StandardCharsets.UTF_8);
+
+			log.info( fpdm+","+fphm+" 开票返回信息" + res);
+			String returncode = res.substring(res.indexOf("<returncode>") + 12, res.indexOf("</returncode>") );
+			if (returncode.equals("0"))
+			{
+				//String yfpdm = res.substring(res.indexOf("<yfpdm>") + 7, res.indexOf("</yfpdm>"));
+				String zfrq = res.substring(res.indexOf("<zfrq>") + 6, res.indexOf("</zfrq>"));
+				zfSuccess( djh, fpdm, fphm, zfrq, doc_num, ZAMOUNT_HSWC,  ZAMOUNT_WSWC,  ZAMOUNT_SEWC);
+
+				return true;
+			}
+			else
+			{
+				String returnmsg = res.substring(res.indexOf("<returnmsg>") + 11, res.indexOf("</returnmsg>") );
+				log.info( djh+fpdm + "," + fphm + " 发票作废失败，原因：" + returnmsg);
+				redis.zSetAndTime("zflog",60*60*24*7,new Date().getTime(), djh+fpdm + "," + fphm + " 发票作废失败，原因：" + returnmsg);
+				return false;
+			}
+
+		}
+
+		return false;
+
+	}
+
+
+	private void zfSuccess(String djh,String fpdm,String fphm,String zfrq,String doc_num,double ZAMOUNT_HSWC, double ZAMOUNT_WSWC, double ZAMOUNT_SEWC){
+		log.info( djh+fpdm + "," + fphm + "发票作废成功");
+		redis.zSetAndTime("zflog",60*60*24*7,new Date().getTime(), djh+fpdm + "," + fphm + "发票作废成功");
+
+
+		log.info( "update invoice_split_line set GROUP_STATUS = 9 ,CANCEL_GDATE='" + zfrq + "' where GOLDTAX_NUM = '" + fphm + "' and GOLDTAX_CODE='" + fpdm + "'");
+
+		InvoiceSplitLine splitLine = new InvoiceSplitLine();
+		splitLine.setGroupStatus("9");
+		splitLine.setCancelGdate(zfrq);
+		splitLine.setGoldtaxNum(fphm);
+		splitLine.setGoldtaxCode(fpdm);
+		manager.update("invoice_split_line.zf",splitLine);
+		String hm = getHM(doc_num);
+		log.info( "update invoice_head set ISSYNC=1, goldtax_num='" + hm + "', ZAMOUNT_HSWC=" + ZAMOUNT_HSWC + ",ZAMOUNT_WSWC = " + ZAMOUNT_WSWC + ",ZAMOUNT_SEWC = " + ZAMOUNT_SEWC + " where doc_num='" + doc_num + "'");
+		InvoiceHead invoiceHead = new InvoiceHead();
+		invoiceHead.setGoldtaxNum(hm);
+		invoiceHead.setZamountHswc(BigDecimal.valueOf(ZAMOUNT_HSWC));
+		invoiceHead.setZamountWswc(BigDecimal.valueOf(ZAMOUNT_WSWC));
+		invoiceHead.setZamountSewc(BigDecimal.valueOf(ZAMOUNT_SEWC));
+		invoiceHead.setDocNum(doc_num);
+		invoiceHead.setIssync("1");
+		manager.update("invoice_head.update",invoiceHead);
+		;
+		InvoiceSplitLine line = new InvoiceSplitLine();
+		line.setGroupStatus("2");
+		line.setDocNum(doc_num);
+		List<InvoiceSplitLine> lines =  (List<InvoiceSplitLine>)manager.list("invoice_split_line.queryListByCondition",line)		;
+		if (lines==null||lines.size()==0)
+		{
+			log.info( "update invoice_head set doc_status = 9 ,CANCEL_GDATE='" + zfrq + "'where doc_num='" + doc_num + "'");
+
+			InvoiceHead head = new InvoiceHead();
+			head.setDocNum(doc_num);
+			head.setDocStatus("9");
+			head.setCancelGdate(zfrq);
+			manager.update("invoice_head.update",head);
+
+		}
+
+	}
+
+
+
+	/**
+	 * 根据单据编号撤回单据
+	 * @param doc_num
+	 */
+	public Object chdj(String doc_num){
+		VInvoiceHead head1 = new VInvoiceHead();
+		head1.setDOC_NUM(doc_num);
+		List<VInvoiceHead> heads = (List<VInvoiceHead>)manager.list("invoice_head.page_en",head1);
+		boolean b = false;
+		for(VInvoiceHead head:heads){
+			if (head!=null&&StringUtils.isNotEmpty(head.getDOC_NUM())&&!"2".equals(head.getGROUP_STATUS())&&!"9".equals(head.getGROUP_STATUS()))
+			{
+				String djzj = head.getDOC_NUM();
+				String hzh = head.getGROUP_NUM();
+
+
+
+				String fplx = head.getINVOICE_TYPE();
+				String XSF_NSRSBH =head.getORG_TAXCODE();
+				//String XSF_NSRSBH = "110109500321655";
+				if (fplx.equals("3") )
+				{
+					//电票查询
+					log.info( djzj + hzh+"电票查询");
+					redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+"电票查询");
+					String e_fpkj = "{ \n" +
+							"\"REQUEST_COMMON_FPCX\": { \"FPQQLSH\": \"" + djzj + hzh + "\", \"XSF_NSRSBH\": \""+XSF_NSRSBH+"\" } \n" +
+							"}";
+
+
+					byte[] bytes = e_fpkj.getBytes(StandardCharsets.UTF_8);
+
+					String base64 = Base64.getEncoder().encodeToString(bytes);
+					String strPassword = pwd;
+					log.info( "base64:" + base64);
+					String strHash = MD5.GetMD5Code(base64);
+					log.info( "Hash=" + strHash + "(" + base64.length()+ ")");
+					String strResult = null;
+					try {
+						strResult = AESUtil.Encrypt(strHash, strPassword);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					log.info( "密文=" + strResult);
+					SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+					SimpleDateFormat sdf1  = new SimpleDateFormat("yyyyMMdd");
+					String req = "{ \"interface\": { \"globalInfo\": { \n" +
+							"\"appId\": \"" + getAppId(head.getORG_ID()) + "\",  \"interfaceId\": \"\",  \"interfaceCode\": \"DFXJ1004\",  \"requestCode\": \"DZFPQZ\",  \n" +
+							"\"requestTime\": \"" + sdf.format(new Date())  + "\",  \"responseCode\": \"DS\",  \n" +
+							"\"dataExchangeId\": \"DZFPQZDFXJ1001"+sdf1.format(new Date()) + rand() + "\"     },  \"returnStateInfo\": { \"returnCode\": \"\",  \"returnMessage\": \"\"     },  \"Data\": { \"dataDescription\": { \"zipCode\": \"0\"         },  \n" +
+							"\"content\": \"" + base64 + "\", \n" +
+							"\"contentKey\": \"" + strResult + "\"     } } }";
+					log.info( "电票开票请求信息：" + req);
+					JSONObject jo = null;
+					jo = JSONObject.parseObject(HttpClientUtil.doPost(dpdz,req,"utf-8"));
+					log.info( " 电票开票返回信息" + jo.toJSONString());
+					String returnCode =  jo.getJSONObject("interface").getJSONObject("returnStateInfo").getString("returnCode");
+					if ("0000".equals(returnCode)) {
+
+						String content = jo.getJSONObject("interface").getJSONObject("Data").getString("content");
+						String ba = new String(Base64.getDecoder().decode(content),StandardCharsets.UTF_8);
+
+						log.info( " 电票开票返回解密信息：" + ba);
+						JSONObject jsonObject = JSONObject.parseObject(ba);
+						String FPQQLSH = jsonObject.getString("FPQQLSH");
+						String fpdm = jsonObject.getString("FP_DM");
+						String fphm = jsonObject.getString("FP_HM");
+						String kprq = jsonObject.getString("KPRQ");
+						String JYM = jsonObject.getString("JYM");
+						String PDF_URL = jsonObject.getString("PDF_URL");
+						String SP_URL =jsonObject.getString("SP_URL");
+
+
+
+						redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+"电票查询开立成功，fpdm="+fpdm+",fphm="+fphm);
+						log.info(djzj + hzh+"电票查询开立成功，fpdm="+fpdm+",fphm="+fphm);
+						invoiceSuccessNoMoney(kprq, fphm, fpdm, head, head.getDOC_NUM(), head.getGROUP_NUM(), PDF_URL);
+						redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+"电票查询回传成功，fpdm="+fpdm+",fphm="+fphm);
+						log.info(djzj + hzh+"电票查询回传成功，fpdm="+fpdm+",fphm="+fphm);
+						try {
+							delInvoice(djzj);
+						} catch (JCoException e) {
+							e.printStackTrace();
+							log.info( djzj + hzh+" 电票查询开立成功,解锁单据失败");
+							redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+" 电票查询开立成功,解锁单据失败");
+							JSONObject jsonObject1 = new JSONObject();
+							jsonObject1.put("msg","解锁失败！");
+							jsonObject1.put("success",false);
+							return  jsonObject1;
+						}
+					}else
+					{
+						log.info( djzj + hzh+" 电票查询金税未开票成功,解锁单据");
+						redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+" 电票查询金税未开票成功,解锁单据");
+						try {
+							delInvoice(djzj);
+						} catch (JCoException e) {
+							e.printStackTrace();
+							log.info( djzj + hzh+" 电票查询金税未开票成功,解锁单据失败");
+							redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+" 电票查询金税未开票成功,解锁单据失败");
+							JSONObject jsonObject = new JSONObject();
+							jsonObject.put("msg","解锁失败！");
+							jsonObject.put("success",false);
+							return  jsonObject;
+						}
+
+						log.info( djzj + hzh+" 电票查询金税未开票成功,解锁单据成功");
+						redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+" 电票查询金税未开票成功,解锁单据成功");
+
+
+					}
+				}
+				else {
+					//判断是否是红票 若是 则判断有无信息编码  若无则查询是否已经申请成功
+					String  xxbm = head.getINVOICE_RED_XXBM();
+					String hp = head.getINVOICE_RED();
+					if("1".equals(hp)){
+						if(xxbm==null||xxbm.trim().length()==0){
+							xxbm = redTicket(head,"1",0);
+							if(StringUtils.isNotEmpty(xxbm)){
+								//保存红字信息编码 暂定保存在表头
+								InvoiceHead invoiceHead = new InvoiceHead();
+								invoiceHead.setDocNum(head.getDOC_NUM());
+								invoiceHead.setInvoiceRedXxbm(xxbm);
+								manager.update("invoice_head.update",invoiceHead);
+							}
+						}
+					}
+					log.info(djzj + hzh+" 查询纸票开票是否成功");
+					redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+" 查询纸票开票是否成功");
+					String fplxdm = "";
+
+					if (fplx.equals("0"))
+					{
+
+						fplxdm = "004";
+					}
+					else if (fplx.equals("1") || fplx.equals("5"))
+					{
+
+						fplxdm = "007";
+					}
+					else if (fplx.equals("3"))
+					{
+						fplxdm = "007";
+					}
+					else
+					{
+						return null;
+					}
+					String ss = "<?xml version=\"1.0\" encoding=\"gbk\"?> <business id=\"10010\" comment=\"发票查询\"> <body yylxdm=\"1\">\n" +
+							" <kpzdbs>"+getKpzdbs(head.getORG_ID())+"</kpzdbs> \n" +
+							" <fplxdm>"+ fplxdm + "</fplxdm> \n" +
+							" <cxfs>2</cxfs> \n" +
+							" <cxtj>"+ djzj +hzh+ "</cxtj>\n" +
+							" </body> </business>";
+					log.info( djzj + hzh+"查询纸票开票信息：" + ss);
+
+					byte[] bytes = ss.getBytes(StandardCharsets.UTF_8);
+					String base64 = Base64.getEncoder().encodeToString(bytes);
+					String req = "<content>" + base64 + "</content>";
+					log.info( djzj + hzh+"查询纸票开票请求信息：" + req);
+					JSONObject jo = null;
+					try {
+						jo = PostUtil.postResponse(zpdz,req,"text/xml");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					log.info( djzj + hzh+" 查询纸票开票返回信息" + jo.toJSONString());
+
+
+
+					if ("0".equals(jo.getString("Result")))
+					{
+						String res = new String(Base64.getDecoder().decode(jo.getString("Data")),StandardCharsets.UTF_8);
+
+						log.info( djzj + hzh+" 查询开票返回信息" + res);
+						String returncode = res.substring(res.indexOf("<returncode>") + 12, res.indexOf("</returncode>") );
+						if (returncode.equals("0"))
+						{
+							String fpdm = res.substring(res.indexOf("<fpdm>") + 6, res.indexOf("</fpdm>") );
+							String fphm = res.substring(res.indexOf("<fphm>") + 6, res.indexOf("</fphm>"));
+							double wsje = Double.parseDouble(res.substring(res.indexOf("<hjje>") + 6, res.indexOf("</hjje>") ));
+							double hjse = Double.parseDouble(res.substring(res.indexOf("<hjse>") + 6, res.indexOf("</hjse>") ));
+							double hjje = Double.parseDouble(res.substring(res.indexOf("<jshj>") + 6, res.indexOf("</jshj>") ));
+							String kprq = res.substring(res.indexOf("<kprq>") + 6, res.indexOf("</kprq>") );
+							String fpzt = res.substring(res.indexOf("<fpzt>") + 6, res.indexOf("</fpzt>") );
+
+
+							if("03".equals(fpzt)){
+								String zfrq = res.substring(res.indexOf("<zfrq>") + 6, res.indexOf("</zfrq>") );
+								Double HSJEC = Double.parseDouble(head.getHSJEC());
+								Double WSJEC = Double.parseDouble(head.getWSJEC());
+								Double SEC = Double.parseDouble(head.getSEC());
+
+								Double ZAMOUNT_HSWC = Double.parseDouble(head.getZAMOUNT_HSWC()) - HSJEC;
+								Double ZAMOUNT_WSWC = Double.parseDouble(head.getZAMOUNT_WSWC()) - WSJEC;
+								Double ZAMOUNT_SEWC = Double.parseDouble(head.getZAMOUNT_SEWC()) - SEC;
+								redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+"纸票查询作废成功，fpdm="+fpdm+",fphm="+fphm);
+								log.info(djzj + hzh+"纸票查询作废成功，fpdm="+fpdm+",fphm="+fphm);
+								zfSuccess( head.getDOC_NUM()+","+head.getGROUP_NUM(), fpdm, fphm, zfrq, doc_num, ZAMOUNT_HSWC,  ZAMOUNT_WSWC,  ZAMOUNT_SEWC);
+								redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+"纸票查询作废成功，fpdm="+fpdm+",fphm="+fphm);
+								log.info(djzj + hzh+"纸票查询作废成功，fpdm="+fpdm+",fphm="+fphm);
+
+							}else{
+								redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+"纸票查询开立成功，fpdm="+fpdm+",fphm="+fphm);
+								log.info(djzj + hzh+"纸票查询开立成功，fpdm="+fpdm+",fphm="+fphm);
+								invoiceSuccess(kprq, fphm, fpdm, wsje, hjse, hjje, head, djzj, hzh);
+
+								redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+"纸票查询回传成功，fpdm="+fpdm+",fphm="+fphm);
+								log.info(djzj + hzh+"纸票查询回传成功，fpdm="+fpdm+",fphm="+fphm);
+								try {
+									delInvoice(djzj);
+								} catch (JCoException e) {
+									e.printStackTrace();
+									log.info( djzj + hzh+" 纸票查询开立成功,删除数据失败，解锁单据失败");
+									redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+" 纸票查询开立成功,删除数据失败，解锁单据失败");
+									JSONObject jsonObject = new JSONObject();
+									jsonObject.put("msg","纸票查询金税未开票成功,删除数据失败，解锁单据失败！");
+									jsonObject.put("success",false);
+									return  jsonObject;
+								}
+							}
+						}
+						else
+						{
+							log.info( djzj + hzh+" 纸票查询金税未开票成功,解锁单据");
+							redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+" 纸票查询金税未开票成功,解锁单据");
+							try {
+								delInvoice(djzj);
+							} catch (JCoException e) {
+								e.printStackTrace();
+								log.info( djzj + hzh+" 纸票查询金税未开票成功,删除数据失败，解锁单据失败");
+								redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+" 纸票查询金税未开票成功,删除数据失败，解锁单据失败");
+								JSONObject jsonObject = new JSONObject();
+								jsonObject.put("msg","纸票查询金税未开票成功,删除数据失败，解锁单据失败！");
+								jsonObject.put("success",false);
+								return  jsonObject;
+							}
+
+							log.info( djzj + hzh+" 纸票查询金税未开票成功,解锁单据成功");
+							redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), djzj + hzh+" 纸票票查询金税未开票成功,解锁单据成功");
+
+						}
+
+					}
+
+				}
+				b=true;
+			}
+		}
+		if(b){
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("msg","解锁成功！");
+			jsonObject.put("success",true);
+			return  jsonObject;
+		}else{
+			log.info( " 撤回单据请求出现异常");
+			redis.zSetAndTime("kplog",60*60*24*7,new Date().getTime(), " 撤回单据请求出现异常");
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("msg","解锁失败！");
+			jsonObject.put("success",false);
+			return  jsonObject;
+		}
+
+	}
+
+	/**
+	 * 打印发票
+	 * @param type
+	 * @param fpdm
+	 * @param fphm
+	 * @param qd
+	 * @param dyfs
+	 * @return
+	 */
+	@Override
+	public Object printInv(String org_id,String type, String fpdm, String fphm, String qd, String dyfs)
+	{
+		String fpzl = "007";
+
+		//gt.OpenCard();
+		if (type.equals("0"))
+		{
+			fpzl = "004";
+		}
+
+		if (qd.equals("0"))
+		{
+			log.info( "打印发票--发票代码:" + fpdm + ",发票号码:" + fphm);
+			redis.zSetAndTime("dylog",60*60*24*7,new Date().getTime(), "打印发票--发票代码:" + fpdm + ",发票号码:" + fphm);
+		}
+		else
+		{
+			log.info( "打印清单--发票代码:" + fpdm + ",发票号码:" + fphm);
+			redis.zSetAndTime("dylog",60*60*24*7,new Date().getTime(), "打印清单--发票代码:" + fpdm + ",发票号码:" + fphm);
+		}
+
+		String reqString = "<?xml version=\"1.0\" encoding=\"gbk\"?> <business id=\"20004\"comment=\"发票打印\"> <body yylxdm=\"1\"> \n" +
+				"<kpzdbs>"+getKpzdbs(org_id)+"</kpzdbs>\n" +
+				"<fplxdm>"+ fpzl + "</fplxdm> \n" +
+				"<fpdm>"+fpdm+"</fpdm>\n" +
+				" <fphm>"+fphm+"</fphm>\n" +
+				" <dylx>"+qd+"</dylx>\n" +
+				" <dyfs>"+dyfs+"</dyfs> \n" +
+				" </body> </business>";
+
+
+
+		log.info( fpdm+","+fphm+"发票打印请求信息：" + reqString);
+		byte[] bytes = reqString.getBytes(StandardCharsets.UTF_8);
+		String base64 = Base64.getEncoder().encodeToString(bytes);
+		String req = "<content>" + base64 + "</content>";
+		log.info(fpdm+","+fphm+ "发票打印请求加密信息：" + req);
+		JSONObject jo = null;
+		try {
+			jo = PostUtil.postResponse(zpdz,req,"text/xml");
+		} catch (IOException e) {
+			e.printStackTrace();
+			log.info(fpdm+","+fphm+ "发票打印请求异常"+e.getMessage());
+		}
+
+		log.info( fpdm+","+fphm+" 纸票打印返回信息" + jo.toJSONString());
+
+
+
+		if ("0".equals(jo.getString("Result")))
+		{
+			String res = new String(Base64.getDecoder().decode(jo.getString("Data")),StandardCharsets.UTF_8);
+
+			log.info( fpdm+","+fphm+" 纸票打印返回信息" + res);
+			String returncode = res.substring(res.indexOf("<returncode>") + 12, res.indexOf("</returncode>") );
+			if (returncode.equals("0"))
+			{
+
+
+				log.info( fpdm + "," + fphm + "打印成功");
+				redis.zSetAndTime("dylog",60*60*24*7,new Date().getTime(), fpdm + "," + fphm + "打印成功");
+				InvoiceSplitLine splitLine = new InvoiceSplitLine();
+				splitLine.setGoldtaxCode(fpdm);
+				splitLine.setGoldtaxNum(fphm);
+				splitLine.setDayin("1");
+				manager.update("invoice_split_line.dayin",splitLine);
+				log.info( fpdm + "," + fphm + "打印成功，信息回传成功！");
+				redis.zSetAndTime("dylog",60*60*24*7,new Date().getTime(), fpdm + "," + fphm + "打印成功，信息回传成功！");
+				return true;
+			}
+			else
+			{
+				String returnmsg = res.substring(res.indexOf("<returnmsg>") + 11, res.indexOf("</returnmsg>") );
+				log.info(  fpdm + "," + fphm + " 打印失败，原因：" + returnmsg);
+				redis.zSetAndTime("dylog",60*60*24*7,new Date().getTime(), fpdm + "," + fphm + " 打印失败，原因：" + returnmsg);
+				return false;
+
+			}
+
+		}
+
+
+		log.info( fpdm +","+fphm+":打印失败");
+		redis.zSetAndTime("dylog",60*60*24*7,new Date().getTime(), fpdm +","+fphm+":打印失败");
+		return false;
+
+	}
+
+	/**
+	 * 获取某发票类型当前待开票发票信息
+	 * @param type
+	 * @return
+	 */
+	@Override
+	public Object fpxx(String org_id,String type) {
+		String fpzl = "007";
+
+		//gt.OpenCard();
+		if (type.equals("0"))
+		{
+			fpzl = "004";
+		}
+		String reqString = "<?xml version=\"1.0\" encoding=\"gbk\"?> <business id=\"10004\" comment=\"查询当前未开票号\"> <body yylxdm=\"1\"> " +
+				"<kpzdbs>"+ getKpzdbs(org_id) + "</kpzdbs> " +
+				"<fplxdm>"+fpzl+"</fplxdm> " +
+				"</body> </business>";
+
+
+		byte[] bytes = reqString.getBytes(StandardCharsets.UTF_8);
+		String base64 = Base64.getEncoder().encodeToString(bytes);
+		String req = "<content>" + base64 + "</content>";
+		log.info( "获取当前待开发票信息请求信息：" + req);
+		JSONObject jo = null;
+		try {
+			jo = PostUtil.postResponse(zpdz,req,"text/xml");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		log.info( " 获取当前待开发票信息返回信息" + jo.toJSONString());
+
+
+
+		if ("0".equals(jo.getString("Result")))
+		{
+			String res = new String(Base64.getDecoder().decode(jo.getString("Data")),StandardCharsets.UTF_8);
+
+			log.info( " 获取当前待开发票信息返回信息" + res);
+			String returncode = res.substring(res.indexOf("<returncode>") + 12, res.indexOf("</returncode>") );
+			if (returncode.equals("0"))
+			{
+
+				String dqfpdm = res.substring(res.indexOf("<dqfpdm>") + 8, res.indexOf("</dqfpdm>") );
+				String dqfphm = res.substring(res.indexOf("<dqfphm>") + 8, res.indexOf("</dqfphm>") );
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("msg","获取待开发票信息成功！");
+				jsonObject.put("success",true);
+				jsonObject.put("dqfpdm",dqfpdm);
+				jsonObject.put("dqfphm",dqfphm);
+				return  jsonObject;
+			}
+		}
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("msg","获取待开发票信息失败！");
+		jsonObject.put("success",false);
+		jsonObject.put("dqfpdm","");
+		jsonObject.put("dqfphm","");
+		return  jsonObject;
+	}
+
+	private    String setkpsl(String s){
+		if (s.isEmpty()) {
+			return null;
+		}
+		if(s.indexOf(".") > 0){
+			s = s.replaceAll("0+?$", "");//去掉多余的0
+			s = s.replaceAll("[.]$", "");//如最后一位是.则去掉
+		}
+		return s;
+	}
+
+
+	private  String setssflbm(String ssflbm){
+		if(ssflbm.isEmpty()){
+			return null;
+		}
+		if(ssflbm.trim().length()<19){
+			ssflbm = ssflbm+"0";
+			ssflbm = setssflbm(ssflbm);
+		}
+		if(ssflbm.trim().length()==19){
+			return ssflbm;
+		}
+		return ssflbm;
+	}
+
+
+}

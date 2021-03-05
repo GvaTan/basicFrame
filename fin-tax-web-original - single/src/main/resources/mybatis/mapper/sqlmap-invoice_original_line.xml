@@ -1,0 +1,396 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="invoice_original_line">
+
+	<!--
+      - ===============================================
+      - 返回 InvoiceOriginalLine Entity
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<resultMap  type="com.zhys.invoice.po.InvoiceOriginalLine"	   id="RM_InvoiceOriginalLine">
+		<result property="mandt"        column="mandt"         jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="docNum"       column="DOC_NUM"       jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="docLine"      column="DOC_LINE"      jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="docOrignum"   column="DOC_ORIGNUM"   jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="docOrigline"  column="DOC_ORIGLINE"  jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="itemNum"      column="ITEM_NUM"      jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="itemName"     column="ITEM_NAME"     jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="itemSpec"     column="ITEM_SPEC"     jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="unitCode"     column="UNIT_CODE"     jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="unitName"     column="UNIT_NAME"     jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="taxCatecode"  column="TAX_CATECODE"  jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="quantity"     column="quantity"      jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="taxRate"      column="TAX_RATE"      jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="giftFlag"     column="GIFT_FLAG"     jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="zamountHsj"   column="ZAMOUNT_HSJ"   jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountWsj"   column="ZAMOUNT_WSJ"   jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountSej"   column="ZAMOUNT_SEJ"   jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountHzhs"  column="ZAMOUNT_HZHS"  jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountHzws"  column="ZAMOUNT_HZWS"  jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountHzse"  column="ZAMOUNT_HZSE"  jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountHsy"   column="ZAMOUNT_HSY"   jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountWsy"   column="ZAMOUNT_WSY"   jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountSey"   column="ZAMOUNT_SEY"   jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zpriceHsj"    column="ZPRICE_HSJ"    jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zpriceWsj"    column="ZPRICE_WSJ"    jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zpriceHsy"    column="ZPRICE_HSY"    jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zpriceWsy"    column="ZPRICE_WSY"    jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="attribute1"   column="attribute1"    jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="attribute2"   column="attribute2"    jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="attribute3"   column="attribute3"    jdbcType="VARCHAR"  javaType="java.lang.String"      />
+	</resultMap>
+
+    <!-- sql查询语句-->
+	<sql id="sql">
+				mandt, 
+    			DOC_NUM, 
+    			DOC_LINE, 
+    			DOC_ORIGNUM, 
+    			DOC_ORIGLINE, 
+    			ITEM_NUM, 
+    			ITEM_NAME, 
+    			ITEM_SPEC, 
+    			UNIT_CODE, 
+    			UNIT_NAME, 
+    			TAX_CATECODE, 
+    			quantity, 
+    			TAX_RATE, 
+    			GIFT_FLAG, 
+    			ZAMOUNT_HSJ, 
+    			ZAMOUNT_WSJ, 
+    			ZAMOUNT_SEJ, 
+    			ZAMOUNT_HZHS, 
+    			ZAMOUNT_HZWS, 
+    			ZAMOUNT_HZSE, 
+    			ZAMOUNT_HSY, 
+    			ZAMOUNT_WSY, 
+    			ZAMOUNT_SEY, 
+    			ZPRICE_HSJ, 
+    			ZPRICE_WSJ, 
+    			ZPRICE_HSY, 
+    			ZPRICE_WSY, 
+    			attribute1, 
+    			attribute2, 
+    			attribute3
+    	</sql>
+	
+	<!-- sql查询语句-->
+	<sql id="where">
+	     1=1
+		                                      <if test="mandt != null and ''!=mandt" >
+			         and  mandt = #{mandt}
+			      </if>
+			                                 <if test="docNum != null and ''!=docNum" >
+			         and  DOC_NUM = #{docNum}
+			      </if>
+			                                 <if test="docLine != null and ''!=docLine" >
+			         and  DOC_LINE = #{docLine}
+			      </if>
+			                                 <if test="docOrignum != null and ''!=docOrignum" >
+			         and  DOC_ORIGNUM = #{docOrignum}
+			      </if>
+			                                 <if test="docOrigline != null and ''!=docOrigline" >
+			         and  DOC_ORIGLINE = #{docOrigline}
+			      </if>
+			                                 <if test="itemNum != null and ''!=itemNum" >
+			         and  ITEM_NUM = #{itemNum}
+			      </if>
+			                                 <if test="itemName != null and ''!=itemName" >
+			         and  ITEM_NAME = #{itemName}
+			      </if>
+			                                 <if test="itemSpec != null and ''!=itemSpec" >
+			         and  ITEM_SPEC = #{itemSpec}
+			      </if>
+			                                 <if test="unitCode != null and ''!=unitCode" >
+			         and  UNIT_CODE = #{unitCode}
+			      </if>
+			                                 <if test="unitName != null and ''!=unitName" >
+			         and  UNIT_NAME = #{unitName}
+			      </if>
+			                                 <if test="taxCatecode != null and ''!=taxCatecode" >
+			         and  TAX_CATECODE = #{taxCatecode}
+			      </if>
+			                                 <if test="quantity != null and ''!=quantity" >
+			         and  quantity = #{quantity}
+			      </if>
+			                                 <if test="taxRate != null and ''!=taxRate" >
+			         and  TAX_RATE = #{taxRate}
+			      </if>
+			                                 <if test="giftFlag != null and ''!=giftFlag" >
+			         and  GIFT_FLAG = #{giftFlag}
+			      </if>
+			                                 <if test="zamountHsj != null and ''!=zamountHsj" >
+			         and  ZAMOUNT_HSJ = #{zamountHsj}
+			      </if>
+			                                 <if test="zamountWsj != null and ''!=zamountWsj" >
+			         and  ZAMOUNT_WSJ = #{zamountWsj}
+			      </if>
+			                                 <if test="zamountSej != null and ''!=zamountSej" >
+			         and  ZAMOUNT_SEJ = #{zamountSej}
+			      </if>
+			                                 <if test="zamountHzhs != null and ''!=zamountHzhs" >
+			         and  ZAMOUNT_HZHS = #{zamountHzhs}
+			      </if>
+			                                 <if test="zamountHzws != null and ''!=zamountHzws" >
+			         and  ZAMOUNT_HZWS = #{zamountHzws}
+			      </if>
+			                                 <if test="zamountHzse != null and ''!=zamountHzse" >
+			         and  ZAMOUNT_HZSE = #{zamountHzse}
+			      </if>
+			                                 <if test="zamountHsy != null and ''!=zamountHsy" >
+			         and  ZAMOUNT_HSY = #{zamountHsy}
+			      </if>
+			                                 <if test="zamountWsy != null and ''!=zamountWsy" >
+			         and  ZAMOUNT_WSY = #{zamountWsy}
+			      </if>
+			                                 <if test="zamountSey != null and ''!=zamountSey" >
+			         and  ZAMOUNT_SEY = #{zamountSey}
+			      </if>
+			                                 <if test="zpriceHsj != null and ''!=zpriceHsj" >
+			         and  ZPRICE_HSJ = #{zpriceHsj}
+			      </if>
+			                                 <if test="zpriceWsj != null and ''!=zpriceWsj" >
+			         and  ZPRICE_WSJ = #{zpriceWsj}
+			      </if>
+			                                 <if test="zpriceHsy != null and ''!=zpriceHsy" >
+			         and  ZPRICE_HSY = #{zpriceHsy}
+			      </if>
+			                                 <if test="zpriceWsy != null and ''!=zpriceWsy" >
+			         and  ZPRICE_WSY = #{zpriceWsy}
+			      </if>
+			                                 <if test="attribute1 != null and ''!=attribute1" >
+			         and  attribute1 = #{attribute1}
+			      </if>
+			                                 <if test="attribute2 != null and ''!=attribute2" >
+			         and  attribute2 = #{attribute2}
+			      </if>
+			                                 <if test="attribute3 != null and ''!=attribute3" >
+			         and  attribute3 = #{attribute3}
+			      </if>
+			               	</sql>
+
+
+	<!--
+      - ===============================================
+      - 新增 InvoiceOriginalLine
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<insert id="create" parameterType="com.zhys.invoice.po.InvoiceOriginalLine" >
+		insert into invoice_original_line (
+         <include refid="sql"/>
+		) values (
+		'800',
+		    #{docNum,jdbcType=VARCHAR},
+		    #{docLine,jdbcType=VARCHAR},
+		    #{docOrignum,jdbcType=VARCHAR},
+		    #{docOrigline,jdbcType=VARCHAR},
+		    #{itemNum,jdbcType=VARCHAR},
+		    #{itemName,jdbcType=VARCHAR},
+		    #{itemSpec,jdbcType=VARCHAR},
+		    #{unitCode,jdbcType=VARCHAR},
+		    #{unitName,jdbcType=VARCHAR},
+		    #{taxCatecode,jdbcType=VARCHAR},
+		    #{quantity,jdbcType=DECIMAL},
+		    #{taxRate,jdbcType=DECIMAL},
+		    #{giftFlag,jdbcType=VARCHAR},
+		    #{zamountHsj,jdbcType=DECIMAL},
+		    #{zamountWsj,jdbcType=DECIMAL},
+		    #{zamountSej,jdbcType=DECIMAL},
+		    #{zamountHzhs,jdbcType=DECIMAL},
+		    #{zamountHzws,jdbcType=DECIMAL},
+		    #{zamountHzse,jdbcType=DECIMAL},
+		    #{zamountHsy,jdbcType=DECIMAL},
+		    #{zamountWsy,jdbcType=DECIMAL},
+		    #{zamountSey,jdbcType=DECIMAL},
+		    #{zpriceHsj,jdbcType=DECIMAL},
+		    #{zpriceWsj,jdbcType=DECIMAL},
+		    #{zpriceHsy,jdbcType=DECIMAL},
+		    #{zpriceWsy,jdbcType=DECIMAL},
+		    #{attribute1,jdbcType=VARCHAR},
+		    #{attribute2,jdbcType=VARCHAR},
+		    #{attribute3,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<!--
+      - ===============================================
+      - 修改 InvoiceOriginalLine
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<update id="update" parameterType="com.zhys.invoice.po.InvoiceOriginalLine">
+	      update invoice_original_line
+	           <set>
+	                             <if test="mandt != null and ''!=mandt" >
+			        mandt = #{mandt},
+			      </if>
+			                        <if test="docNum != null and ''!=docNum" >
+			        DOC_NUM = #{docNum},
+			      </if>
+			                        <if test="docLine != null and ''!=docLine" >
+			        DOC_LINE = #{docLine},
+			      </if>
+			                        <if test="docOrignum != null and ''!=docOrignum" >
+			        DOC_ORIGNUM = #{docOrignum},
+			      </if>
+			                        <if test="docOrigline != null and ''!=docOrigline" >
+			        DOC_ORIGLINE = #{docOrigline},
+			      </if>
+			                        <if test="itemNum != null and ''!=itemNum" >
+			        ITEM_NUM = #{itemNum},
+			      </if>
+			                        <if test="itemName != null and ''!=itemName" >
+			        ITEM_NAME = #{itemName},
+			      </if>
+			                        <if test="itemSpec != null and ''!=itemSpec" >
+			        ITEM_SPEC = #{itemSpec},
+			      </if>
+			                        <if test="unitCode != null and ''!=unitCode" >
+			        UNIT_CODE = #{unitCode},
+			      </if>
+			                        <if test="unitName != null and ''!=unitName" >
+			        UNIT_NAME = #{unitName},
+			      </if>
+			                        <if test="taxCatecode != null and ''!=taxCatecode" >
+			        TAX_CATECODE = #{taxCatecode},
+			      </if>
+			                        <if test="quantity != null and ''!=quantity" >
+			        quantity = #{quantity},
+			      </if>
+			                        <if test="taxRate != null and ''!=taxRate" >
+			        TAX_RATE = #{taxRate},
+			      </if>
+			                        <if test="giftFlag != null and ''!=giftFlag" >
+			        GIFT_FLAG = #{giftFlag},
+			      </if>
+			                        <if test="zamountHsj != null and ''!=zamountHsj" >
+			        ZAMOUNT_HSJ = #{zamountHsj},
+			      </if>
+			                        <if test="zamountWsj != null and ''!=zamountWsj" >
+			        ZAMOUNT_WSJ = #{zamountWsj},
+			      </if>
+			                        <if test="zamountSej != null and ''!=zamountSej" >
+			        ZAMOUNT_SEJ = #{zamountSej},
+			      </if>
+			                        <if test="zamountHzhs != null and ''!=zamountHzhs" >
+			        ZAMOUNT_HZHS = #{zamountHzhs},
+			      </if>
+			                        <if test="zamountHzws != null and ''!=zamountHzws" >
+			        ZAMOUNT_HZWS = #{zamountHzws},
+			      </if>
+			                        <if test="zamountHzse != null and ''!=zamountHzse" >
+			        ZAMOUNT_HZSE = #{zamountHzse},
+			      </if>
+			                        <if test="zamountHsy != null and ''!=zamountHsy" >
+			        ZAMOUNT_HSY = #{zamountHsy},
+			      </if>
+			                        <if test="zamountWsy != null and ''!=zamountWsy" >
+			        ZAMOUNT_WSY = #{zamountWsy},
+			      </if>
+			                        <if test="zamountSey != null and ''!=zamountSey" >
+			        ZAMOUNT_SEY = #{zamountSey},
+			      </if>
+			                        <if test="zpriceHsj != null and ''!=zpriceHsj" >
+			        ZPRICE_HSJ = #{zpriceHsj},
+			      </if>
+			                        <if test="zpriceWsj != null and ''!=zpriceWsj" >
+			        ZPRICE_WSJ = #{zpriceWsj},
+			      </if>
+			                        <if test="zpriceHsy != null and ''!=zpriceHsy" >
+			        ZPRICE_HSY = #{zpriceHsy},
+			      </if>
+			                        <if test="zpriceWsy != null and ''!=zpriceWsy" >
+			        ZPRICE_WSY = #{zpriceWsy},
+			      </if>
+			                        <if test="attribute1 != null and ''!=attribute1" >
+			        attribute1 = #{attribute1},
+			      </if>
+			                        <if test="attribute2 != null and ''!=attribute2" >
+			        attribute2 = #{attribute2},
+			      </if>
+			                        <if test="attribute3 != null and ''!=attribute3" >
+			        attribute3 = #{attribute3},
+			      </if>
+			                     </set>
+		    where  DOC_NUM = #{docNum}
+	</update>
+
+	<!--
+      - ===============================================
+      - 查询 InvoiceOriginalLine 总数
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<select id="count" resultType="java.lang.Integer" parameterType="com.zhys.invoice.po.InvoiceOriginalLine">
+		select count(*)
+		from invoice_original_line
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 InvoiceOriginalLine 信息
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<select id="query" resultMap="RM_InvoiceOriginalLine" parameterType="com.zhys.invoice.po.InvoiceOriginalLine">
+		select 
+        <include refid="sql"/>
+		from invoice_original_line
+		where  DOC_NUM = #{docNum} AND DOC_LINE = #{docLine}
+	</select>
+	
+		<!--
+      - ===============================================
+      - 查询 列表InvoiceOriginalLine 信息
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<select id="queryList" resultMap="RM_InvoiceOriginalLine" parameterType="com.zhys.invoice.po.InvoiceOriginalLine">
+		select 
+        <include refid="sql"/>
+		from invoice_original_line
+		where  DOC_NUM = #{docNum} order by DOC_LINE+0
+	</select>
+
+	<select id="queryList1" resultMap="RM_InvoiceOriginalLine" parameterType="String">
+		select
+		<include refid="sql"/>
+		from invoice_original_line
+        where doc_num = #{docNum,jdbcType=VARCHAR} order by DOC_LINE+0
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 InvoiceOriginalLine 分页信息
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<select id="page" resultMap="RM_InvoiceOriginalLine" parameterType="java.util.HashMap">
+		select 
+        <include refid="sql"/>		
+		from invoice_original_line
+		<where>
+		  <include refid="where"/>
+		</where> 
+	</select>
+	
+	<!--<update id="changeDelStateById" parameterType="com.zhys.invoice.po.InvoiceOriginalLine">-->
+	 <!--update invoice_original_line set del_state=#{delState} where id=#{id}-->
+	<!--</update>-->
+	<!---->
+	<!--<update id="changeDelStateByIds" parameterType="java.util.HashMap">-->
+	 <!--update invoice_original_line set del_state=#{delState} where id in (${ids})-->
+	<!--</update>-->
+</mapper>

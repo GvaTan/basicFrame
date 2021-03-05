@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.anets.dao.UserMapper">
+   <!--  <delete id="findUsers">
+       delete from tb_goods
+       where id in --><!-- (1,2,3,4,5) -->
+      <!--  <foreach collection="ids"
+                open="("
+                close=")"
+                separator=","
+                item="id">
+               #{id}
+       </foreach>
+   </delete>-->
+   
+   <select id="findUsers" resultType="top.anets.pojo.User">
+       select * from user
+   </select>
+   
+</mapper>

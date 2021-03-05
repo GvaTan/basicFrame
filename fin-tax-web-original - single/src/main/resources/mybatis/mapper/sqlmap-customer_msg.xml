@@ -1,0 +1,218 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="customer_msg">
+
+	<!--
+      - ===============================================
+      - 返回 CustomerMsg Entity
+      - @author 11734
+      - @date 2020-06-02
+      - ===============================================
+    -->
+	<resultMap  type="com.zhys.po.CustomerMsg"	   id="RM_CustomerMsg">
+		<id     property="id"               column="id"                jdbcType="BIGINT"     javaType="java.lang.Long"    />
+		<result property="custName"         column="cust_name"         jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custTaxcode"      column="cust_taxcode"      jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custAddress"      column="cust_address"      jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custTelephone"    column="cust_telephone"    jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custBankname"     column="cust_bankname"     jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custBankaccount"  column="cust_bankaccount"  jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custEmail"        column="cust_email"        jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="custMobile"       column="cust_mobile"       jdbcType="VARCHAR"    javaType="java.lang.String"  />
+		<result property="createTime"       column="create_time"       jdbcType="TIMESTAMP"  javaType="java.util.Date"    />
+	</resultMap>
+
+    <!-- sql查询语句-->
+	<sql id="sql">
+				id, 
+    			cust_name, 
+    			cust_taxcode, 
+    			cust_address, 
+    			cust_telephone, 
+    			cust_bankname, 
+    			cust_bankaccount, 
+    			cust_email, 
+    			cust_mobile, 
+    			create_time
+    	</sql>
+	
+	<!-- sql查询语句-->
+	<sql id="where">
+	     1=1
+		                                      <if test="id != null and ''!=id" >
+			         and  id = #{id}
+			      </if>
+			                                 <if test="custName != null and ''!=custName" >
+			         and  cust_name = #{custName}
+			      </if>
+			                                 <if test="custTaxcode != null and ''!=custTaxcode" >
+			         and  cust_taxcode = #{custTaxcode}
+			      </if>
+			                                 <if test="custAddress != null and ''!=custAddress" >
+			         and  cust_address = #{custAddress}
+			      </if>
+			                                 <if test="custTelephone != null and ''!=custTelephone" >
+			         and  cust_telephone = #{custTelephone}
+			      </if>
+			                                 <if test="custBankname != null and ''!=custBankname" >
+			         and  cust_bankname = #{custBankname}
+			      </if>
+			                                 <if test="custBankaccount != null and ''!=custBankaccount" >
+			         and  cust_bankaccount = #{custBankaccount}
+			      </if>
+			                                 <if test="custEmail != null and ''!=custEmail" >
+			         and  cust_email = #{custEmail}
+			      </if>
+			                                 <if test="custMobile != null and ''!=custMobile" >
+			         and  cust_mobile = #{custMobile}
+			      </if>
+			                                 <if test="createTime != null and ''!=createTime" >
+			         and  create_time = #{createTime}
+			      </if>
+			               	</sql>
+
+
+	<!--
+      - ===============================================
+      - 新增 CustomerMsg
+      - @author 11734
+      - @date 2020-06-02
+      - ===============================================
+    -->
+	<insert id="create" parameterType="com.zhys.po.CustomerMsg" useGeneratedKeys="true" keyProperty="id">
+		insert into customer_msg (
+         <include refid="sql"/>
+		) values (
+		    #{id}, 
+		    #{custName}, 
+		    #{custTaxcode}, 
+		    #{custAddress}, 
+		    #{custTelephone}, 
+		    #{custBankname}, 
+		    #{custBankaccount}, 
+		    #{custEmail}, 
+		    #{custMobile}, 
+		    now()
+		)
+	</insert>
+
+	<!--
+      - ===============================================
+      - 修改 CustomerMsg
+      - @author 11734
+      - @date 2020-06-02
+      - ===============================================
+    -->
+	<update id="update" parameterType="com.zhys.po.CustomerMsg">
+	      update customer_msg
+	           <set>
+	                             <if test="id != null and ''!=id" >
+			        id = #{id},
+			      </if>
+			                        <if test="custName != null and ''!=custName" >
+			        cust_name = #{custName},
+			      </if>
+			                        <if test="custTaxcode != null and ''!=custTaxcode" >
+			        cust_taxcode = #{custTaxcode},
+			      </if>
+			                        <if test="custAddress != null and ''!=custAddress" >
+			        cust_address = #{custAddress},
+			      </if>
+			                        <if test="custTelephone != null and ''!=custTelephone" >
+			        cust_telephone = #{custTelephone},
+			      </if>
+			                        <if test="custBankname != null and ''!=custBankname" >
+			        cust_bankname = #{custBankname},
+			      </if>
+			                        <if test="custBankaccount != null and ''!=custBankaccount" >
+			        cust_bankaccount = #{custBankaccount},
+			      </if>
+			                        <if test="custEmail != null and ''!=custEmail" >
+			        cust_email = #{custEmail},
+			      </if>
+			                        <if test="custMobile != null and ''!=custMobile" >
+			        cust_mobile = #{custMobile},
+			      </if>
+			                        <if test="createTime != null and ''!=createTime" >
+			        create_time = #{createTime},
+			      </if>
+			                     </set>
+		    where id = #{id}
+	</update>
+
+	<!--
+      - ===============================================
+      - 查询 CustomerMsg 总数
+      - @author 11734
+      - @date 2020-06-02
+      - ===============================================
+    -->
+	<select id="count" resultType="java.lang.Integer" parameterType="com.zhys.po.CustomerMsg">
+		select count(*)
+		from customer_msg
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 CustomerMsg 信息
+      - @author 11734
+      - @date 2020-06-02
+      - ===============================================
+    -->
+	<select id="query" resultMap="RM_CustomerMsg" parameterType="com.zhys.po.CustomerMsg">
+		select 
+        <include refid="sql"/>
+		from customer_msg
+		where id = #{id}
+	</select>
+
+	<select id="queryByCode" resultMap="RM_CustomerMsg" parameterType="com.zhys.po.CustomerMsg">
+		select
+		<include refid="sql"/>
+		from customer_msg
+		where cust_taxcode = #{custTaxcode}
+	</select>
+	
+		<!--
+      - ===============================================
+      - 查询 列表CustomerMsg 信息
+      - @author 11734
+      - @date 2020-06-02
+      - ===============================================
+    -->
+	<select id="queryList" resultMap="RM_CustomerMsg" parameterType="com.zhys.po.CustomerMsg">
+		select 
+        <include refid="sql"/>
+		from customer_msg
+		<where>
+			<include refid="where"/>
+		</where>
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 CustomerMsg 分页信息
+      - @author 11734
+      - @date 2020-06-02
+      - ===============================================
+    -->
+	<select id="page" resultMap="RM_CustomerMsg" parameterType="java.util.HashMap">
+		select 
+        <include refid="sql"/>		
+		from customer_msg
+		<where>
+		  <include refid="where"/>
+		</where> 
+	</select>
+	
+	<delete id="changeDelStateById" parameterType="com.zhys.po.CustomerMsg">
+	 delete from customer_msg where id=#{id}
+	</delete>
+	
+	<update id="changeDelStateByIds" parameterType="java.util.HashMap">
+	 update customer_msg set del_state=#{delState} where id in (${ids})
+	</update>
+</mapper>

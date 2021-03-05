@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="customized_materials">
+
+	<!--
+      - ===============================================
+      - 返回 CustomizedMaterials Entity
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<resultMap  type="com.zhys.invoice.po.CustomizedMaterials"	   id="RM_CustomizedMaterials">
+		<result property="taxNo"             column="tax_no"              jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="itemNumOriginal"   column="item_num_original"   jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="itemNameOriginal"  column="item_name_original"  jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="itemSpecOriginal"  column="item_spec_original"  jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="unitCodeOriginal"  column="unit_code_original"  jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="unitNameOriginal"  column="unit_name_original"  jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="itemName"          column="item_name"           jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="itemSpec"          column="item_spec"           jdbcType="VARCHAR"  javaType="java.lang.String"  />
+		<result property="unitName"          column="unit_name"           jdbcType="VARCHAR"  javaType="java.lang.String"  />
+	</resultMap>
+
+    <!-- sql查询语句-->
+	<sql id="sql">
+				tax_no, 
+    			item_num_original, 
+    			item_name_original, 
+    			item_spec_original, 
+    			unit_code_original, 
+    			unit_name_original, 
+    			item_name, 
+    			item_spec, 
+    			unit_name
+    	</sql>
+	
+	<!-- sql查询语句-->
+	<sql id="where">
+	     1=1
+		                                      <if test="taxNo != null and ''!=taxNo" >
+			         and  tax_no = #{taxNo}
+			      </if>
+			                                 <if test="itemNumOriginal != null and ''!=itemNumOriginal" >
+			         and  item_num_original = #{itemNumOriginal}
+			      </if>
+			                                 <if test="itemNameOriginal != null and ''!=itemNameOriginal" >
+			         and  item_name_original = #{itemNameOriginal}
+			      </if>
+			                                 <if test="itemSpecOriginal != null and ''!=itemSpecOriginal" >
+			         and  item_spec_original = #{itemSpecOriginal}
+			      </if>
+			                                 <if test="unitCodeOriginal != null and ''!=unitCodeOriginal" >
+			         and  unit_code_original = #{unitCodeOriginal}
+			      </if>
+			                                 <if test="unitNameOriginal != null and ''!=unitNameOriginal" >
+			         and  unit_name_original = #{unitNameOriginal}
+			      </if>
+			                                 <if test="itemName != null and ''!=itemName" >
+			         and  item_name = #{itemName}
+			      </if>
+			                                 <if test="itemSpec != null and ''!=itemSpec" >
+			         and  item_spec = #{itemSpec}
+			      </if>
+			                                 <if test="unitName != null and ''!=unitName" >
+			         and  unit_name = #{unitName}
+			      </if>
+			               	</sql>
+
+
+	<!--
+      - ===============================================
+      - 新增 CustomizedMaterials
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<insert id="create" parameterType="com.zhys.invoice.po.CustomizedMaterials" >
+		insert into customized_materials (
+         <include refid="sql"/>
+		) values (
+		    #{taxNo}, 
+		    #{itemNumOriginal}, 
+		    #{itemNameOriginal}, 
+		    #{itemSpecOriginal}, 
+		    #{unitCodeOriginal}, 
+		    #{unitNameOriginal}, 
+		    #{itemName}, 
+		    #{itemSpec}, 
+		    #{unitName}
+		)
+	</insert>
+
+	<!--
+      - ===============================================
+      - 修改 CustomizedMaterials
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<update id="update" parameterType="com.zhys.invoice.po.CustomizedMaterials">
+	      update customized_materials
+	           <set>
+			                        <if test="itemNumOriginal != null and ''!=itemNumOriginal" >
+			        item_num_original = #{itemNumOriginal},
+			      </if>
+			                        <if test="itemNameOriginal != null and ''!=itemNameOriginal" >
+			        item_name_original = #{itemNameOriginal},
+			      </if>
+			                        <if test="itemSpecOriginal != null and ''!=itemSpecOriginal" >
+			        item_spec_original = #{itemSpecOriginal},
+			      </if>
+			                        <if test="unitCodeOriginal != null and ''!=unitCodeOriginal" >
+			        unit_code_original = #{unitCodeOriginal},
+			      </if>
+			                        <if test="unitNameOriginal != null and ''!=unitNameOriginal" >
+			        unit_name_original = #{unitNameOriginal},
+			      </if>
+			                        <if test="itemName != null and ''!=itemName" >
+			        item_name = #{itemName},
+			      </if>
+			                        <if test="itemSpec != null and ''!=itemSpec" >
+			        item_spec = #{itemSpec},
+			      </if>
+			                        <if test="unitName != null and ''!=unitName" >
+			        unit_name = #{unitName},
+			      </if>
+			                     </set>
+		    where  tax_no = #{taxNo} and item_num_original = #{itemNumOriginal}
+	</update>
+
+	<!--
+      - ===============================================
+      - 查询 CustomizedMaterials 总数
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<select id="count" resultType="java.lang.Integer" parameterType="com.zhys.invoice.po.CustomizedMaterials">
+		select count(*)
+		from customized_materials
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 CustomizedMaterials 信息
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<select id="query" resultMap="RM_CustomizedMaterials" parameterType="com.zhys.invoice.po.CustomizedMaterials">
+		select 
+        <include refid="sql"/>
+		from customized_materials
+		where  tax_no = #{taxNo} and   item_num_original = #{itemNumOriginal}
+	</select>
+	
+		<!--
+      - ===============================================
+      - 查询 列表CustomizedMaterials 信息
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<select id="queryList" resultMap="RM_CustomizedMaterials" parameterType="com.zhys.invoice.po.CustomizedMaterials">
+		select 
+        <include refid="sql"/>
+		from customized_materials
+		<where>
+			<include refid="where"/>
+		</where>
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 CustomizedMaterials 分页信息
+      - @author 11734
+      - @date 2019-01-24
+      - ===============================================
+    -->
+	<select id="page" resultMap="RM_CustomizedMaterials" parameterType="java.util.HashMap">
+		select 
+        <include refid="sql"/>		
+		from customized_materials
+		<where>
+		  <include refid="where"/>
+		</where> 
+	</select>
+	
+	<update id="changeDelStateById" parameterType="com.zhys.invoice.po.CustomizedMaterials">
+	 update customized_materials set del_state=#{delState} where id=#{id}
+	</update>
+	
+	<update id="changeDelStateByIds" parameterType="java.util.HashMap">
+	 update customized_materials set del_state=#{delState} where id in (${ids})
+	</update>
+
+	<delete id="del" parameterType="com.zhys.invoice.po.CustomizedMaterials">
+    delete from customized_materials where tax_no = #{taxNo}  and  item_num_original in (${itemNumOriginal})
+	</delete>
+</mapper>

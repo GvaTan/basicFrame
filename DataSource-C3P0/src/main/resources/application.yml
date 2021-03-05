@@ -1,0 +1,16 @@
+c3p0:
+  jdbcUrl: jdbc:mysql://120.55.95.79:3306/ayun
+  user: root
+  password: 2011199033@mysql
+  driverClass: com.mysql.jdbc.Driver
+  minPoolSize: 2
+  maxPoolSize: 10
+  maxIdleTime: 1800000
+  acquireIncrement: 3
+  maxStatements: 1000
+  initialPoolSize: 3
+  idleConnectionTestPeriod: 60
+  acquireRetryAttempts: 30
+  acquireRetryDelay: 1000
+  breakAfterAcquireFailure: false
+  testConnectionOnCheckout: false

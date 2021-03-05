@@ -1,0 +1,627 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="invoice_split_line">
+
+	<!--
+      - ===============================================
+      - 返回 InvoiceSplitLine Entity
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<resultMap  type="com.zhys.invoice.po.InvoiceSplitLine"	   id="RM_InvoiceSplitLine">
+		<result property="mandt"          column="mandt"           jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="docNum"         column="DOC_NUM"         jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="docLine"        column="DOC_LINE"        jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="groupNum"       column="GROUP_NUM"       jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="groupStatus"    column="GROUP_STATUS"    jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="goldtaxCode"    column="GOLDTAX_CODE"    jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="goldtaxNum"     column="GOLDTAX_NUM"     jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="itemName"       column="ITEM_NAME"       jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="itemSpec"       column="ITEM_SPEC"       jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="unitName"       column="UNIT_NAME"       jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="taxCatecode"    column="TAX_CATECODE"    jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="quantity"       column="quantity"        jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="taxRate"        column="TAX_RATE"        jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="giftFlag"       column="GIFT_FLAG"       jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="zamountHsj"     column="ZAMOUNT_HSJ"     jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountWsj"     column="ZAMOUNT_WSJ"     jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountSej"     column="ZAMOUNT_seJ"     jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountHzhs"    column="ZAMOUNT_HZHS"    jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountHzws"    column="ZAMOUNT_HZWS"    jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountHzse"    column="ZAMOUNT_HZse"    jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountHsy"     column="ZAMOUNT_HSY"     jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountWsy"     column="ZAMOUNT_WSY"     jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zamountSey"     column="ZAMOUNT_seY"     jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zpriceHsj"      column="ZPRICE_HSJ"      jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zpriceWsj"      column="ZPRICE_WSJ"      jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zpriceHsy"      column="ZPRICE_HSY"      jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="zpriceWsy"      column="ZPRICE_WSY"      jdbcType="DECIMAL"  javaType="java.math.BigDecimal"  />
+		<result property="billDate"       column="BILL_DATE"       jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="cancelDate"     column="CANCEL_DATE"     jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="billGdate"      column="BILL_GDATE"      jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="cancelGdate"    column="CANCEL_GDATE"    jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="groupCopyfrom"  column="GROUP_COPYFROM"  jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="attribute1"     column="attribute1"      jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="attribute2"     column="attribute2"      jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="attribute3"     column="attribute3"      jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="dayin"          column="dayin"           jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="jianyan"        column="jianyan"         jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="hsje"           column="hsje"            jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="wsje"           column="wsje"            jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="se"             column="se"              jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="hsjec"          column="hsjec"           jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="wsjec"          column="wsjec"           jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="sec"            column="sec"             jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="groupId"        column="groupId"         jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="invoiceList"    column="INVOICE_LIST"    jdbcType="VARCHAR"     javaType="java.lang.String"      />
+		<result property="eInvId"         column="E_INV_ID"        jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="eInvMsg"        column="E_INV_MSG"       jdbcType="VARCHAR"  javaType="java.lang.String"      />
+		<result property="ePdfUrl"        column="E_PDF_URL"       jdbcType="VARCHAR"  javaType="java.lang.String"      />
+	</resultMap>
+
+    <!-- sql查询语句-->
+	<sql id="sql">
+				mandt, 
+    			DOC_NUM, 
+    			DOC_LINE, 
+    			GROUP_NUM, 
+    			GROUP_STATUS, 
+    			GOLDTAX_CODE, 
+    			GOLDTAX_NUM, 
+    			ITEM_NAME, 
+    			ITEM_SPEC, 
+    			UNIT_NAME, 
+    			TAX_CATECODE, 
+    			quantity, 
+    			TAX_RATE, 
+    			GIFT_FLAG, 
+    			ZAMOUNT_HSJ, 
+    			ZAMOUNT_WSJ, 
+    			ZAMOUNT_seJ, 
+    			ZAMOUNT_HZHS, 
+    			ZAMOUNT_HZWS, 
+    			ZAMOUNT_HZse, 
+    			ZAMOUNT_HSY, 
+    			ZAMOUNT_WSY, 
+    			ZAMOUNT_seY, 
+    			ZPRICE_HSJ, 
+    			ZPRICE_WSJ, 
+    			ZPRICE_HSY, 
+    			ZPRICE_WSY, 
+    			BILL_DATE, 
+    			CANCEL_DATE, 
+    			BILL_GDATE, 
+    			CANCEL_GDATE, 
+    			GROUP_COPYFROM, 
+    			attribute1, 
+    			attribute2, 
+    			attribute3, 
+    			dayin, 
+    			jianyan, 
+    			hsje, 
+    			wsje, 
+    			se, 
+    			hsjec, 
+    			wsjec, 
+    			sec, 
+    			groupId, 
+    			INVOICE_LIST, 
+    			E_INV_ID, 
+    			E_INV_MSG, 
+    			E_PDF_URL
+    	</sql>
+	
+	<!-- sql查询语句-->
+	<sql id="where">
+	     1=1
+		                                      <if test="mandt != null and ''!=mandt" >
+			         and  mandt = #{mandt}
+			      </if>
+			                                 <if test="docNum != null and ''!=docNum" >
+			         and  DOC_NUM = #{docNum}
+			      </if>
+			                                 <if test="docLine != null and ''!=docLine" >
+			         and  DOC_LINE = #{docLine}
+			      </if>
+			                                 <if test="groupNum != null and ''!=groupNum" >
+			         and  GROUP_NUM = #{groupNum}
+			      </if>
+			                                 <if test="groupStatus != null and ''!=groupStatus" >
+			         and  GROUP_STATUS = #{groupStatus}
+			      </if>
+			                                 <if test="goldtaxCode != null and ''!=goldtaxCode" >
+			         and  GOLDTAX_CODE = #{goldtaxCode}
+			      </if>
+			                                 <if test="goldtaxNum != null and ''!=goldtaxNum" >
+			         and  GOLDTAX_NUM = #{goldtaxNum}
+			      </if>
+			                                 <if test="itemName != null and ''!=itemName" >
+			         and  ITEM_NAME = #{itemName}
+			      </if>
+			                                 <if test="itemSpec != null and ''!=itemSpec" >
+			         and  ITEM_SPEC = #{itemSpec}
+			      </if>
+			                                 <if test="unitName != null and ''!=unitName" >
+			         and  UNIT_NAME = #{unitName}
+			      </if>
+			                                 <if test="taxCatecode != null and ''!=taxCatecode" >
+			         and  TAX_CATECODE = #{taxCatecode}
+			      </if>
+			                                 <if test="quantity != null and ''!=quantity" >
+			         and  quantity = #{quantity}
+			      </if>
+			                                 <if test="taxRate != null and ''!=taxRate" >
+			         and  TAX_RATE = #{taxRate}
+			      </if>
+			                                 <if test="giftFlag != null and ''!=giftFlag" >
+			         and  GIFT_FLAG = #{giftFlag}
+			      </if>
+			                                 <if test="zamountHsj != null and ''!=zamountHsj" >
+			         and  ZAMOUNT_HSJ = #{zamountHsj}
+			      </if>
+			                                 <if test="zamountWsj != null and ''!=zamountWsj" >
+			         and  ZAMOUNT_WSJ = #{zamountWsj}
+			      </if>
+			                                 <if test="zamountSej != null and ''!=zamountSej" >
+			         and  ZAMOUNT_seJ = #{zamountSej}
+			      </if>
+			                                 <if test="zamountHzhs != null and ''!=zamountHzhs" >
+			         and  ZAMOUNT_HZHS = #{zamountHzhs}
+			      </if>
+			                                 <if test="zamountHzws != null and ''!=zamountHzws" >
+			         and  ZAMOUNT_HZWS = #{zamountHzws}
+			      </if>
+			                                 <if test="zamountHzse != null and ''!=zamountHzse" >
+			         and  ZAMOUNT_HZse = #{zamountHzse}
+			      </if>
+			                                 <if test="zamountHsy != null and ''!=zamountHsy" >
+			         and  ZAMOUNT_HSY = #{zamountHsy}
+			      </if>
+			                                 <if test="zamountWsy != null and ''!=zamountWsy" >
+			         and  ZAMOUNT_WSY = #{zamountWsy}
+			      </if>
+			                                 <if test="zamountSey != null and ''!=zamountSey" >
+			         and  ZAMOUNT_seY = #{zamountSey}
+			      </if>
+			                                 <if test="zpriceHsj != null and ''!=zpriceHsj" >
+			         and  ZPRICE_HSJ = #{zpriceHsj}
+			      </if>
+			                                 <if test="zpriceWsj != null and ''!=zpriceWsj" >
+			         and  ZPRICE_WSJ = #{zpriceWsj}
+			      </if>
+			                                 <if test="zpriceHsy != null and ''!=zpriceHsy" >
+			         and  ZPRICE_HSY = #{zpriceHsy}
+			      </if>
+			                                 <if test="zpriceWsy != null and ''!=zpriceWsy" >
+			         and  ZPRICE_WSY = #{zpriceWsy}
+			      </if>
+			                                 <if test="billDate != null and ''!=billDate" >
+			         and  BILL_DATE = #{billDate}
+			      </if>
+			                                 <if test="cancelDate != null and ''!=cancelDate" >
+			         and  CANCEL_DATE = #{cancelDate}
+			      </if>
+			                                 <if test="billGdate != null and ''!=billGdate" >
+			         and  BILL_GDATE = #{billGdate}
+			      </if>
+			                                 <if test="cancelGdate != null and ''!=cancelGdate" >
+			         and  CANCEL_GDATE = #{cancelGdate}
+			      </if>
+			                                 <if test="groupCopyfrom != null and ''!=groupCopyfrom" >
+			         and  GROUP_COPYFROM = #{groupCopyfrom}
+			      </if>
+			                                 <if test="attribute1 != null and ''!=attribute1" >
+			         and  attribute1 = #{attribute1}
+			      </if>
+			                                 <if test="attribute2 != null and ''!=attribute2" >
+			         and  attribute2 = #{attribute2}
+			      </if>
+			                                 <if test="attribute3 != null and ''!=attribute3" >
+			         and  attribute3 = #{attribute3}
+			      </if>
+			                                 <if test="dayin != null and ''!=dayin" >
+			         and  dayin = #{dayin}
+			      </if>
+			                                 <if test="jianyan != null and ''!=jianyan" >
+			         and  jianyan = #{jianyan}
+			      </if>
+			                                 <if test="hsje != null and ''!=hsje" >
+			         and  hsje = #{hsje}
+			      </if>
+			                                 <if test="wsje != null and ''!=wsje" >
+			         and  wsje = #{wsje}
+			      </if>
+			                                 <if test="se != null and ''!=se" >
+			         and  se = #{se}
+			      </if>
+			                                 <if test="hsjec != null and ''!=hsjec" >
+			         and  hsjec = #{hsjec}
+			      </if>
+			                                 <if test="wsjec != null and ''!=wsjec" >
+			         and  wsjec = #{wsjec}
+			      </if>
+			                                 <if test="sec != null and ''!=sec" >
+			         and  sec = #{sec}
+			      </if>
+			                                 <if test="groupId != null and ''!=groupId" >
+			         and  groupId = #{groupId}
+			      </if>
+			                                 <if test="invoiceList != null and ''!=invoiceList" >
+			         and  INVOICE_LIST = #{invoiceList}
+			      </if>
+			                                 <if test="eInvId != null and ''!=eInvId" >
+			         and  E_INV_ID = #{eInvId}
+			      </if>
+			                                 <if test="eInvMsg != null and ''!=eInvMsg" >
+			         and  E_INV_MSG = #{eInvMsg}
+			      </if>
+			                                 <if test="ePdfUrl != null and ''!=ePdfUrl" >
+			         and  E_PDF_URL = #{ePdfUrl}
+			      </if>
+			               	</sql>
+
+
+	<!--
+      - ===============================================
+      - 新增 InvoiceSplitLine
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<insert id="create" parameterType="com.zhys.invoice.po.InvoiceSplitLine" >
+		insert into invoice_split_line (
+         <include refid="sql"/>
+		) values (
+		'800',
+		    #{docNum,jdbcType=VARCHAR},
+		    #{docLine,jdbcType=VARCHAR},
+		    #{groupNum,jdbcType=VARCHAR},
+		    #{groupStatus,jdbcType=VARCHAR},
+		    #{goldtaxCode,jdbcType=VARCHAR},
+		    #{goldtaxNum,jdbcType=VARCHAR},
+		    #{itemName,jdbcType=VARCHAR},
+		    #{itemSpec,jdbcType=VARCHAR},
+		    #{unitName,jdbcType=VARCHAR},
+		    #{taxCatecode,jdbcType=VARCHAR},
+		    #{quantity,jdbcType=DECIMAL},
+		    #{taxRate,jdbcType=DECIMAL},
+		    #{giftFlag,jdbcType=VARCHAR},
+		    #{zamountHsj,jdbcType=DECIMAL},
+		    #{zamountWsj,jdbcType=DECIMAL},
+		    #{zamountSej,jdbcType=DECIMAL},
+		    #{zamountHzhs,jdbcType=DECIMAL},
+		    #{zamountHzws,jdbcType=DECIMAL},
+		    #{zamountHzse,jdbcType=DECIMAL},
+		    #{zamountHsy,jdbcType=DECIMAL},
+		    #{zamountWsy,jdbcType=DECIMAL},
+		    #{zamountSey,jdbcType=DECIMAL},
+		    #{zpriceHsj,jdbcType=DECIMAL},
+		    #{zpriceWsj,jdbcType=DECIMAL},
+		    #{zpriceHsy,jdbcType=DECIMAL},
+		    #{zpriceWsy,jdbcType=DECIMAL},
+		    #{billDate,jdbcType=VARCHAR},
+		    #{cancelDate,jdbcType=VARCHAR},
+		    #{billGdate,jdbcType=VARCHAR},
+		    #{cancelGdate,jdbcType=VARCHAR},
+		    #{groupCopyfrom,jdbcType=VARCHAR},
+		    #{attribute1,jdbcType=VARCHAR},
+		    #{attribute2,jdbcType=VARCHAR},
+		    #{attribute3,jdbcType=VARCHAR},
+		    #{dayin,jdbcType=VARCHAR},
+		    0,
+		    #{hsje,jdbcType=VARCHAR},
+		    #{wsje,jdbcType=VARCHAR},
+		    #{se,jdbcType=VARCHAR},
+		    #{hsjec,jdbcType=VARCHAR},
+		    #{wsjec,jdbcType=VARCHAR},
+		    #{sec,jdbcType=VARCHAR},
+		    #{groupId,jdbcType=VARCHAR},
+		    #{invoiceList,jdbcType=VARCHAR},
+		    #{eInvId,jdbcType=VARCHAR},
+		    #{eInvMsg,jdbcType=VARCHAR},
+		    #{ePdfUrl,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<!--
+      - ===============================================
+      - 修改 InvoiceSplitLine
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<update id="update" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+	      update invoice_split_line
+	           <set>
+	                             <if test="mandt != null and ''!=mandt" >
+			        mandt = #{mandt},
+			      </if>
+			                        <if test="docNum != null and ''!=docNum" >
+			        DOC_NUM = #{docNum},
+			      </if>
+			                        <if test="docLine != null and ''!=docLine" >
+			        DOC_LINE = #{docLine},
+			      </if>
+			                        <if test="groupNum != null and ''!=groupNum" >
+			        GROUP_NUM = #{groupNum},
+			      </if>
+			                        <if test="groupStatus != null and ''!=groupStatus" >
+			        GROUP_STATUS = #{groupStatus},
+			      </if>
+			                        <if test="goldtaxCode != null and ''!=goldtaxCode" >
+			        GOLDTAX_CODE = #{goldtaxCode},
+			      </if>
+			                        <if test="goldtaxNum != null and ''!=goldtaxNum" >
+			        GOLDTAX_NUM = #{goldtaxNum},
+			      </if>
+			                        <if test="itemName != null and ''!=itemName" >
+			        ITEM_NAME = #{itemName},
+			      </if>
+			                        <if test="itemSpec != null and ''!=itemSpec" >
+			        ITEM_SPEC = #{itemSpec},
+			      </if>
+			                        <if test="unitName != null and ''!=unitName" >
+			        UNIT_NAME = #{unitName},
+			      </if>
+			                        <if test="taxCatecode != null and ''!=taxCatecode" >
+			        TAX_CATECODE = #{taxCatecode},
+			      </if>
+			                        <if test="quantity != null and ''!=quantity" >
+			        quantity = #{quantity},
+			      </if>
+			                        <if test="taxRate != null and ''!=taxRate" >
+			        TAX_RATE = #{taxRate},
+			      </if>
+			                        <if test="giftFlag != null and ''!=giftFlag" >
+			        GIFT_FLAG = #{giftFlag},
+			      </if>
+			                        <if test="zamountHsj != null and ''!=zamountHsj" >
+			        ZAMOUNT_HSJ = #{zamountHsj},
+			      </if>
+			                        <if test="zamountWsj != null and ''!=zamountWsj" >
+			        ZAMOUNT_WSJ = #{zamountWsj},
+			      </if>
+			                        <if test="zamountSej != null and ''!=zamountSej" >
+			        ZAMOUNT_seJ = #{zamountSej},
+			      </if>
+			                        <if test="zamountHzhs != null and ''!=zamountHzhs" >
+			        ZAMOUNT_HZHS = #{zamountHzhs},
+			      </if>
+			                        <if test="zamountHzws != null and ''!=zamountHzws" >
+			        ZAMOUNT_HZWS = #{zamountHzws},
+			      </if>
+			                        <if test="zamountHzse != null and ''!=zamountHzse" >
+			        ZAMOUNT_HZse = #{zamountHzse},
+			      </if>
+			                        <if test="zamountHsy != null and ''!=zamountHsy" >
+			        ZAMOUNT_HSY = #{zamountHsy},
+			      </if>
+			                        <if test="zamountWsy != null and ''!=zamountWsy" >
+			        ZAMOUNT_WSY = #{zamountWsy},
+			      </if>
+			                        <if test="zamountSey != null and ''!=zamountSey" >
+			        ZAMOUNT_seY = #{zamountSey},
+			      </if>
+			                        <if test="zpriceHsj != null and ''!=zpriceHsj" >
+			        ZPRICE_HSJ = #{zpriceHsj},
+			      </if>
+			                        <if test="zpriceWsj != null and ''!=zpriceWsj" >
+			        ZPRICE_WSJ = #{zpriceWsj},
+			      </if>
+			                        <if test="zpriceHsy != null and ''!=zpriceHsy" >
+			        ZPRICE_HSY = #{zpriceHsy},
+			      </if>
+			                        <if test="zpriceWsy != null and ''!=zpriceWsy" >
+			        ZPRICE_WSY = #{zpriceWsy},
+			      </if>
+			                        <if test="billDate != null and ''!=billDate" >
+			        BILL_DATE = #{billDate},
+			      </if>
+			                        <if test="cancelDate != null and ''!=cancelDate" >
+			        CANCEL_DATE = #{cancelDate},
+			      </if>
+			                        <if test="billGdate != null and ''!=billGdate" >
+			        BILL_GDATE = #{billGdate},
+			      </if>
+			                        <if test="cancelGdate != null and ''!=cancelGdate" >
+			        CANCEL_GDATE = #{cancelGdate},
+			      </if>
+			                        <if test="groupCopyfrom != null and ''!=groupCopyfrom" >
+			        GROUP_COPYFROM = #{groupCopyfrom},
+			      </if>
+			                        <if test="attribute1 != null and ''!=attribute1" >
+			        attribute1 = #{attribute1},
+			      </if>
+			                        <if test="attribute2 != null and ''!=attribute2" >
+			        attribute2 = #{attribute2},
+			      </if>
+			                        <if test="attribute3 != null and ''!=attribute3" >
+			        attribute3 = #{attribute3},
+			      </if>
+			                        <if test="dayin != null and ''!=dayin" >
+			        dayin = #{dayin},
+			      </if>
+			                        <if test="jianyan != null and ''!=jianyan" >
+			        jianyan = #{jianyan},
+			      </if>
+			                        <if test="hsje != null and ''!=hsje" >
+			        hsje = #{hsje},
+			      </if>
+			                        <if test="wsje != null and ''!=wsje" >
+			        wsje = #{wsje},
+			      </if>
+			                        <if test="se != null and ''!=se" >
+			        se = #{se},
+			      </if>
+			                        <if test="hsjec != null and ''!=hsjec" >
+			        hsjec = #{hsjec},
+			      </if>
+			                        <if test="wsjec != null and ''!=wsjec" >
+			        wsjec = #{wsjec},
+			      </if>
+			                        <if test="sec != null and ''!=sec" >
+			        sec = #{sec},
+			      </if>
+			                        <if test="groupId != null and ''!=groupId" >
+			        groupId = #{groupId},
+			      </if>
+			                        <if test="invoiceList != null and ''!=invoiceList" >
+			        INVOICE_LIST = #{invoiceList},
+			      </if>
+			                        <if test="eInvId != null and ''!=eInvId" >
+			        E_INV_ID = #{eInvId},
+			      </if>
+			                        <if test="eInvMsg != null and ''!=eInvMsg" >
+			        E_INV_MSG = #{eInvMsg},
+			      </if>
+			                        <if test="ePdfUrl != null and ''!=ePdfUrl" >
+			        E_PDF_URL = #{ePdfUrl},
+			      </if>
+			                     </set>
+		    where  DOC_NUM = #{docNum,jdbcType=VARCHAR}
+	</update>
+
+	<!--
+      - ===============================================
+      - 查询 InvoiceSplitLine 总数
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<select id="count" resultType="java.lang.Integer" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+		select count(*)
+		from invoice_split_line
+	</select>
+
+	<!--
+      - ===============================================
+      - 查询 InvoiceSplitLine 信息
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<select id="query" resultMap="RM_InvoiceSplitLine" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+		select 
+        <include refid="sql"/>
+		from invoice_split_line
+		where  DOC_NUM = #{docNum,jdbcType=VARCHAR} and GROUP_NUM = #{groupNum}
+	</select>
+
+	<select id="queryLike" resultMap="RM_InvoiceSplitLine" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+		select
+		<include refid="sql"/>
+		from invoice_split_line
+		where  DOC_NUM = #{docNum,jdbcType=VARCHAR} and GROUP_NUM in (${groupNum})
+	</select>
+	
+		<!--
+      - ===============================================
+      - 查询 列表InvoiceSplitLine 信息
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<select id="queryList" resultMap="RM_InvoiceSplitLine" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+		select 
+        <include refid="sql"/>
+		from invoice_split_line
+		where doc_num = #{docNum,jdbcType=VARCHAR}  order by GROUP_NUM+0,DOC_LINE+0
+	</select>
+	<select id="queryList1" resultMap="RM_InvoiceSplitLine" parameterType="String">
+		select
+		<include refid="sql"/>
+		from invoice_split_line
+        where doc_num = #{docNum,jdbcType=VARCHAR} order by GROUP_NUM+0,DOC_LINE+0
+	</select>
+	<!--
+      - ===============================================
+      - 查询 InvoiceSplitLine 分页信息
+      - @author 11734
+      - @date 2018-12-24
+      - ===============================================
+    -->
+	<select id="page" resultMap="RM_InvoiceSplitLine" parameterType="java.util.HashMap">
+		select 
+        <include refid="sql"/>		
+		from invoice_split_line
+		<where>
+		  <include refid="where"/>
+		</where> 
+	</select>
+	
+	<update id="changeDelStateById" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+	 update invoice_split_line set GROUP_STATUS=#{groupStatus} where DOC_NUM=#{docNum}
+	</update>
+	
+	<update id="changeDelStateByIds" parameterType="java.util.HashMap">
+	 update invoice_split_line set GROUP_STATUS=#{groupStatus} where DOC_NUM in (${docNums})
+	</update>
+
+
+	<delete id="del" parameterType="com.zhys.invoice.po.InvoiceHead">
+		delete from invoice_split_line where doc_num = #{docNum,jdbcType=VARCHAR}
+	</delete>
+
+	<!-- 撤销提交-->
+
+	<update id="cancelCommit" parameterType="com.zhys.invoice.po.InvoiceSplitLine" >
+		update invoice_head set BILL_DATE = null,doc_status=0 where doc_num = #{docNum,jdbcType=VARCHAR} and doc_status=1;
+		update invoice_split_line set BILL_DATE = null,group_status=0 where doc_num = #{docNum,jdbcType=VARCHAR} and group_status=1;
+	</update>
+
+	<!-- 整单作废-->
+
+	<update id="abolishAll" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+		update invoice_head set cancel_date=#{cancelDate,jdbcType=VARCHAR} ,doc_status=3 where doc_num = #{docNum,jdbcType=VARCHAR} and doc_status=2;
+		update invoice_split_line set  cancel_date=#{cancelDate,jdbcType=VARCHAR} ,group_status=3 where doc_num = #{docNum,jdbcType=VARCHAR} and group_status=2;
+	</update>
+
+	<!-- 分组作废-->
+
+	<update id="abolishOne" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+		update invoice_split_line set cancel_date=#{cancelDate,jdbcType=VARCHAR} , group_status=3 where doc_num = #{docNum,jdbcType=VARCHAR} and group_num in (${groupNum}) and group_status=2;
+	</update>
+
+	<!-- 撤销整单作废-->
+
+	<update id="cancelAbolishAll" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+		update invoice_head set cancel_date=null , doc_status=2 where doc_num = #{docNum,jdbcType=VARCHAR} and doc_status=3;
+		update invoice_split_line set cancel_date=null ,group_status=2 where doc_num = #{docNum,jdbcType=VARCHAR} and group_status=3;
+	</update>
+
+	<!-- 撤销分组作废-->
+
+	<update id="cancelAbolishOne" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+		update invoice_head set cancel_date=null , doc_status=2 where doc_num = #{docNum,jdbcType=VARCHAR} ;
+		update invoice_split_line  set cancel_date=null ,group_status=2 where doc_num = #{docNum,jdbcType=VARCHAR} and group_num in (${groupNum}) and group_status=3;
+	</update>
+
+
+	<update id="hf" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+		update invoice_split_line  set goldtax_code=null where doc_num = #{docNum,jdbcType=VARCHAR} and group_num =#{groupNum,jdbcType=VARCHAR}
+	</update>
+
+	<update id="hfByDocNum" parameterType="com.zhys.invoice.po.InvoiceHead">
+		update invoice_split_line  set goldtax_code=null where doc_num = #{docNum,jdbcType=VARCHAR}
+	</update>
+
+
+	<select id="queryListByDocNum" resultMap="RM_InvoiceSplitLine" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+		select
+		<include refid="sql"/>
+		from invoice_split_line
+		where  DOC_NUM = #{docNum,jdbcType=VARCHAR}
+	</select>
+
+	<select id="queryOneByCodeAndNum" resultMap="RM_InvoiceSplitLine" parameterType="com.zhys.invoice.po.InvoiceSplitLine">
+		select
+		<include refid="sql"/>
+		from invoice_split_line
+		where  GOLDTAX_CODE = #{goldtaxCode,jdbcType=VARCHAR} and GOLDTAX_NUM = #{goldtaxNum,jdbcType=VARCHAR} limit 1
+	</select>
+
+</mapper>

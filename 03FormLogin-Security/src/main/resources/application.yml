@@ -1,0 +1,7 @@
+server:
+  port: 1314
+spring:
+  thymeleaf:
+    prefix: classpath:/templates/pages/ 
+    suffix: .html
+    cache: false
